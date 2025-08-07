@@ -5,6 +5,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hook/useAuth";
 
+// Import shadcn UI components
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Alert } from "@/components/ui/alert";
+
 // Define an interface for API error responses
 interface ApiError {
   data: {
@@ -87,99 +94,92 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-20 p-6 border rounded shadow-lg">
-      <h1 className="text-2xl font-bold mb-4">Login to Your Account</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <label htmlFor="identifier" className="block text-sm font-medium">
-            Email or Phone
-          </label>
-          <input
-            id="identifier"
-            type="text"
-            placeholder="Enter your email or phone"
-            value={identifier}
-            onChange={e => setIdentifier(e.target.value)}
-            onBlur={() => handleBlur('identifier')}
-            className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-              identifierError ? "border-red-500" : ""
-            }`}
-            required
-            autoComplete="username"
-            disabled={loginLoading}
-            aria-invalid={!!identifierError}
-            aria-describedby={identifierError ? "identifier-error" : undefined}
-          />
-          {identifierError && (
-            <p id="identifier-error" className="text-red-500 text-sm mt-1">
-              {identifierError}
-            </p>
-          )}
-        </div>
+    <div className="container max-w-md mx-auto py-10">
+      <Card>
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">Login</CardTitle>
+          <CardDescription className="text-center">
+            Enter your credentials to access your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="identifier">Email or Phone</Label>
+              <Input
+                id="identifier"
+                type="text"
+                placeholder="Enter your email or phone"
+                value={identifier}
+                onChange={e => setIdentifier(e.target.value)}
+                onBlur={() => handleBlur('identifier')}
+                aria-invalid={!!identifierError}
+                disabled={loginLoading}
+                aria-describedby={identifierError ? "identifier-error" : undefined}
+                autoComplete="username"
+                className={identifierError ? "border-destructive" : ""}
+              />
+              {identifierError && (
+                <p id="identifier-error" className="text-destructive text-sm">
+                  {identifierError}
+                </p>
+              )}
+            </div>
 
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <label htmlFor="password" className="block text-sm font-medium">
-              Password
-            </label>
-            <Link
-              href="/reset-password"
-              className="text-sm text-blue-600 hover:underline"
-              aria-label="Forgot password? Reset it here"
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                <Link
+                  href="/reset-password"
+                  className="text-sm text-primary hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                onBlur={() => handleBlur('password')}
+                disabled={loginLoading}
+                aria-invalid={!!passwordError}
+                aria-describedby={passwordError ? "password-error" : undefined}
+                autoComplete="current-password"
+                className={passwordError ? "border-destructive" : ""}
+              />
+              {passwordError && (
+                <p id="password-error" className="text-destructive text-sm">
+                  {passwordError}
+                </p>
+              )}
+            </div>
+
+            {error && (
+              <Alert variant="destructive">
+                {error}
+              </Alert>
+            )}
+
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loginLoading || !isFormValid}
             >
-              Forgot password?
-            </Link>
-          </div>
-          <input
-            id="password"
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            onBlur={() => handleBlur('password')}
-            className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-              passwordError ? "border-red-500" : ""
-            }`}
-            required
-            autoComplete="current-password"
-            disabled={loginLoading}
-            aria-invalid={!!passwordError}
-            aria-describedby={passwordError ? "password-error" : undefined}
-          />
-          {passwordError && (
-            <p id="password-error" className="text-red-500 text-sm mt-1">
-              {passwordError}
-            </p>
-          )}
-        </div>
-
-        {error && (
-          <div
-            className="p-3 bg-red-50 border border-red-200 text-red-700 rounded"
-            role="alert"
-          >
-            {error}
-          </div>
-        )}
-
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none transition disabled:opacity-50 disabled:bg-blue-400"
-          disabled={loginLoading || !isFormValid}
-          aria-busy={loginLoading}
-        >
-          {loginLoading ? "Logging in..." : "Login"}
-        </button>
-
-        <div className="mt-4 text-center">
-          <p className="text-sm">
+              {loginLoading ? "Logging in..." : "Login"}
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter className="flex justify-center">
+          <p className="text-sm text-center">
             Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-blue-600 hover:underline">
+            <Link href="/register" className="text-primary hover:underline">
               Register here
             </Link>
           </p>
-        </div>
-      </form>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

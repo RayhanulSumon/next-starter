@@ -1,23 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/hook/useAuth";
 import type { RegisterData } from '@/types/auth';
 import { UserRole } from '@/types/auth';
 
-export default function RegisterPage() {
-  const { register, user, loading: authLoading } = useAuth();
-  const router = useRouter();
-  const [form, setForm] = useState<RegisterData>({
-    name: "",
-    email: "",
-    phone: "",
-    password: "",
-    password_confirmation: "",
-    role: UserRole.USER,
-  });
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
   // Use effect for redirecting when user state changes
   useEffect(() => {
@@ -49,6 +35,20 @@ export default function RegisterPage() {
   };
 
   return (
+    <div className="max-w-md mx-auto mt-20 p-6 border rounded">
+      <h1 className="text-2xl font-bold mb-4">Register</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="text"
+          name="name"
+          placeholder="Name"
+          value={form.name}
+          onChange={handleChange}
+          className="w-full p-2 border rounded"
+          required
+        />
+        <input
+          type="email"
     <div className="max-w-md mx-auto mt-20 p-6 border rounded">
       <h1 className="text-2xl font-bold mb-4">Register</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -117,6 +117,3 @@ export default function RegisterPage() {
           {loading ? "Registering..." : "Register"}
         </button>
       </form>
-    </div>
-  );
-}
