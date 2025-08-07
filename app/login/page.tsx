@@ -5,6 +5,25 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hook/useAuth";
 
+// Define an interface for API error responses
+interface ApiError {
+  data: {
+    message?: string;
+    [key: string]: unknown; // Changed from any to unknown to satisfy ESLint rules
+  };
+}
+
+// Type guard to check if an error is an API error
+function isApiError(err: unknown): err is ApiError {
+  return Boolean(
+    err &&
+    typeof err === 'object' &&
+    'data' in err &&
+    err.data &&
+    typeof err.data === 'object'
+  );
+}
+
 export default function LoginPage() {
   // Use enhanced auth context with loginLoading state
   const { login, user, loginLoading, loading: authLoading } = useAuth();
@@ -33,9 +52,9 @@ export default function LoginPage() {
       await login(identifier, password);
       // No need to redirect here, the useEffect will handle it
     } catch (err: unknown) {
-      // Improved error handling
-      if (err && typeof err === 'object' && 'data' in err && err.data) {
-        // Handle structured API errors
+      // Improved error handling with proper type checking
+      if (isApiError(err)) {
+        // Handle structured API errors with type-safe access to message
         setError(err.data.message || "Login failed");
       } else if (err instanceof Error) {
         setError(err.message || "Login failed");
@@ -111,7 +130,7 @@ export default function LoginPage() {
 
         <div className="mt-4 text-center">
           <p className="text-sm">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link href="/register" className="text-blue-600 hover:underline">
               Register here
             </Link>
