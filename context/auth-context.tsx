@@ -29,7 +29,21 @@ interface EnhancedAuthContextType extends AuthContextType {
   requestResetLoading: boolean;
 }
 
-const AuthContext = createContext<EnhancedAuthContextType | undefined>(undefined);
+// Create a context with a default value that satisfies TypeScript but will be overridden by the provider
+const AuthContext = createContext<EnhancedAuthContextType>({
+  user: null,
+  loading: false,
+  loginLoading: false,
+  registerLoading: false,
+  resetLoading: false,
+  requestResetLoading: false,
+  login: async () => { throw new Error('AuthContext not initialized') },
+  logout: async () => { throw new Error('AuthContext not initialized') },
+  register: async () => { throw new Error('AuthContext not initialized') },
+  fetchUser: async () => { throw new Error('AuthContext not initialized') },
+  requestPasswordReset: async () => { throw new Error('AuthContext not initialized') },
+  resetPassword: async () => { throw new Error('AuthContext not initialized') },
+});
 
 export const AuthProvider = ({
   children,
@@ -122,6 +136,9 @@ export const AuthProvider = ({
     setRequestResetLoading(true);
     try {
       return await requestPasswordReset(data);
+    } catch (error) {
+      console.error('Password reset request error:', error);
+      throw error;
     } finally {
       setRequestResetLoading(false);
     }
@@ -132,6 +149,9 @@ export const AuthProvider = ({
     setResetLoading(true);
     try {
       return await resetPassword(data);
+    } catch (error) {
+      console.error('Password reset error:', error);
+      throw error;
     } finally {
       setResetLoading(false);
     }
@@ -139,10 +159,10 @@ export const AuthProvider = ({
 
   // Fetch user on mount if not provided initially
   useEffect(() => {
-    if (!initialUser && loading) {
+    if (!initialUser && !user) {
       void fetchUser();
     }
-  }, [fetchUser, initialUser, loading]);
+  }, [fetchUser, initialUser, user]);
 
   // Memoize context value for performance
   const value = useMemo(() => ({

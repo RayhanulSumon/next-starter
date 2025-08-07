@@ -9,7 +9,7 @@ import { useAuth } from "@/hook/useAuth";
 interface ApiError {
   data: {
     message?: string;
-    [key: string]: unknown; // Changed from any to unknown to satisfy ESLint rules
+    [key: string]: unknown;
   };
 }
 
@@ -29,10 +29,19 @@ export default function LoginPage() {
   const { login, user, loginLoading, loading: authLoading } = useAuth();
   const router = useRouter();
 
-  // Form state
+  // Form state with validation
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [touched, setTouched] = useState({
+    identifier: false,
+    password: false
+  });
+
+  // Derived validation states
+  const identifierError = touched.identifier && !identifier ? "Email or phone is required" : null;
+  const passwordError = touched.password && !password ? "Password is required" : null;
+  const isFormValid = identifier && password;
 
   // Redirect when authenticated
   useEffect(() => {
@@ -41,8 +50,21 @@ export default function LoginPage() {
     }
   }, [user, authLoading, router]);
 
+  // Handle field blur for validation
+  const handleBlur = (field: 'identifier' | 'password') => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // Mark all fields as touched for validation
+    setTouched({ identifier: true, password: true });
+
+    // Check form validity
+    if (!isFormValid) {
+      return;
+    }
 
     // Clear previous errors
     setError(null);
@@ -78,11 +100,21 @@ export default function LoginPage() {
             placeholder="Enter your email or phone"
             value={identifier}
             onChange={e => setIdentifier(e.target.value)}
-            className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            onBlur={() => handleBlur('identifier')}
+            className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+              identifierError ? "border-red-500" : ""
+            }`}
             required
             autoComplete="username"
             disabled={loginLoading}
+            aria-invalid={!!identifierError}
+            aria-describedby={identifierError ? "identifier-error" : undefined}
           />
+          {identifierError && (
+            <p id="identifier-error" className="text-red-500 text-sm mt-1">
+              {identifierError}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -93,6 +125,7 @@ export default function LoginPage() {
             <Link
               href="/reset-password"
               className="text-sm text-blue-600 hover:underline"
+              aria-label="Forgot password? Reset it here"
             >
               Forgot password?
             </Link>
@@ -103,11 +136,21 @@ export default function LoginPage() {
             placeholder="Enter your password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            onBlur={() => handleBlur('password')}
+            className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+              passwordError ? "border-red-500" : ""
+            }`}
             required
             autoComplete="current-password"
             disabled={loginLoading}
+            aria-invalid={!!passwordError}
+            aria-describedby={passwordError ? "password-error" : undefined}
           />
+          {passwordError && (
+            <p id="password-error" className="text-red-500 text-sm mt-1">
+              {passwordError}
+            </p>
+          )}
         </div>
 
         {error && (
@@ -122,7 +165,7 @@ export default function LoginPage() {
         <button
           type="submit"
           className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none transition disabled:opacity-50 disabled:bg-blue-400"
-          disabled={loginLoading}
+          disabled={loginLoading || !isFormValid}
           aria-busy={loginLoading}
         >
           {loginLoading ? "Logging in..." : "Login"}

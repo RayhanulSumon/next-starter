@@ -1,11 +1,31 @@
 "use client";
 import { useAuth } from "@/hook/useAuth";
+import { UserRole } from "@/types/auth";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+
+// Dashboard card component for better UI organization
+function DashboardCard({
+  title,
+  children,
+  className = "",
+}: {
+  title: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={`bg-white rounded-lg shadow p-6 ${className}`}>
+      <h2 className="text-lg font-medium text-gray-900 mb-4">{title}</h2>
+      {children}
+    </div>
+  );
+}
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
     if (!loading && !user) {
@@ -14,7 +34,11 @@ export default function DashboardPage() {
   }, [user, loading, router]);
 
   if (loading) {
-    return <div className="max-w-md mx-auto mt-20 p-6 border rounded text-center">Loading...</div>;
+    return (
+      <div className="max-w-md mx-auto mt-20 p-6 border rounded text-center">
+        Loading...
+      </div>
+    );
   }
 
   if (!user) {
@@ -26,11 +50,88 @@ export default function DashboardPage() {
     );
   }
 
+  // Stats for the overview tab
+  const stats = [
+    { name: "Total Sessions", value: "24" },
+    { name: "Active Time", value: "5.2 hrs" },
+    { name: "Completion Rate", value: "68%" },
+  ];
+
   return (
-    <div className="max-w-md mx-auto mt-20 p-6 border rounded text-center">
-      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
-      <p>Welcome, {user.name || "User"}!</p>
-      <p>Your email: {user.email}</p>
+    <div className="space-y-6">
+      <div className="border-b border-gray-200">
+        <nav className="-mb-px flex space-x-8">
+          {["overview", "activity", "settings"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`
+                whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+                ${
+                  activeTab === tab
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }
+              `}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      {activeTab === "overview" && (
+        <div className="space-y-6">
+          <DashboardCard title="User Information">
+            <div className="space-y-2">
+              <p>
+                <span className="font-medium">Name:</span> {user.name}
+              </p>
+              <p>
+                <span className="font-medium">Email:</span>{" "}
+                {user.email || "Not provided"}
+              </p>
+              <p>
+                <span className="font-medium">Phone:</span>{" "}
+                {user.phone || "Not provided"}
+              </p>
+              <p>
+                <span className="font-medium">Role:</span>{" "}
+                {user.role || UserRole.USER}
+              </p>
+            </div>
+          </DashboardCard>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {stats.map((stat) => (
+              <DashboardCard key={stat.name} title={stat.name} className="text-center">
+                <div className="text-3xl font-semibold text-blue-600">
+                  {stat.value}
+                </div>
+              </DashboardCard>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {activeTab === "activity" && (
+        <DashboardCard title="Recent Activity">
+          <p className="text-gray-500">No recent activity to display.</p>
+        </DashboardCard>
+      )}
+
+      {activeTab === "settings" && (
+        <DashboardCard title="Account Settings">
+          <p className="text-gray-500 mb-4">
+            Manage your account settings and preferences
+          </p>
+          <button
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            Update Profile
+          </button>
+        </DashboardCard>
+      )}
     </div>
   );
 }
