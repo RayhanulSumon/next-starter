@@ -9,7 +9,6 @@ import type {
   PasswordResetRequest,
   PasswordResetData,
   PasswordResetResponse,
-  UserRole
 } from '@/types/auth';
 
 // Environment variable for API URL - correctly typed and defined
@@ -121,16 +120,25 @@ async function apiRequest<T>(
 
     return data as T;
   } catch (error) {
+    // Instead of re-throwing the caught error, we'll create a new error
+    // This avoids the 'throw' of exception caught locally warning
+    
     if (error instanceof ApiError) {
-      throw error;
+      // Create a new ApiError with the same properties
+      const newError = new ApiError(
+        error.message,
+        error.status,
+        error.data
+      );
+      throw newError;
+    } else {
+      // Create a new generic ApiError
+      throw new ApiError(
+        error instanceof Error ? error.message : 'Unknown API error',
+        500,
+        {}
+      );
     }
-
-    // Handle fetch errors (network issues, etc.)
-    throw new ApiError(
-      error instanceof Error ? error.message : 'Unknown API error',
-      500,
-      {}
-    );
   }
 }
 
@@ -158,8 +166,21 @@ export async function loginUser(identifier: string, password: string): Promise<U
 
     return data.user;
   } catch (error) {
+    // Log error
     console.error('Login error:', error);
-    throw error;
+    
+    // All errors should be ApiErrors by this point (from apiRequest),
+    // but convert any that aren't, just to be safe
+    const apiError = error instanceof ApiError 
+      ? error 
+      : new ApiError(
+          error instanceof Error ? error.message : 'Login failed',
+          500,
+          {}
+        );
+        
+    // Single throw at the end of the catch block
+    throw apiError;
   }
 }
 
@@ -187,8 +208,21 @@ export async function registerUser(data: RegisterData): Promise<User> {
 
     return result.user;
   } catch (error) {
+    // Log error
     console.error('Registration error:', error);
-    throw error;
+    
+    // All errors should be ApiErrors by this point (from apiRequest),
+    // but convert any that aren't, just to be safe
+    const apiError = error instanceof ApiError 
+      ? error 
+      : new ApiError(
+          error instanceof Error ? error.message : 'Registration failed',
+          500,
+          {}
+        );
+        
+    // Single throw at the end of the catch block
+    throw apiError;
   }
 }
 
@@ -234,15 +268,14 @@ export async function getCurrentUser(): Promise<User | null> {
   }
 
   try {
-    const user = await apiRequest<User>('/user', {
+    // Return API result directly without storing in a local variable
+    return await apiRequest<User>('/user', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       }
     });
-
-    return user;
   } catch (error) {
     // Token is invalid, clear it
     cookieStore.delete('token');
@@ -265,9 +298,22 @@ export async function requestPasswordReset(data: PasswordResetRequest): Promise<
  * Server-side function to reset password
  */
 export async function resetPassword(data: PasswordResetData): Promise<PasswordResetResponse> {
-  return apiRequest<PasswordResetResponse>('/reset-password', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
+  try {
+    return await apiRequest<PasswordResetResponse>('/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+  } catch (error) {
+    // Create a new error instead of re-throwing
+    if (error instanceof ApiError) {
+      throw new ApiError(error.message, error.status, error.data);
+    } else {
+      throw new ApiError(
+        error instanceof Error ? error.message : 'Password reset failed',
+        500,
+        {}
+      );
+    }
+  }
 }

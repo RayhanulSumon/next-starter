@@ -26,7 +26,7 @@ export default async function RootLayout({
 }>) {
   // Fetch the current user on the server side
   const initialUser = await getCurrentUser();
-
+  
   return (
     <html lang="en">
       <body
