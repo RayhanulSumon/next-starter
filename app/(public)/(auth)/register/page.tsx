@@ -3,12 +3,26 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { RegisterData } from '@/types/auth';
 import { UserRole } from '@/types/auth';
+import { useAuth } from "@/hook/useAuth";
+import { ApiError } from "@/app/actions/shared";
 
+export default function RegisterPage() {
+  const { register, user, loading: authLoading } = useAuth();
+  const [form, setForm] = useState<RegisterData & { phone: string; password_confirmation: string }>({
+    name: "",
+    email: "",
+    password: "",
+    password_confirmation: "",
+    phone: "",
+    role: UserRole.USER,
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
 
-  // Use effect for redirecting when user state changes
   useEffect(() => {
     if (user && !authLoading) {
-      router.replace("/dashboard");
+      router.replace("/user/dashboard");
     }
   }, [user, authLoading, router]);
 
@@ -16,39 +30,25 @@ import { UserRole } from '@/types/auth';
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    try {
-      await register(form);
-      router.push("/dashboard");
-    } catch (err: unknown) {
-      if (err && typeof err === 'object' && 'response' in err) {
-        setError((err as any)?.response?.data?.message || "Registration failed");
-      } else {
-        setError("Registration failed");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setLoading(true);
+        setError("");
+        try {
+            await register(form);
+            router.push("/user/dashboard");
+        } catch (err: unknown) {
+            if (err && typeof err === 'object' && 'response' in err) {
+                setError((err as any)?.response?.data?.message || "Registration failed");
+            } else {
+                setError("Registration failed");
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
 
   return (
-    <div className="max-w-md mx-auto mt-20 p-6 border rounded">
-      <h1 className="text-2xl font-bold mb-4">Register</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          name="name"
-          placeholder="Name"
-          value={form.name}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          required
-        />
-        <input
-          type="email"
     <div className="max-w-md mx-auto mt-20 p-6 border rounded">
       <h1 className="text-2xl font-bold mb-4">Register</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -108,12 +108,15 @@ import { UserRole } from '@/types/auth';
           className="w-full p-2 border rounded"
           required
         />
-        {error && <div className="text-red-500">{error}</div>}
+        {error && <div className="text-red-500 text-sm">{error}</div>}
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white p-2 rounded disabled:opacity-50"
+          className="w-full bg-blue-600 text-white py-2 rounded disabled:opacity-50"
           disabled={loading}
         >
-          {loading ? "Registering..." : "Register"}
+            {loading ? "Registering..." : "Register"}
         </button>
       </form>
+    </div>
+  );
+}

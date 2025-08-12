@@ -12,14 +12,10 @@ import type {
 import { UserRole } from '@/types/auth';
 
 // Import server actions
-import {
-  loginUser,
-  registerUser,
-  logoutUser,
-  getCurrentUser,
-  requestPasswordReset,
-  resetPassword
-} from '@/app/actions/auth';
+import { loginAction } from '@/app/actions/auth/loginAction';
+import { registerAction } from '@/app/actions/auth/registerAction';
+import { requestPasswordReset, resetPasswordAction } from '@/app/actions/auth/resetPasswordAction';
+import { logoutUserAction } from '@/app/actions/auth/logOutAction';
 
 // Enhanced AuthContext with loading states for different operations
 interface EnhancedAuthContextType extends AuthContextType {
@@ -40,7 +36,6 @@ const AuthContext = createContext<EnhancedAuthContextType>({
   login: async () => { throw new Error('AuthContext not initialized') },
   logout: async () => { throw new Error('AuthContext not initialized') },
   register: async () => { throw new Error('AuthContext not initialized') },
-  fetchUser: async () => { throw new Error('AuthContext not initialized') },
   requestPasswordReset: async () => { throw new Error('AuthContext not initialized') },
   resetPassword: async () => { throw new Error('AuthContext not initialized') },
 });
@@ -65,27 +60,11 @@ export const AuthProvider = ({
   // Use transition for smoother UI updates
   const [isPending, startTransition] = useTransition();
 
-  // Fetch the current user
-  const fetchUser = useCallback(async (): Promise<void> => {
-    setLoading(true);
-    try {
-      const userData = await getCurrentUser();
-      startTransition(() => {
-        setUser(userData);
-      });
-    } catch (error) {
-      console.error('Error fetching user:', error);
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   // Login with identifier (email or phone) and password
   const login = useCallback(async (identifier: string, password: string): Promise<void> => {
     setLoginLoading(true);
     try {
-      const userData = await loginUser(identifier, password);
+      const userData = await loginAction(identifier, password);
       startTransition(() => {
         setUser(userData);
       });
@@ -106,7 +85,7 @@ export const AuthProvider = ({
         data.role = UserRole.USER; // Default to user if invalid role
       }
 
-      const userData = await registerUser(data);
+      const userData = await registerAction(data);
       startTransition(() => {
         setUser(userData);
       });
@@ -121,7 +100,7 @@ export const AuthProvider = ({
   // Logout the current user
   const logout = useCallback(async (): Promise<void> => {
     try {
-      await logoutUser();
+      await logoutUserAction();
       startTransition(() => {
         setUser(null);
       });
@@ -148,7 +127,7 @@ export const AuthProvider = ({
   const handleResetPassword = useCallback(async (data: PasswordResetData): Promise<PasswordResetResponse> => {
     setResetLoading(true);
     try {
-      return await resetPassword(data);
+      return await resetPasswordAction(data);
     } catch (error) {
       console.error('Password reset error:', error);
       throw error;
@@ -156,13 +135,6 @@ export const AuthProvider = ({
       setResetLoading(false);
     }
   }, []);
-
-  // Fetch user on mount if not provided initially
-  useEffect(() => {
-    if (!initialUser && !user) {
-      void fetchUser();
-    }
-  }, [fetchUser, initialUser, user]);
 
   // Memoize context value for performance
   const value = useMemo(() => ({
@@ -175,7 +147,6 @@ export const AuthProvider = ({
     login,
     logout,
     register,
-    fetchUser,
     requestPasswordReset: handleRequestPasswordReset,
     resetPassword: handleResetPassword,
   }), [
@@ -188,7 +159,6 @@ export const AuthProvider = ({
     login,
     logout,
     register,
-    fetchUser,
     handleRequestPasswordReset,
     handleResetPassword
   ]);

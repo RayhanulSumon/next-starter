@@ -16,14 +16,14 @@ export default function middleware(request: NextRequest) {
     path => pathname === path || pathname.startsWith(`${path}/`)
   );
 
-  // Redirect to login if accessing protected route without token
+  // Redirect to loginAction if accessing protected route without token
   if (!token && !isPublicPath) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
   // Redirect to dashboard if accessing auth pages with valid token
   if (token && (pathname === '/login' || pathname === '/register')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    return NextResponse.redirect(new URL('/user/dashboard', request.url));
   }
 
   return NextResponse.next();

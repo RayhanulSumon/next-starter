@@ -75,7 +75,7 @@ export default function ResetPasswordPage() {
 
       setResetSuccess(true);
 
-      // Redirect to login after a delay
+      // Redirect to loginAction after a delay
       setTimeout(() => {
         router.replace("/login");
       }, 3000);
@@ -163,7 +163,7 @@ export default function ResetPasswordPage() {
             Password reset successful!
           </div>
           <p className="text-gray-600">
-            Your password has been reset. You&apos;ll be redirected to the login page shortly.
+            Your password has been reset. You&apos;ll be redirected to the loginAction page shortly.
           </p>
           <Link
             href="/login"

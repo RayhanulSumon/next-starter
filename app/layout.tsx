@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/auth-context";
-import { getCurrentUser } from "./actions/auth";
-import { generateMetadata } from "./_lib/metadata";
+import { getCurrentUser } from "./actions/auth/getCurrentUser";
+import { generateMetadata } from "@/app/(public)/_lib/metadata";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +27,7 @@ export default async function RootLayout({
 }>) {
   // Fetch the current user on the server side
   const initialUser = await getCurrentUser();
-  
+
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body

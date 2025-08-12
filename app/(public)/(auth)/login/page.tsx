@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hook/useAuth";
+import { ApiError } from "@/app/actions/shared";
 
 // Import shadcn UI components
 import { Button } from "@/components/ui/button";
@@ -64,31 +65,21 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // Mark all fields as touched for validation
-    setTouched({ identifier: true, password: true });
-
-    // Check form validity
-    if (!isFormValid) {
+    setError(null);
+    if (!identifier || !password) {
+      setTouched({ identifier: true, password: true });
       return;
     }
-
-    // Clear previous errors
-    setError(null);
-
     try {
-      // Use the login method from enhanced auth context
       await login(identifier, password);
-      // No need to redirect here, the useEffect will handle it
-    } catch (err: unknown) {
-      // Improved error handling with proper type checking
-      if (isApiError(err)) {
-        // Handle structured API errors with type-safe access to message
-        setError(err.data.message || "Login failed");
+      router.push("/dashboard");
+    } catch (err: any) {
+      if (err instanceof ApiError) {
+        setError(err.getUserMessage("Login failed"));
       } else if (err instanceof Error) {
-        setError(err.message || "Login failed");
+        setError(err.message);
       } else {
-        setError("Login failed. Please try again.");
+        setError("Login failed");
       }
     }
   };

@@ -40,7 +40,7 @@ export const axiosClient: AxiosInstance = (() => {
       if (error.response?.status === 401) {
         Cookies.remove('token');
         if (typeof window !== 'undefined') {
-          window.location.href = '/login'; // Redirect to login on 401
+          window.location.href = '/loginAction'; // Redirect to loginAction on 401
         }
       }
       return Promise.reject(error);

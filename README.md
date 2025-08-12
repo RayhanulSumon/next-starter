@@ -65,8 +65,8 @@ A complete authentication starter kit for Next.js applications with TypeScript, 
 
 This starter is designed to work with a Laravel backend API that provides the following endpoints:
 
-- `POST /api/login` - User login with email/phone
-- `POST /api/register` - New user registration
+- `POST /api/loginAction` - User loginAction with email/phone
+- `POST /api/registerAction` - New user registration
 - `POST /api/logout` - User logout
 - `GET /api/user` - Get authenticated user
 - `POST /api/request-password-reset` - Request password reset
@@ -87,8 +87,8 @@ You can extend this system by adding more roles or permissions as needed.
 ```
 ├── app/                  # Next.js pages and routing
 │   ├── dashboard/        # Protected dashboard page
-│   ├── login/            # Login page
-│   ├── register/         # Registration page
+│   ├── loginAction/            # Login page
+│   ├── registerAction/         # Registration page
 ├── context/              # React contexts
 │   ├── auth-context.tsx  # Authentication context
 ├── hook/                 # Custom React hooks
