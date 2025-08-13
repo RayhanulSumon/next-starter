@@ -1,14 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hook/useAuth";
-
-// Import shadcn UI components
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardHeader,
@@ -19,78 +26,40 @@ import {
 } from "@/components/ui/card";
 import { Alert } from "@/components/ui/alert";
 
-// Define an interface for API error responses
-interface LoginApiError {
-  data: {
-    message?: string;
-    [key: string]: unknown;
-  };
-}
+const loginSchema = z.object({
+  identifier: z.string().min(1, "Email or phone is required"),
+  password: z.string().min(1, "Password is required"),
+});
 
-// Type guard to check if an error is an API error
-function isApiError(err: unknown): err is LoginApiError {
-  return Boolean(
-    err &&
-      typeof err === "object" &&
-      "data" in err &&
-      err.data &&
-      typeof err.data === "object"
-  );
-}
+type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  // Use enhanced auth context with loginLoading state
   const { login, user, loginLoading, loading: authLoading } = useAuth();
   const router = useRouter();
-
-  // Form state with validation
-  const [identifier, setIdentifier] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [touched, setTouched] = useState({
-    identifier: false,
-    password: false,
+  const form = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      identifier: "",
+      password: "",
+    },
   });
 
-  // Derived validation states
-  const identifierError =
-    touched.identifier && !identifier ? "Email or phone is required" : null;
-  const passwordError =
-    touched.password && !password ? "Password is required" : null;
-  const isFormValid = identifier && password;
-
   // Redirect when authenticated
-  useEffect(() => {
-    if (user && !authLoading) {
-      router.replace("/dashboard");
-    }
-  }, [user, authLoading, router]);
+  if (user && !authLoading) {
+    router.replace("/dashboard");
+    return null;
+  }
 
-  // Handle field blur for validation
-  const handleBlur = (field: "identifier" | "password") => {
-    setTouched((prev) => ({ ...prev, [field]: true }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError(null);
-    if (!identifier || !password) {
-      setTouched({ identifier: true, password: true });
-      return;
-    }
+  async function onSubmit(data: LoginFormValues) {
     try {
-      await login(identifier, password);
+      await login(data.identifier, data.password);
       router.push("/dashboard");
     } catch (err: any) {
-      if (isApiError(err)) {
-        setError(err.data?.message || "Login failed");
-      } else if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Login failed");
-      }
+      form.setError("root", {
+        message: "Credentials do not match our records",
+      });
     }
-  };
+  }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4">
@@ -105,81 +74,85 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="w-full">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="identifier" className="font-medium">
-                  Email or Phone
-                </Label>
-                <Input
-                  id="identifier"
-                  type="text"
-                  placeholder="Enter your email or phone"
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  onBlur={() => handleBlur("identifier")}
-                  aria-invalid={!!identifierError}
-                  disabled={loginLoading}
-                  aria-describedby={
-                    identifierError ? "identifier-error" : undefined
-                  }
-                  autoComplete="username"
-                  className={identifierError ? "border-destructive" : ""}
-                />
-                {identifierError && (
-                  <p id="identifier-error" className="text-destructive text-sm">
-                    {identifierError}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="font-medium">
-                    Password
-                  </Label>
-                  <Link
-                    href="/reset-password"
-                    className="text-sm text-blue-600 hover:underline"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onBlur={() => handleBlur("password")}
-                  disabled={loginLoading}
-                  aria-invalid={!!passwordError}
-                  aria-describedby={
-                    passwordError ? "password-error" : undefined
-                  }
-                  autoComplete="current-password"
-                  className={passwordError ? "border-destructive" : ""}
-                />
-                {passwordError && (
-                  <p id="password-error" className="text-destructive text-sm">
-                    {passwordError}
-                  </p>
-                )}
-              </div>
-
-              {error && (
-                <Alert variant="destructive" className="w-full my-2">
-                  {error}
-                </Alert>
-              )}
-
-              <Button
-                type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg shadow hover:scale-105 hover:shadow-xl transition-transform duration-200"
-                disabled={loginLoading || !isFormValid}
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
               >
-                {loginLoading ? "Logging in..." : "Login"}
-              </Button>
-            </form>
+                {form.formState.errors.root && (
+                  <div className="w-full my-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-center text-sm font-medium shadow-sm flex items-center justify-center gap-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 text-red-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"
+                      />
+                    </svg>
+                    {form.formState.errors.root.message}
+                  </div>
+                )}
+                <FormField
+                  control={form.control}
+                  name="identifier"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email or Phone</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="text"
+                          placeholder="Enter your email or phone"
+                          autoComplete="username"
+                          disabled={loginLoading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center justify-between">
+                        <FormLabel>Password</FormLabel>
+                        <Link
+                          href="/reset-password"
+                          className="text-sm text-blue-600 hover:underline"
+                        >
+                          Forgot password?
+                        </Link>
+                      </div>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="password"
+                          placeholder="Enter your password"
+                          autoComplete="current-password"
+                          disabled={loginLoading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg shadow hover:scale-105 hover:shadow-xl transition-transform duration-200"
+                  disabled={loginLoading}
+                >
+                  {loginLoading ? "Logging in..." : "Login"}
+                </Button>
+              </form>
+            </Form>
           </CardContent>
           <CardFooter className="flex justify-center mt-4 w-full">
             <p className="text-sm text-center text-gray-600">
