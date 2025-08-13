@@ -104,7 +104,11 @@ export const cookieStore = {
     value: string,
     options?: CookieOptions
   ): Promise<void> {
-    if (!cookies) return;
+    if (!cookies) {
+      throw new Error(
+        "Cookies can only be modified in a Server Action or Route Handler. See: https://nextjs.org/docs/app/api-reference/functions/cookies#options"
+      );
+    }
     const cookieJar = await cookies();
     cookieJar.set(name, value, options);
   },
