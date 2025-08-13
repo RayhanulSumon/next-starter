@@ -15,7 +15,7 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { CustomInputField } from "@/components/ui/CustomInputField";
 import {
   Card,
   CardHeader,
@@ -98,52 +98,67 @@ export default function LoginPage() {
                     {form.formState.errors.root.message}
                   </div>
                 )}
-                <FormField
+                <CustomInputField
                   control={form.control}
                   name="identifier"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email or Phone</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          type="text"
-                          placeholder="Enter your email or phone"
-                          autoComplete="username"
-                          disabled={loginLoading}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  label="Email or Phone"
+                  type="text"
+                  placeholder="Enter your email or phone"
+                  autoComplete="username"
+                  disabled={loginLoading}
+                  leftIcon={
+                    <svg
+                      className="h-5 w-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5.121 17.804A9.001 9.001 0 0112 15c2.21 0 4.21.805 5.879 2.146M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                  }
+                  helperText="Use your registered email or phone."
+                  loading={loginLoading}
                 />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex items-center justify-between">
-                        <FormLabel>Password</FormLabel>
-                        <Link
-                          href="/reset-password"
-                          className="text-sm text-blue-600 hover:underline"
-                        >
-                          Forgot password?
-                        </Link>
-                      </div>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          type="password"
-                          placeholder="Enter your password"
-                          autoComplete="current-password"
-                          disabled={loginLoading}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-medium text-sm">Password</span>
+                    <Link
+                      href="/reset-password"
+                      className="text-sm text-blue-600 hover:underline"
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
+                  <CustomInputField
+                    control={form.control}
+                    name="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    autoComplete="current-password"
+                    disabled={loginLoading}
+                    leftIcon={
+                      <svg
+                        className="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 17a5 5 0 100-10 5 5 0 000 10zm0 0v1m0-1v-1m0 1h-1m1 0h1"
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                      </svg>
+                    }
+                    helperText="Enter your account password."
+                  />
+                </div>
                 <Button
                   type="submit"
                   className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg shadow hover:scale-105 hover:shadow-xl transition-transform duration-200"
