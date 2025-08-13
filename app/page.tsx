@@ -1,3 +1,4 @@
+import { ModeToggle } from "@/components/ModeToggle";
 import {
   Card,
   CardHeader,
@@ -9,6 +10,7 @@ import {
 const Page = () => {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4">
+      <ModeToggle />
       <Card className="max-w-xl mx-auto p-8 bg-white/80 backdrop-blur-md">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
