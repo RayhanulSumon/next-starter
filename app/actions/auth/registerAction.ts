@@ -22,6 +22,19 @@ export async function registerAction(data: RegisterData): Promise<User> {
     revalidatePath('/user/dashboard');
     return result.user;
   } catch (error) {
+    if (
+      error instanceof Error && (
+        error.message.includes('Network') ||
+        error.message.includes('Failed to fetch') ||
+        error.message.includes('ECONNREFUSED')
+      )
+    ) {
+      throw new ApiError(
+        'Unable to connect to the server. Please try again later.',
+        0,
+        { message: error.message }
+      );
+    }
     const apiError = error instanceof ApiError
       ? error
       : new ApiError(

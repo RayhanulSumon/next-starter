@@ -5,21 +5,22 @@ import type {
   PasswordResetRequest,
   PasswordResetData,
   PasswordResetResponse,
-} from '@/types/auth';
+} from "@/types/auth";
 
 // Only import 'cookies' if running in a server environment
 let cookies: any;
-if (typeof window === 'undefined') {
+if (typeof window === "undefined") {
   // @ts-ignore
-  cookies = require('next/headers').cookies;
+  cookies = require("next/headers").cookies;
 }
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+export const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
 
 export type CookieOptions = {
   httpOnly?: boolean;
   path?: string;
-  sameSite?: 'strict' | 'lax' | 'none';
+  sameSite?: "strict" | "lax" | "none";
   secure?: boolean;
   maxAge?: number;
   expires?: Date;
@@ -36,9 +37,14 @@ export class ApiError extends Error {
   data: ApiErrorData;
   cause?: unknown;
 
-  constructor(message: string, status: number, data: ApiErrorData = {}, cause?: unknown) {
+  constructor(
+    message: string,
+    status: number,
+    data: ApiErrorData = {},
+    cause?: unknown
+  ) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
     this.status = status;
     this.data = data;
     this.cause = cause;
@@ -49,7 +55,10 @@ export class ApiError extends Error {
   }
 
   toString() {
-    return `${this.name} (${this.status}): ${this.message}` + (this.data?.message ? ` - ${this.data.message}` : '');
+    return (
+      `${this.name} (${this.status}): ${this.message}` +
+      (this.data?.message ? ` - ${this.data.message}` : "")
+    );
   }
 
   toJSON() {
@@ -71,7 +80,7 @@ export class ApiError extends Error {
     let message = `API error (${response.status})`;
     try {
       data = await response.json();
-      if (typeof data.message === 'string') message = data.message;
+      if (typeof data.message === "string") message = data.message;
     } catch {
       // ignore JSON parse errors
     }
@@ -81,7 +90,7 @@ export class ApiError extends Error {
   /**
    * Get a user-friendly error message for UI display
    */
-  getUserMessage(defaultMsg = 'Something went wrong'): string {
+  getUserMessage(defaultMsg = "Something went wrong"): string {
     if (this.data?.message) return this.data.message;
     if (this.message) return this.message;
     return defaultMsg;
@@ -104,38 +113,86 @@ export const cookieStore = {
     if (!cookies) return;
     const cookieJar = cookies() as any;
     cookieJar.delete(name);
-  }
+  },
 };
 
 export async function apiRequest<T>(
   endpoint: string,
-  options: RequestInit & { method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' }
+  options: RequestInit & {
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+    signal?: AbortSignal;
+    autoAttachToken?: boolean;
+  }
 ): Promise<T> {
   const url = `${API_URL}${endpoint}`;
   try {
+    // Attach token automatically if requested
+    // Ensure headers is always a plain object
+    let headers: Record<string, string> = {};
+    if (options.headers) {
+      if (options.headers instanceof Headers) {
+        options.headers.forEach((value, key) => {
+          headers[key] = value;
+        });
+      } else if (Array.isArray(options.headers)) {
+        options.headers.forEach(([key, value]) => {
+          headers[key] = value;
+        });
+      } else {
+        headers = { ...options.headers };
+      }
+    }
+    if (options.autoAttachToken) {
+      // Try to get token from cookies (server) or localStorage (client)
+      let token = undefined;
+      if (typeof window === "undefined") {
+        token = cookieStore.get("token");
+      } else {
+        token =
+          typeof window !== "undefined"
+            ? window.localStorage.getItem("token")
+            : undefined;
+      }
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+    }
+
     const response = await fetch(url, {
       ...options,
-      cache: 'no-store',
-      next: { tags: ['auth'] }
+      headers,
+      cache: "no-store",
+      next: { tags: ["auth"] },
+      signal: options.signal,
     });
-    const contentType = response.headers.get('content-type');
+    const contentType = response.headers.get("content-type");
     let data: any = {};
-    if (contentType && contentType.includes('application/json')) {
+    if (contentType && contentType.includes("application/json")) {
       data = await response.json();
     } else {
       data = { message: await response.text() };
     }
     if (!response.ok) {
       // If the error message looks like HTML, show a generic message
-      const msg = (data && typeof data.message === 'string' && !/^<!DOCTYPE html>/i.test(data.message))
-        ? data.message
-        : `API error (${response.status})`;
-      throw new Error(msg);
+      const msg =
+        data &&
+        typeof data.message === "string" &&
+        !/^<!DOCTYPE html>/i.test(data.message)
+          ? data.message
+          : `API error (${response.status})`;
+      throw new ApiError(msg, response.status, data);
     }
     return data as T;
   } catch (error: any) {
-    // Global error handling: always throw a simple error
-    const message = error?.message || 'Network or server error';
-    throw new Error(message);
+    // Log unexpected errors for reporting
+    if (process.env.NODE_ENV !== "production") {
+      console.error("apiRequest error:", error);
+    }
+    // You can add error reporting here (e.g., Sentry)
+    // if (window && window.Sentry) window.Sentry.captureException(error);
+
+    // Only throw network/server error if fetch itself fails
+    const message = error?.message || "Network or server error";
+    throw new ApiError(message, 0, { message });
   }
 }

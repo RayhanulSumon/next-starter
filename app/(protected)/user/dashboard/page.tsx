@@ -4,23 +4,7 @@ import { UserRole } from "@/types/auth";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-// Dashboard card component for better UI organization
-function DashboardCard({
-  title,
-  children,
-  className = "",
-}: {
-  title: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={`bg-white rounded-lg shadow p-6 ${className}`}>
-      <h2 className="text-lg font-medium text-gray-900 mb-4">{title}</h2>
-      {children}
-    </div>
-  );
-}
+import DashboardCard from "@/components/dashboard/DashboardCard";
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
@@ -104,7 +88,11 @@ export default function DashboardPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {stats.map((stat) => (
-              <DashboardCard key={stat.name} title={stat.name} className="text-center">
+              <DashboardCard
+                key={stat.name}
+                title={stat.name}
+                className="text-center"
+              >
                 <div className="text-3xl font-semibold text-blue-600">
                   {stat.value}
                 </div>
@@ -125,9 +113,7 @@ export default function DashboardPage() {
           <p className="text-gray-500 mb-4">
             Manage your account settings and preferences
           </p>
-          <button
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
+          <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
             Update Profile
           </button>
         </DashboardCard>
