@@ -99,19 +99,23 @@ export class ApiError extends Error {
 
 // Add apiRequest and cookieStore utilities
 export const cookieStore = {
-  set(name: string, value: string, options?: CookieOptions): void {
+  async set(
+    name: string,
+    value: string,
+    options?: CookieOptions
+  ): Promise<void> {
     if (!cookies) return;
-    const cookieJar = cookies() as any;
+    const cookieJar = await cookies();
     cookieJar.set(name, value, options);
   },
-  get(name: string): string | undefined {
+  async get(name: string): Promise<string | undefined> {
     if (!cookies) return undefined;
-    const cookieJar = cookies() as any;
+    const cookieJar = await cookies();
     return cookieJar.get(name)?.value;
   },
-  delete(name: string): void {
+  async delete(name: string): Promise<void> {
     if (!cookies) return;
-    const cookieJar = cookies() as any;
+    const cookieJar = await cookies();
     cookieJar.delete(name);
   },
 };
