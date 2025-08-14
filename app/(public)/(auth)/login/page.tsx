@@ -46,14 +46,14 @@ export default function LoginPage() {
 
   // Redirect when authenticated
   if (user && !authLoading) {
-    router.replace("/dashboard");
+    router.replace("/user/dashboard");
     return null;
   }
 
   async function onSubmit(data: LoginFormValues) {
     try {
       await login(data.identifier, data.password);
-      router.push("/dashboard");
+      router.push("/user/dashboard");
     } catch (err: any) {
       form.setError("root", {
         message: "Credentials do not match our records",

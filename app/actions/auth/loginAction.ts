@@ -15,7 +15,7 @@ export async function loginAction(
       body: JSON.stringify({ identifier, password }),
     });
 
-    cookieStore.set("token", data.token, {
+     cookieStore.set("token", data.token, {
       httpOnly: true,
       path: "/",
       sameSite: "strict",
