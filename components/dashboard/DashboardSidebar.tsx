@@ -61,6 +61,7 @@ type DashboardSidebarProps = {
 };
 
 const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ className }) => {
+  const expandedOnly = "group-data-[collapsible=icon]:hidden";
   // Helper to add collapsed classes
   const collapsedClasses =
     "group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:py-2";
@@ -90,7 +91,8 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ className }) => {
                 <span className={collapsedTextClasses}>Dashboard</span>
               </Link>
             </SidebarMenuButton>
-            <SidebarMenuAction className={collapsedIconClasses}>
+            {/* Plus icon only in expanded mode */}
+            <SidebarMenuAction className={expandedOnly}>
               <Plus />
               <span className="sr-only">Add</span>
             </SidebarMenuAction>
