@@ -40,12 +40,10 @@ export const SidebarMenuList: React.FC<{ items: SidebarMenuItemType[] }> = ({
         >
           <SidebarMenuItem>
             <CollapsibleTrigger asChild>
-              <SidebarMenuButton asChild>
-                <Link href={item.href}>
-                  <item.icon className="mr-2" />
-                  <span className="flex-1">{item.name}</span>
-                  <ChevronDown className="ml-2 transition-transform group-data-[state=open]/collapsible:rotate-180" />
-                </Link>
+              <SidebarMenuButton>
+                <item.icon className="mr-2" />
+                <span className="flex-1">{item.name}</span>
+                <ChevronDown className="ml-2 transition-transform group-data-[state=open]/collapsible:rotate-180" />
               </SidebarMenuButton>
             </CollapsibleTrigger>
             {item.badge && <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>}
