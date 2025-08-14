@@ -66,6 +66,7 @@ export default function RegisterPage() {
   async function onSubmit(data: RegisterFormValues) {
     try {
       await register(data);
+      router.refresh();
       router.push("/user/dashboard");
     } catch (err: any) {
       form.setError("root", {

@@ -30,11 +30,10 @@ export default async function RootLayout({
   const initialUser = await getCurrentUser();
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       {/* ...existing code... */}
       <body
         className={`antialiased min-h-screen bg-background ${geistSans.variable} ${geistMono.variable}`}
-        suppressHydrationWarning
       >
         <ThemeProvider
           attribute="class"

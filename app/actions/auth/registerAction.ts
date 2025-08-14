@@ -12,7 +12,7 @@ export async function registerAction(data: RegisterData): Promise<User> {
       body: JSON.stringify(data),
     });
 
-    cookieStore.set('token', result.token, {
+    await cookieStore.set('token', result.token, {
       httpOnly: true,
       path: '/',
       sameSite: 'strict',
