@@ -1,3 +1,4 @@
+"use server";
 import { cookieStore, apiRequest } from "../shared";
 import { redirect } from "next/navigation";
 
@@ -20,7 +21,7 @@ export async function logoutUserAction(): Promise<void> {
   }
 
   // Always delete the token cookie
-  cookieStore.delete("token");
+  await cookieStore.delete("token");
 
   // Redirect to home page
   redirect("/");
