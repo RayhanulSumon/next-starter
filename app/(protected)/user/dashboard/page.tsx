@@ -19,7 +19,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="max-w-md mx-auto mt-20 p-6 border rounded text-center">
+      <div className="max-w-md mx-auto mt-20 p-6 border rounded text-center bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         Loading...
       </div>
     );
@@ -27,7 +27,7 @@ export default function DashboardPage() {
 
   if (!user) {
     return (
-      <div className="max-w-md mx-auto mt-20 p-6 border rounded text-center">
+      <div className="max-w-md mx-auto mt-20 p-6 border rounded text-center bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         <h1 className="text-2xl font-bold mb-4">Unauthorized</h1>
         <p>Please log in to access the dashboard.</p>
       </div>
@@ -43,7 +43,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-gray-800">
         <nav className="-mb-px flex space-x-8">
           {["overview", "activity", "settings"].map((tab) => (
             <button
@@ -104,13 +104,15 @@ export default function DashboardPage() {
 
       {activeTab === "activity" && (
         <DashboardCard title="Recent Activity">
-          <p className="text-gray-500">No recent activity to display.</p>
+          <p className="text-gray-500 dark:text-gray-400">
+            No recent activity to display.
+          </p>
         </DashboardCard>
       )}
 
       {activeTab === "settings" && (
         <DashboardCard title="Account Settings">
-          <p className="text-gray-500 mb-4">
+          <p className="text-gray-500 dark:text-gray-400 mb-4">
             Manage your account settings and preferences
           </p>
           <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
