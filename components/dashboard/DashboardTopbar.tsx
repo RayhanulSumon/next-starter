@@ -25,7 +25,7 @@ function TopbarRight() {
 
 const DashboardTopbar: React.FC = () => {
   return (
-    <header className="fixed top-0 left-0 right-0 w-full h-16 flex items-center justify-between px-4 md:px-6 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm z-50">
+    <header className="sticky top-0 w-full h-16 flex items-center justify-between px-4 md:px-6 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm z-50">
       <TopbarLeft />
       <TopbarRight />
     </header>

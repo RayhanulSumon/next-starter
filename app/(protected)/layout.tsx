@@ -10,15 +10,16 @@ export default function DashboardLayout({
 }) {
   return (
     <SidebarProvider>
-      <div className="flex flex-col min-h-screen bg-background text-foreground">
-        {/* Topbar always full width */}
-        <DashboardTopbar />
-        {/* Sidebar and main content */}
-        <div className="flex flex-1 w-full pt-16">
+      <div className="flex min-h-screen bg-background text-foreground">
+        {/* Sidebar sticky on the left */}
+        <div className="sticky top-0 h-screen">
           <DashboardSidebar />
+        </div>
+        {/* Main area: topbar sticky, content below */}
+        <div className="flex-1 flex flex-col min-h-screen">
+          <DashboardTopbar />
           <main className="flex-1 w-full p-4 md:p-8">{children}</main>
         </div>
-        {/* Footer always full width and at bottom */}
       </div>
     </SidebarProvider>
   );
