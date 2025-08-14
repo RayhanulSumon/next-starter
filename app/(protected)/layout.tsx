@@ -10,7 +10,7 @@ export default function DashboardLayout({
 }) {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen bg-background text-foreground">
+      <div className="flex min-h-screen bg-background text-foreground w-full">
         {/* Sidebar sticky on the left */}
         <div className="sticky top-0 h-screen">
           <DashboardSidebar />
