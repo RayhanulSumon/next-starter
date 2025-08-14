@@ -1,6 +1,6 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { API_URL, ApiError, CookieOptions } from "../shared";
+import { ApiError } from "../shared";
 import type { User } from "@/types/auth";
 import { cookieStore, apiRequest } from "../shared";
 

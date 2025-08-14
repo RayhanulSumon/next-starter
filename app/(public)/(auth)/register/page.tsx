@@ -68,9 +68,9 @@ export default function RegisterPage() {
       await register(data);
       router.refresh();
       router.push("/user/dashboard");
-    } catch (err: any) {
+    } catch (err: unknown) {
       form.setError("root", {
-        message: err?.message || "Registration failed. Please try again.",
+        message: (err instanceof Error && err.message) ? err.message : "Registration failed. Please try again.",
       });
     }
   }

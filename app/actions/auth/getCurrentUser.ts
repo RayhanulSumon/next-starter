@@ -1,7 +1,6 @@
 "use server";
-import { cookies } from "next/headers";
 import type { User } from "@/types/auth";
-import { ApiError, cookieStore, apiRequest } from "../shared";
+import { cookieStore, apiRequest } from "../shared";
 
 export async function getCurrentUser(): Promise<User | null> {
   const token = await cookieStore.get("token");

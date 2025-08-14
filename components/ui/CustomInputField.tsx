@@ -1,10 +1,12 @@
 import * as React from "react";
+import { Control, FieldValues, Path } from "react-hook-form";
 import { FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+// ...existing code...
 
-interface CustomInputFieldProps {
-  control: any;
-  name: string;
+type CustomInputFieldProps<T extends FieldValues> = {
+  control: Control<T>;
+  name: Path<T>;
   label?: string;
   type?: string;
   placeholder?: string;
@@ -15,9 +17,9 @@ interface CustomInputFieldProps {
   rightIcon?: React.ReactNode;
   helperText?: string;
   loading?: boolean;
-}
+};
 
-export const CustomInputField: React.FC<CustomInputFieldProps> = ({
+export const CustomInputField = <T extends FieldValues>({
   control,
   name,
   label,
@@ -30,7 +32,7 @@ export const CustomInputField: React.FC<CustomInputFieldProps> = ({
   rightIcon,
   helperText,
   loading,
-}) => {
+}: CustomInputFieldProps<T>) => {
   return (
     <FormField
       control={control}

@@ -19,7 +19,6 @@ import { useSidebar } from "@/components/ui/sidebar";
 
 function SidebarLayout({ children }: { children: React.ReactNode }) {
   const { state } = useSidebar();
-  const isCollapsed = state === "collapsed";
   return (
     <div className="flex min-h-screen bg-background text-foreground w-full">
       {/* Sidebar: always rendered, handles its own collapse/animation */}

@@ -9,11 +9,6 @@ import { useAuth } from "@/hook/useAuth";
 import { Button } from "@/components/ui/button";
 import {
   Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
 } from "@/components/ui/form";
 import { CustomInputField } from "@/components/ui/CustomInputField";
 import {
@@ -24,7 +19,6 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { Alert } from "@/components/ui/alert";
 
 const loginSchema = z.object({
   identifier: z.string().min(1, "Email or phone is required"),
@@ -54,7 +48,7 @@ export default function LoginPage() {
     try {
       await login(data.identifier, data.password);
       router.push("/user/dashboard");
-    } catch (err: any) {
+    } catch (err: unknown) {
       form.setError("root", {
         message: "Credentials do not match our records",
       });

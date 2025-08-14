@@ -8,11 +8,8 @@ import type {
 } from "@/types/auth";
 
 // Only import 'cookies' if running in a server environment
-let cookies: any;
-if (typeof window === "undefined") {
-  // @ts-ignore
-  cookies = require("next/headers").cookies;
-}
+import { cookies as serverCookies } from "next/headers";
+const cookies = typeof window === "undefined" ? serverCookies : undefined;
 
 export const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
@@ -174,24 +171,25 @@ export async function apiRequest<T>(
       signal: options.signal,
     });
     const contentType = response.headers.get("content-type");
-    let data: any = {};
+    let data: unknown = {};
     if (contentType && contentType.includes("application/json")) {
       data = await response.json();
     } else {
       data = { message: await response.text() };
     }
+    const errorData = data as ApiErrorData;
     if (!response.ok) {
       // If the error message looks like HTML, show a generic message
       const msg =
-        data &&
-        typeof data.message === "string" &&
-        !/^<!DOCTYPE html>/i.test(data.message)
-          ? data.message
+        errorData &&
+        typeof errorData.message === "string" &&
+        !/^<!DOCTYPE html>/i.test(errorData.message as string)
+          ? (errorData.message as string)
           : `API error (${response.status})`;
-      throw new ApiError(msg, response.status, data);
+      throw new ApiError(msg, response.status, errorData);
     }
     return data as T;
-  } catch (error: any) {
+  } catch (error) {
     // Log unexpected errors for reporting
     if (process.env.NODE_ENV !== "production") {
       console.error("apiRequest error:", error);
@@ -200,7 +198,10 @@ export async function apiRequest<T>(
     // if (window && window.Sentry) window.Sentry.captureException(error);
 
     // Only throw network/server error if fetch itself fails
-    const message = error?.message || "Network or server error";
+    const message =
+      error instanceof Error && error.message
+        ? error.message
+        : "Network or server error";
     throw new ApiError(message, 0, { message });
   }
 }
