@@ -44,7 +44,7 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="flex-1 w-full space-y-6">
       <div className="mb-4">
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
@@ -75,7 +75,7 @@ export default function DashboardPage() {
       </div>
 
       {activeTab === "overview" && (
-        <div className="space-y-6 w-full">
+  <div className="space-y-6">
           <DashboardCard title="User Information" className="w-full">
             <div className="space-y-2">
               <p>
@@ -96,7 +96,7 @@ export default function DashboardPage() {
             </div>
           </DashboardCard>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {stats.map((stat) => (
               <DashboardCard
                 key={stat.name}

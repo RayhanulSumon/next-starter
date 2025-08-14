@@ -15,14 +15,12 @@ export default function DashboardLayout({
         <DashboardTopbar />
         {/* Sidebar and main content */}
         <div className="flex flex-1 w-full pt-16">
-          <DashboardSidebar className="mt-16" />
+          <DashboardSidebar />
           <main className="flex-1 w-full p-4 md:p-8">{children}</main>
         </div>
-        {/* Footer */}
-        <footer className="bg-gray-100 dark:bg-gray-900 py-4 mt-auto w-full">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-500 dark:text-gray-400 text-sm">
-            © {new Date().getFullYear()} Your Application. All rights reserved.
-          </div>
+        {/* Footer always full width and at bottom */}
+        <footer className="bg-gray-100 dark:bg-gray-900 py-4 w-full px-4 text-center text-gray-500 dark:text-gray-400 text-sm mt-auto">
+          © {new Date().getFullYear()} Your Application. All rights reserved.
         </footer>
       </div>
     </SidebarProvider>
