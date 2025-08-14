@@ -19,9 +19,6 @@ export default function DashboardLayout({
           <main className="flex-1 w-full p-4 md:p-8">{children}</main>
         </div>
         {/* Footer always full width and at bottom */}
-        <footer className="bg-gray-100 dark:bg-gray-900 py-4 w-full px-4 text-center text-gray-500 dark:text-gray-400 text-sm mt-auto">
-          © {new Date().getFullYear()} Your Application. All rights reserved.
-        </footer>
       </div>
     </SidebarProvider>
   );
