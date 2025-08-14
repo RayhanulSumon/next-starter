@@ -44,7 +44,7 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="flex-1 w-full space-y-6">
+    <div className="flex flex-col flex-1 w-full max-w-none space-y-6">
       <div className="mb-4">
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
@@ -75,8 +75,8 @@ export default function DashboardPage() {
       </div>
 
       {activeTab === "overview" && (
-  <div className="space-y-6">
-          <DashboardCard title="User Information" className="w-full">
+        <div className="flex flex-col w-full max-w-none space-y-6">
+          <DashboardCard title="User Information" className="w-full max-w-none">
             <div className="space-y-2">
               <p>
                 <span className="font-medium">Name:</span> {user.name}
@@ -96,12 +96,12 @@ export default function DashboardPage() {
             </div>
           </DashboardCard>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-none">
             {stats.map((stat) => (
               <DashboardCard
                 key={stat.name}
                 title={stat.name}
-                className="text-center w-full"
+                className="text-center w-full max-w-none"
               >
                 <div className="text-3xl font-semibold text-blue-600">
                   {stat.value}
@@ -113,7 +113,7 @@ export default function DashboardPage() {
       )}
 
       {activeTab === "activity" && (
-        <DashboardCard title="Recent Activity" className="w-full">
+        <DashboardCard title="Recent Activity" className="w-full max-w-none">
           <p className="text-gray-500 dark:text-gray-400">
             No recent activity to display.
           </p>
@@ -121,7 +121,7 @@ export default function DashboardPage() {
       )}
 
       {activeTab === "settings" && (
-        <DashboardCard title="Account Settings" className="w-full">
+        <DashboardCard title="Account Settings" className="w-full max-w-none">
           <p className="text-gray-500 dark:text-gray-400 mb-4">
             Manage your account settings and preferences
           </p>
