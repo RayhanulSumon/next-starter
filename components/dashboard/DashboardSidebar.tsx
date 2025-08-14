@@ -9,21 +9,8 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarMenuAction,
-  SidebarMenuBadge,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
-  SidebarGroupAction,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import {
-  Collapsible,
-  CollapsibleTrigger,
-  CollapsibleContent,
-} from "@/components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -44,16 +31,26 @@ import {
   Search,
 } from "lucide-react";
 
-const navItems = [
-  { name: "Overview", href: "/user/dashboard", icon: Home },
-  { name: "Activity", href: "/user/dashboard?tab=activity", icon: Activity },
-  { name: "Settings", href: "/user/dashboard?tab=settings", icon: Settings },
-];
+import { SidebarMenuList, SidebarMenuItemType } from "./SidebarMenuList";
 
-const subMenuItems = [
-  { name: "Inbox", href: "/user/dashboard/inbox", icon: Inbox },
-  { name: "Calendar", href: "/user/dashboard/calendar", icon: Calendar },
-  { name: "Search", href: "/user/dashboard/search", icon: Search },
+const navItems: SidebarMenuItemType[] = [
+  {
+    name: "Activity",
+    href: "/user/dashboard?tab=activity",
+    icon: Activity,
+    badge: 3,
+  },
+  {
+    name: "Settings",
+    href: "/user/dashboard?tab=settings",
+    icon: Settings,
+    collapsible: true,
+    subMenu: [
+      { name: "Inbox", href: "/user/dashboard/inbox", icon: Inbox },
+      { name: "Calendar", href: "/user/dashboard/calendar", icon: Calendar },
+      { name: "Search", href: "/user/dashboard/search", icon: Search },
+    ],
+  },
 ];
 
 type DashboardSidebarProps = {
@@ -101,97 +98,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ className }) => {
       </SidebarHeader>
       <SidebarSeparator />
       <SidebarContent>
-        {/* Collapsible Navigation Group */}
-        <Collapsible defaultOpen className="group/collapsible">
-          <SidebarGroup>
-            <SidebarGroupLabel asChild>
-              <CollapsibleTrigger
-                className={`flex w-full items-center group ${collapsedClasses}`}
-              >
-                <span className={collapsedTextClasses}>Navigation</span>
-                <ChevronDown
-                  className={`ml-auto transition-transform group-data-[state=open]:rotate-180 ${collapsedIconClasses}`}
-                />
-              </CollapsibleTrigger>
-            </SidebarGroupLabel>
-            <SidebarGroupAction
-              title="Add Navigation"
-              className={collapsedIconClasses}
-            >
-              <Plus />
-            </SidebarGroupAction>
-            <CollapsibleContent>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {navItems.map((item) => (
-                    <SidebarMenuItem key={item.name}>
-                      <SidebarMenuButton
-                        asChild
-                        variant="default"
-                        className={collapsedClasses}
-                      >
-                        <Link href={item.href}>
-                          <item.icon
-                            className={`mr-2 ${collapsedIconClasses}`}
-                          />
-                          <span className={collapsedTextClasses}>
-                            {item.name}
-                          </span>
-                        </Link>
-                      </SidebarMenuButton>
-                      {/* Example badge for Activity */}
-                      {item.name === "Activity" && (
-                        <SidebarMenuBadge className={collapsedIconClasses}>
-                          3
-                        </SidebarMenuBadge>
-                      )}
-                      {/* Collapsible Submenu Example for Settings */}
-                      {item.name === "Settings" && (
-                        <Collapsible
-                          defaultOpen={false}
-                          className="group/collapsible"
-                        >
-                          <CollapsibleTrigger
-                            className={`flex w-full items-center px-2 py-1 text-xs text-muted-foreground group ${collapsedClasses}`}
-                          >
-                            <span className={collapsedTextClasses}>
-                              More Settings
-                            </span>
-                            <ChevronDown
-                              className={`ml-auto transition-transform group-data-[state=open]:rotate-180 ${collapsedIconClasses}`}
-                            />
-                          </CollapsibleTrigger>
-                          <CollapsibleContent>
-                            <SidebarMenuSub>
-                              {subMenuItems.map((sub) => (
-                                <SidebarMenuSubItem key={sub.name}>
-                                  <SidebarMenuSubButton
-                                    asChild
-                                    className={collapsedClasses}
-                                  >
-                                    <Link href={sub.href}>
-                                      <sub.icon
-                                        className={`mr-2 ${collapsedIconClasses}`}
-                                      />
-                                      <span className={collapsedTextClasses}>
-                                        {sub.name}
-                                      </span>
-                                    </Link>
-                                  </SidebarMenuSubButton>
-                                </SidebarMenuSubItem>
-                              ))}
-                            </SidebarMenuSub>
-                          </CollapsibleContent>
-                        </Collapsible>
-                      )}
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </CollapsibleContent>
-          </SidebarGroup>
-        </Collapsible>
-        {/* Remove old submenu group, now handled in collapsible above */}
+        <SidebarMenuList items={navItems} />
       </SidebarContent>
       <SidebarSeparator />
       <SidebarFooter>
