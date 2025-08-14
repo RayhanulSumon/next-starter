@@ -1,35 +1,3 @@
-/* CustomInputField animations */
-.animate-shake {
-  animation: shake 0.3s;
-}
-@keyframes shake {
-  0% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-4px);
-  }
-  50% {
-    transform: translateX(4px);
-  }
-  75% {
-    transform: translateX(-4px);
-  }
-  100% {
-    transform: translateX(0);
-  }
-}
-.animate-fade-in {
-  animation: fadeIn 0.3s;
-}
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -150,5 +118,38 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* CustomInputField animations */
+.animate-shake {
+  animation: shake 0.3s;
+}
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+  75% {
+    transform: translateX(-4px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+.animate-fade-in {
+  animation: fadeIn 0.3s;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }

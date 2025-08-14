@@ -5,8 +5,10 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import DashboardCard from "@/components/dashboard/DashboardCard";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export default function DashboardPage() {
+  const { toggleSidebar } = useSidebar();
   const { user, loading } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
@@ -19,7 +21,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="max-w-md mx-auto mt-20 p-6 border rounded text-center bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+      <div className="mt-20 p-6 border rounded text-center bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         Loading...
       </div>
     );
@@ -27,7 +29,7 @@ export default function DashboardPage() {
 
   if (!user) {
     return (
-      <div className="max-w-md mx-auto mt-20 p-6 border rounded text-center bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+      <div className="mt-20 p-6 border rounded text-center bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         <h1 className="text-2xl font-bold mb-4">Unauthorized</h1>
         <p>Please log in to access the dashboard.</p>
       </div>
@@ -42,9 +44,17 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="border-b border-gray-200 dark:border-gray-800">
-        <nav className="-mb-px flex space-x-8">
+    <div className="space-y-6 w-full">
+      <div className="mb-4">
+        <button
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          onClick={toggleSidebar}
+        >
+          Toggle Sidebar
+        </button>
+      </div>
+      <div className="border-b border-gray-200 dark:border-gray-800 w-full">
+        <nav className="-mb-px flex space-x-8 w-full">
           {["overview", "activity", "settings"].map((tab) => (
             <button
               key={tab}
@@ -65,8 +75,8 @@ export default function DashboardPage() {
       </div>
 
       {activeTab === "overview" && (
-        <div className="space-y-6">
-          <DashboardCard title="User Information">
+        <div className="space-y-6 w-full">
+          <DashboardCard title="User Information" className="w-full">
             <div className="space-y-2">
               <p>
                 <span className="font-medium">Name:</span> {user.name}
@@ -86,12 +96,12 @@ export default function DashboardPage() {
             </div>
           </DashboardCard>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
             {stats.map((stat) => (
               <DashboardCard
                 key={stat.name}
                 title={stat.name}
-                className="text-center"
+                className="text-center w-full"
               >
                 <div className="text-3xl font-semibold text-blue-600">
                   {stat.value}
@@ -103,7 +113,7 @@ export default function DashboardPage() {
       )}
 
       {activeTab === "activity" && (
-        <DashboardCard title="Recent Activity">
+        <DashboardCard title="Recent Activity" className="w-full">
           <p className="text-gray-500 dark:text-gray-400">
             No recent activity to display.
           </p>
@@ -111,7 +121,7 @@ export default function DashboardPage() {
       )}
 
       {activeTab === "settings" && (
-        <DashboardCard title="Account Settings">
+        <DashboardCard title="Account Settings" className="w-full">
           <p className="text-gray-500 dark:text-gray-400 mb-4">
             Manage your account settings and preferences
           </p>
