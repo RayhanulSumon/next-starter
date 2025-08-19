@@ -3,10 +3,10 @@
 import React, {
   createContext,
   useState,
-  useEffect,
   useCallback,
   useMemo,
   useTransition,
+  useEffect,
 } from "react";
 import type { ReactNode } from "react";
 import type {
@@ -15,7 +15,7 @@ import type {
   PasswordResetRequest,
   PasswordResetData,
   PasswordResetResponse,
-  AuthContextType,
+  LoginActionResult,
 } from "@/types/auth";
 import { UserRole } from "@/types/auth";
 
@@ -32,7 +32,7 @@ import { logoutUserAction } from "@/app/actions/auth/logOutAction";
 interface EnhancedAuthContextType {
   user: User | null;
   loading: boolean;
-  login: (identifier: string, password: string) => Promise<void>;
+  login: (identifier: string, password: string) => Promise<LoginActionResult>;
   logout: () => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   requestPasswordReset: (
@@ -68,7 +68,6 @@ const AuthContext = createContext<EnhancedAuthContextType>({
   resetPassword: async () => {
     throw new Error("AuthContext not initialized");
   },
-
 });
 
 export const AuthProvider = ({
@@ -78,16 +77,14 @@ export const AuthProvider = ({
   children: ReactNode;
   initialUser?: User | null;
 }) => {
-  // Utility to fetch user after registration
-  const fetchUser = useCallback(async (): Promise<User | null> => {
-    const { getCurrentUser } = await import(
-      "@/app/actions/auth/getCurrentUser"
-    );
-    return await getCurrentUser();
-  }, []);
   // User state
   const [user, setUser] = useState<User | null>(initialUser);
-  const [loading, setLoading] = useState<boolean>(!initialUser);
+
+  // Debug: Log initial user on mount
+  useEffect(() => {
+    console.log("AuthProvider initialUser:", initialUser);
+    console.log("AuthProvider user state:", user);
+  }, []);
 
   // Operation-specific loading states
   const [loginLoading, setLoginLoading] = useState<boolean>(false);
@@ -97,17 +94,20 @@ export const AuthProvider = ({
     useState<boolean>(false);
 
   // Use transition for smoother UI updates
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   // Login with identifier (email or phone) and password
   const login = useCallback(
-    async (identifier: string, password: string): Promise<void> => {
+    async (identifier: string, password: string): Promise<LoginActionResult> => {
       setLoginLoading(true);
       try {
-        const userData = await loginAction(identifier, password);
-        startTransition(() => {
-          setUser(userData);
-        });
+        const result = await loginAction(identifier, password);
+        if ("user" in result && result.user) {
+          startTransition(() => {
+            setUser(result.user);
+          });
+        }
+        return result;
       } catch (error) {
         console.error("Login error:", error);
         throw error;
@@ -193,7 +193,7 @@ export const AuthProvider = ({
   const value = useMemo(
     () => ({
       user,
-      loading,
+      loading: loginLoading || registerLoading || resetLoading || requestResetLoading,
       loginLoading,
       registerLoading,
       resetLoading,
@@ -206,7 +206,6 @@ export const AuthProvider = ({
     }),
     [
       user,
-      loading,
       loginLoading,
       registerLoading,
       resetLoading,

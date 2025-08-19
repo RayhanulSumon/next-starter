@@ -22,6 +22,14 @@ export default function ResetPasswordPage() {
   const [resetError, setResetError] = useState<string | null>(null);
   const [resetSuccess, setResetSuccess] = useState(false);
 
+  const passwordRequirements = [
+    { label: "At least 8 characters", test: (v: string) => v.length >= 8 },
+    { label: "At least one uppercase letter", test: (v: string) => /[A-Z]/.test(v) },
+    { label: "At least one lowercase letter", test: (v: string) => /[a-z]/.test(v) },
+    { label: "At least one number", test: (v: string) => /[0-9]/.test(v) },
+    { label: "At least one symbol", test: (v: string) => /[^A-Za-z0-9]/.test(v) },
+  ];
+
   // Handle the initial password reset request
   const handleRequestReset = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -53,6 +61,9 @@ export default function ResetPasswordPage() {
     }
   };
 
+  // Track password for live feedback
+  const [passwordValue, setPasswordValue] = useState("");
+
   // Handle the actual password reset
   const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -62,6 +73,13 @@ export default function ResetPasswordPage() {
     if (password !== passwordConfirmation) {
       setResetError("Passwords do not match");
       return;
+    }
+    // Validate strong password
+    for (const req of passwordRequirements) {
+      if (!req.test(password)) {
+        setResetError("Password does not meet all requirements.");
+        return;
+      }
     }
 
     try {
@@ -81,6 +99,16 @@ export default function ResetPasswordPage() {
       }, 3000);
 
     } catch (error) {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'response' in error &&
+        typeof (error as { response?: { status?: number } }).response === 'object' &&
+        (error as { response?: { status?: number } }).response?.status === 429
+      ) {
+        setResetError("Too many attempts, please try again later.");
+        return;
+      }
       if (error instanceof Error) {
         setResetError(error.message);
       } else {
@@ -204,16 +232,23 @@ export default function ResetPasswordPage() {
               type="password"
               placeholder="Enter new password"
               value={password}
-              onChange={e => setPassword(e.target.value)}
+              onChange={e => { setPassword(e.target.value); setPasswordValue(e.target.value); }}
               className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              disabled={resetLoading}
               required
+              autoComplete="new-password"
             />
+            <div className="mt-1 space-y-1">
+              {passwordRequirements.map((req) => (
+                <div key={req.label} className={`text-xs flex items-center gap-1 ${req.test(passwordValue) ? "text-green-600" : "text-gray-400"}`}>
+                  <span>{req.test(passwordValue) ? "✔" : "✗"}</span> {req.label}
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="space-y-2">
             <label htmlFor="passwordConfirmation" className="block text-sm font-medium">
-              Confirm Password
+              Confirm New Password
             </label>
             <input
               id="passwordConfirmation"
@@ -222,8 +257,8 @@ export default function ResetPasswordPage() {
               value={passwordConfirmation}
               onChange={e => setPasswordConfirmation(e.target.value)}
               className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              disabled={resetLoading}
               required
+              autoComplete="new-password"
             />
           </div>
 

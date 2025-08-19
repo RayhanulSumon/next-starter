@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import Cookies from 'js-cookie';
+import { toast } from "sonner";
 
 /**
  * axiosClient - Globally configured Axios instance
@@ -42,6 +43,9 @@ export const axiosClient: AxiosInstance = (() => {
         if (typeof window !== 'undefined') {
           window.location.href = '/loginAction'; // Redirect to loginAction on 401
         }
+      }
+      if (error.response?.status === 429) {
+        toast.error("Too many attempts, please try again later.");
       }
       return Promise.reject(error);
     }

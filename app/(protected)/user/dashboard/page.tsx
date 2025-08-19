@@ -6,10 +6,13 @@ import { useRouter } from "next/navigation";
 
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import { useSidebar } from "@/components/ui/sidebar";
+import TwoFactorAuth from "@/components/dashboard/TwoFactorAuth";
 
 export default function DashboardPage() {
   const { toggleSidebar } = useSidebar();
   const { user, loading } = useAuth();
+  console.log("DashboardPage useAuth user:", user);
+  console.log("DashboardPage useAuth loading:", loading);
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -125,9 +128,10 @@ export default function DashboardPage() {
           <p className="text-gray-500 dark:text-gray-400 mb-4">
             Manage your account settings and preferences
           </p>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+          <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 mb-6">
             Update Profile
           </button>
+          <TwoFactorAuth />
         </DashboardCard>
       )}
     </div>

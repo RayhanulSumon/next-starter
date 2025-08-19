@@ -1,18 +1,39 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import { API_URL, ApiError, CookieOptions } from '../shared';
+import { API_URL, ApiError } from '../shared';
 import type { RegisterData, User } from '@/types/auth';
 import { cookieStore, apiRequest } from '../shared';
 
 export async function registerAction(data: RegisterData): Promise<User> {
   try {
-    const result = await apiRequest<{ token: string; user: User }>('/register', {
+    const result = await apiRequest<{ message: string; data: { token: string; user: User } }>('/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
 
-    await cookieStore.set('token', result.token, {
+    // Type guard for register response
+    function isRegisterResponse(data: unknown): data is { token: string; user: User } {
+      return (
+        typeof data === "object" &&
+        data !== null &&
+        Object.prototype.hasOwnProperty.call(data, "token") &&
+        Object.prototype.hasOwnProperty.call(data, "user")
+      );
+    }
+
+    if (!isRegisterResponse(result.data)) {
+      throw new ApiError(
+        'Unexpected register response from /register.\n' +
+        'Payload: ' + JSON.stringify(data) + '\n' +
+        'Response: ' + JSON.stringify(result) + '\n' +
+        'This usually means the backend is not returning the expected structure. Please check your backend API.',
+        500,
+        result
+      );
+    }
+
+    await cookieStore.set('token', result.data.token, {
       httpOnly: true,
       path: '/',
       sameSite: 'strict',
@@ -20,7 +41,7 @@ export async function registerAction(data: RegisterData): Promise<User> {
     });
 
     revalidatePath('/user/dashboard');
-    return result.user;
+    return result.data.user;
   } catch (error) {
     if (
       error instanceof Error && (
@@ -35,13 +56,13 @@ export async function registerAction(data: RegisterData): Promise<User> {
         { message: error.message }
       );
     }
-    const apiError = error instanceof ApiError
-      ? error
-      : new ApiError(
-          error instanceof Error ? error.message : 'Registration failed',
-          500,
-          {}
-        );
-    throw apiError;
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError(
+      error instanceof Error ? error.message : 'Registration failed',
+      500,
+      {}
+    );
   }
 }

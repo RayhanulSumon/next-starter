@@ -12,6 +12,7 @@ export interface User {
   email?: string;
   phone?: string;
   role: UserRole;
+  two_factor_enabled?: boolean;
 }
 
 export interface RegisterData {
@@ -47,10 +48,14 @@ export interface LoginResponse {
   user: User;
 }
 
+export type LoginActionResult =
+  | { user: User; token: string }
+  | { twofa_required: true };
+
 export interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (identifier: string, password: string) => Promise<void>;
+  login: (identifier: string, password: string) => Promise<LoginActionResult>;
   logout: () => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   requestPasswordReset: (
