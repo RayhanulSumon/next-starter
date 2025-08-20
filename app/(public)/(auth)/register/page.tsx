@@ -79,11 +79,14 @@ export default function RegisterPage() {
   });
 
   useEffect(() => {
-    if (user && user.id && !authLoading && window.location.pathname !== "/user/dashboard") {
+    if (!authLoading && user && user.id && window.location.pathname !== "/user/dashboard") {
       router.replace("/user/dashboard");
     }
   }, [user, authLoading, router]);
 
+  if (authLoading) {
+    return <div>Loading...</div>;
+  }
   if (user && user.id && !authLoading && typeof window !== 'undefined' && window.location.pathname !== "/user/dashboard") {
     return null;
   }

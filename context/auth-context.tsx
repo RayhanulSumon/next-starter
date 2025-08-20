@@ -26,6 +26,7 @@ import {
   resetPasswordAction,
 } from "@/app/actions/auth/resetPasswordAction";
 import { logoutUserAction } from "@/app/actions/auth/logOutAction";
+import { useRouter } from "next/navigation";
 
 // Enhanced AuthContext with loading states for different operations
 interface EnhancedAuthContextType {
@@ -88,6 +89,7 @@ export const AuthProvider = ({
 
   // Use transition for smoother UI updates
   const [, startTransition] = useTransition();
+  const router = useRouter();
 
   // Login with identifier (email or phone) and password
   const login = useCallback(
@@ -158,12 +160,11 @@ export const AuthProvider = ({
   }, []);
 
   // Logout the current user
-  const logout = useCallback(async (): Promise<void> => {
+  const logout = useCallback(async (redirectTo: string = "/login"): Promise<void> => {
     try {
       await logoutUserAction();
-      startTransition(() => {
-        setUser(null);
-      });
+      setUser(null);
+      window.location.href = redirectTo;
     } catch (error) {
       console.error("Logout error:", error);
       throw error;

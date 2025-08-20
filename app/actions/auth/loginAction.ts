@@ -13,13 +13,28 @@ export async function loginAction(
     { identifier, password }
   );
   // Side effect: set cookie if login is successful
-  if (
-    typeof result.data === "object" &&
-    result.data !== null &&
-    Object.prototype.hasOwnProperty.call(result.data, "token") &&
-    Object.prototype.hasOwnProperty.call(result.data, "user")
-  ) {
-    const responseData = result.data as LoginResponse;
+  // Type guard for 2FA required
+  const isTwoFARequired = (data: unknown): data is { twofa_required: true } =>
+    typeof data === "object" &&
+    data !== null &&
+    Object.prototype.hasOwnProperty.call(data, "twofa_required") &&
+    (data as any).twofa_required === true;
+
+  // Type guard for login response
+  const isLoginResponse = (data: unknown): data is LoginResponse =>
+    typeof data === "object" &&
+    data !== null &&
+    Object.prototype.hasOwnProperty.call(data, "token") &&
+    Object.prototype.hasOwnProperty.call(data, "user");
+
+  if (isTwoFARequired(result.data)) {
+    return {
+      ...result,
+      data: { twofa_required: true },
+    };
+  }
+  if (isLoginResponse(result.data)) {
+    const responseData = result.data;
     await cookieStore.set("token", responseData.token, {
       httpOnly: true,
       path: "/",
@@ -27,6 +42,10 @@ export async function loginAction(
       secure: process.env.NODE_ENV === "production",
     });
     revalidatePath("/user/dashboard");
+    return {
+      ...result,
+      data: { user: responseData.user, token: responseData.token },
+    };
   }
-  return result;
+  throw new Error("Unexpected login response from /login.");
 }

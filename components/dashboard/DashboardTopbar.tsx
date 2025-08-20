@@ -6,8 +6,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { User2, LogOut, MoreHorizontal } from "lucide-react";
-import { logoutUserAction } from "@/app/actions/auth/logOutAction";
+import { User2, MoreHorizontal } from "lucide-react";
+import { useAuth } from "@/hook/useAuth";
 
 function TopbarLeft() {
   return (
@@ -21,6 +21,7 @@ function TopbarLeft() {
 }
 
 function TopbarRight() {
+  const { logout } = useAuth();
   return (
     <div className="flex items-center gap-4">
       {/* User avatar or icon */}
@@ -39,14 +40,29 @@ function TopbarRight() {
           <DropdownMenuItem>
             <span>Settings</span>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            variant="destructive"
-            onClick={async () => {
-              await logoutUserAction();
-            }}
-          >
-            <LogOut className="mr-2" />
-            <span>Logout</span>
+          <DropdownMenuItem asChild variant="destructive">
+            <button
+              className="w-full text-left flex items-center gap-2"
+              onClick={async () => {
+                await logout();
+                window.location.href = "/login";
+              }}
+              type="button"
+            >
+              <span className="mr-2">
+                <svg
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
+                </svg>
+              </span>
+              Logout
+            </button>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

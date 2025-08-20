@@ -1,38 +1,40 @@
 "use server";
 import { cookieStore } from "../shared";
-import { redirect } from "next/navigation";
 import { apiFetch, ApiClientResponse } from '@/lib/apiClient';
 
 export async function logoutUserAction(): Promise<ApiClientResponse<void>> {
   const token = await cookieStore.get('token');
+  let apiErrorMessage: string | undefined = undefined;
   try {
     if (token) {
       try {
-        await apiFetch<void>('/logout', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
+        await apiFetch<void>(
+          '/logout',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
           },
-        });
-      } catch (error) {
-        // Continue with logout even if API call fails
+          'POST'
+        );
+      } catch (error: unknown) {
+        apiErrorMessage = error instanceof Error ? error.message : 'API logout failed';
         console.error('Logout API error:', error);
       }
     }
     await cookieStore.delete('token');
-    redirect('/');
     return {
-      message: 'Logged out successfully',
+      message: apiErrorMessage ? `Logged out (API: ${apiErrorMessage})` : 'Logged out successfully',
       data: undefined,
       errors: [],
       status: 200,
     };
-  } catch (error) {
-    throw {
+  } catch (error: unknown) {
+    return {
       message: 'Logout failed',
       data: undefined,
-      errors: [],
+      errors: [error instanceof Error ? error.message : String(error)],
       status: 500,
     };
   }
