@@ -27,12 +27,13 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   // Fetch the current user on the server side
-  const initialUser = await getCurrentUser();
+  const { data: initialUser } = await getCurrentUser();
 
   return (
     <html lang="en" suppressHydrationWarning>
       {/* ...existing code... */}
       <body
+        suppressHydrationWarning
         className={`antialiased min-h-screen bg-background ${geistSans.variable} ${geistMono.variable}`}
       >
         <ThemeProvider
