@@ -6,7 +6,6 @@ import React, {
   useCallback,
   useMemo,
   useTransition,
-  useEffect,
 } from "react";
 import type { ReactNode } from "react";
 import type {
@@ -36,7 +35,7 @@ interface EnhancedAuthContextType {
   logout: () => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   requestPasswordReset: (
-    data: PasswordResetRequest
+    data: PasswordResetRequest,
   ) => Promise<PasswordResetResponse>;
   resetPassword: (data: PasswordResetData) => Promise<PasswordResetResponse>;
   loginLoading: boolean;
@@ -80,12 +79,6 @@ export const AuthProvider = ({
   // User state
   const [user, setUser] = useState<User | null>(initialUser);
 
-  // Debug: Log initial user on mount
-  useEffect(() => {
-    console.log("AuthProvider initialUser:", initialUser);
-    console.log("AuthProvider user state:", user);
-  }, []);
-
   // Operation-specific loading states
   const [loginLoading, setLoginLoading] = useState<boolean>(false);
   const [registerLoading, setRegisterLoading] = useState<boolean>(false);
@@ -98,16 +91,36 @@ export const AuthProvider = ({
 
   // Login with identifier (email or phone) and password
   const login = useCallback(
-    async (identifier: string, password: string): Promise<LoginActionResult> => {
+    async (
+      identifier: string,
+      password: string,
+    ): Promise<LoginActionResult> => {
       setLoginLoading(true);
       try {
         const result = await loginAction(identifier, password);
-        if ("user" in result && result.user) {
-          startTransition(() => {
-            setUser(result.user);
-          });
+        const data = result.data;
+        // Type guard for twofa_required
+        if (data && typeof data === 'object' && 'twofa_required' in data && (data as { twofa_required?: boolean }).twofa_required) {
+          return { twofa_required: true };
         }
-        return result;
+        // Type guard for user and token
+        if (
+          data &&
+          typeof data === 'object' &&
+          'user' in data &&
+          'token' in data &&
+          (data as { user?: User; token?: string }).user &&
+          (data as { user?: User; token?: string }).token
+        ) {
+          const userObj = (data as { user: User; token: string }).user;
+          const token = (data as { user: User; token: string }).token;
+          startTransition(() => {
+            setUser(userObj);
+          });
+          return { user: userObj, token };
+        }
+        // Fallback: return empty object (should not happen)
+        throw new Error('Unexpected login response');
       } catch (error) {
         console.error("Login error:", error);
         throw error;
@@ -115,7 +128,7 @@ export const AuthProvider = ({
         setLoginLoading(false);
       }
     },
-    []
+    [],
   );
 
   // Register a new user
@@ -134,7 +147,7 @@ export const AuthProvider = ({
       );
       const freshUser = await getCurrentUser();
       startTransition(() => {
-        setUser(freshUser);
+        setUser(freshUser.data ?? null);
       });
     } catch (error) {
       console.error("Registration error:", error);
@@ -170,7 +183,7 @@ export const AuthProvider = ({
         setRequestResetLoading(false);
       }
     },
-    []
+    [],
   );
 
   // Reset password (email+token or phone+code)
@@ -186,14 +199,16 @@ export const AuthProvider = ({
         setResetLoading(false);
       }
     },
-    []
+    [],
   );
+
 
   // Memoize context value for performance
   const value = useMemo(
     () => ({
       user,
-      loading: loginLoading || registerLoading || resetLoading || requestResetLoading,
+      loading:
+        loginLoading || registerLoading || resetLoading || requestResetLoading,
       loginLoading,
       registerLoading,
       resetLoading,
@@ -215,7 +230,7 @@ export const AuthProvider = ({
       register,
       handleRequestPasswordReset,
       handleResetPassword,
-    ]
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

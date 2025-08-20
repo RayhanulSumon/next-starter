@@ -19,7 +19,7 @@ const DashboardCard = forwardRef<HTMLDivElement, DashboardCardProps>(
         {children}
       </div>
     );
-  }
+  },
 );
 
 DashboardCard.displayName = "DashboardCard";

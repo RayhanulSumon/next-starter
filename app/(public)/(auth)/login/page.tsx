@@ -7,9 +7,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hook/useAuth";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { CustomInputField } from "@/components/ui/CustomInputField";
 import {
   Card,
@@ -41,14 +39,17 @@ export default function LoginPage() {
   });
 
   const [twoFARequired, setTwoFARequired] = useState(false);
-  const [pendingLogin, setPendingLogin] = useState<{ identifier: string; password: string } | null>(null);
+  const [pendingLogin, setPendingLogin] = useState<{
+    identifier: string;
+    password: string;
+  } | null>(null);
   const [twoFACode, setTwoFACode] = useState("");
   const [twoFAError, setTwoFAError] = useState<string | null>(null);
   const [twoFALoading, setTwoFALoading] = useState(false);
 
   // Redirect when authenticated
   useEffect(() => {
-    if (user && !authLoading) {
+    if (user && user.id && !authLoading) {
       router.replace("/user/dashboard");
     }
   }, [user, authLoading, router]);
@@ -56,12 +57,15 @@ export default function LoginPage() {
   async function onSubmit(data: LoginFormValues) {
     try {
       const response = await login(data.identifier, data.password);
-      if (response && 'twofa_required' in response && response.twofa_required) {
+      if (response && "twofa_required" in response && response.twofa_required) {
         setTwoFARequired(true);
-        setPendingLogin({ identifier: data.identifier, password: data.password });
+        setPendingLogin({
+          identifier: data.identifier,
+          password: data.password,
+        });
         return;
       }
-      if (response && 'user' in response && response.user) {
+      if (response && "user" in response && response.user) {
         router.push("/user/dashboard");
         return;
       }
@@ -70,19 +74,31 @@ export default function LoginPage() {
       });
     } catch (err) {
       if (
-        typeof err === 'object' &&
+        typeof err === "object" &&
         err !== null &&
-        'response' in err &&
-        typeof (err as { response?: { data?: unknown } }).response === 'object' &&
-        (err as { response?: { data?: { twofa_required?: boolean } } }).response?.data?.twofa_required
+        "response" in err &&
+        typeof (err as { response?: { data?: unknown } }).response ===
+          "object" &&
+        (err as { response?: { data?: { twofa_required?: boolean } } }).response
+          ?.data?.twofa_required
       ) {
         setTwoFARequired(true);
-        setPendingLogin({ identifier: data.identifier, password: data.password });
+        setPendingLogin({
+          identifier: data.identifier,
+          password: data.password,
+        });
         return;
       }
-      form.setError("root", {
-        message: "Credentials do not match our records",
-      });
+      // Show backend error message if available
+      if (err instanceof Error && err.message) {
+        form.setError("root", {
+          message: err.message,
+        });
+      } else {
+        form.setError("root", {
+          message: "Credentials do not match our records",
+        });
+      }
     }
   }
 
@@ -105,13 +121,16 @@ export default function LoginPage() {
     } catch (err) {
       let message = "Invalid or expired 2FA code.";
       if (
-        typeof err === 'object' &&
+        typeof err === "object" &&
         err !== null &&
-        'response' in err &&
-        typeof (err as { response?: { data?: unknown } }).response === 'object' &&
-        (err as { response?: { data?: { message?: string } } }).response?.data?.message
+        "response" in err &&
+        typeof (err as { response?: { data?: unknown } }).response ===
+          "object" &&
+        (err as { response?: { data?: { message?: string } } }).response?.data
+          ?.message
       ) {
-        message = (err as { response: { data: { message: string } } }).response.data.message;
+        message = (err as { response: { data: { message: string } } }).response
+          .data.message;
       }
       setTwoFAError(message);
     } finally {
@@ -134,14 +153,18 @@ export default function LoginPage() {
           <CardContent className="w-full">
             {twoFARequired ? (
               <form onSubmit={handle2FASubmit} className="space-y-6">
-                <div className="mb-2 text-center text-blue-700 font-medium">Two-Factor Authentication Required</div>
+                <div className="mb-2 text-center text-blue-700 font-medium">
+                  Two-Factor Authentication Required
+                </div>
                 <div>
-                  <label htmlFor="twofa-code" className="block mb-1">Enter 6-digit code from your authenticator app:</label>
+                  <label htmlFor="twofa-code" className="block mb-1">
+                    Enter 6-digit code from your authenticator app:
+                  </label>
                   <input
                     id="twofa-code"
                     type="text"
                     value={twoFACode}
-                    onChange={e => setTwoFACode(e.target.value)}
+                    onChange={(e) => setTwoFACode(e.target.value)}
                     className="border rounded px-2 py-1 w-full"
                     pattern="\\d{6}"
                     maxLength={6}
@@ -150,10 +173,18 @@ export default function LoginPage() {
                     disabled={twoFALoading}
                   />
                 </div>
-                <Button type="submit" disabled={twoFALoading || twoFACode.length !== 6} className="w-full">
+                <Button
+                  type="submit"
+                  disabled={twoFALoading || twoFACode.length !== 6}
+                  className="w-full"
+                >
                   {twoFALoading ? "Verifying..." : "Verify & Login"}
                 </Button>
-                {twoFAError && <div className="text-red-600 text-center mt-2">{twoFAError}</div>}
+                {twoFAError && (
+                  <div className="text-red-600 text-center mt-2">
+                    {twoFAError}
+                  </div>
+                )}
               </form>
             ) : (
               <Form {...form}>

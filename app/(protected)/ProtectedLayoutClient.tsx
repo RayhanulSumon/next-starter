@@ -20,7 +20,13 @@ function SidebarLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function ProtectedLayoutClient({ initialUser, children }: { initialUser: any; children: React.ReactNode }) {
+export default function ProtectedLayoutClient({
+  initialUser,
+  children,
+}: {
+  initialUser: any;
+  children: React.ReactNode;
+}) {
   return (
     <AuthProvider initialUser={initialUser}>
       <SidebarProvider>

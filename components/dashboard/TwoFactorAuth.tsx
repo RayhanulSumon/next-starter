@@ -7,7 +7,9 @@ import Image from "next/image";
 
 export default function TwoFactorAuth() {
   const { user } = useAuth();
-  const [status, setStatus] = useState(user?.two_factor_enabled ? "enabled" : "disabled");
+  const [status, setStatus] = useState(
+    user?.two_factor_enabled ? "enabled" : "disabled",
+  );
   const [qr, setQr] = useState<string | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
   const [code, setCode] = useState("");
@@ -28,13 +30,15 @@ export default function TwoFactorAuth() {
     } catch (e) {
       let message = "Failed to start 2FA setup.";
       if (
-        typeof e === 'object' &&
+        typeof e === "object" &&
         e !== null &&
-        'response' in e &&
-        typeof (e as { response?: { data?: unknown } }).response === 'object' &&
-        (e as { response?: { data?: { message?: string } } }).response?.data?.message
+        "response" in e &&
+        typeof (e as { response?: { data?: unknown } }).response === "object" &&
+        (e as { response?: { data?: { message?: string } } }).response?.data
+          ?.message
       ) {
-        message = (e as { response: { data: { message: string } } }).response.data.message;
+        message = (e as { response: { data: { message: string } } }).response
+          .data.message;
       }
       setError(message);
     } finally {
@@ -57,13 +61,15 @@ export default function TwoFactorAuth() {
     } catch (e) {
       let message = "Invalid or expired code.";
       if (
-        typeof e === 'object' &&
+        typeof e === "object" &&
         e !== null &&
-        'response' in e &&
-        typeof (e as { response?: { data?: unknown } }).response === 'object' &&
-        (e as { response?: { data?: { message?: string } } }).response?.data?.message
+        "response" in e &&
+        typeof (e as { response?: { data?: unknown } }).response === "object" &&
+        (e as { response?: { data?: { message?: string } } }).response?.data
+          ?.message
       ) {
-        message = (e as { response: { data: { message: string } } }).response.data.message;
+        message = (e as { response: { data: { message: string } } }).response
+          .data.message;
       }
       setError(message);
     } finally {
@@ -83,13 +89,15 @@ export default function TwoFactorAuth() {
     } catch (e) {
       let message = "Failed to disable 2FA.";
       if (
-        typeof e === 'object' &&
+        typeof e === "object" &&
         e !== null &&
-        'response' in e &&
-        typeof (e as { response?: { data?: unknown } }).response === 'object' &&
-        (e as { response?: { data?: { message?: string } } }).response?.data?.message
+        "response" in e &&
+        typeof (e as { response?: { data?: unknown } }).response === "object" &&
+        (e as { response?: { data?: { message?: string } } }).response?.data
+          ?.message
       ) {
-        message = (e as { response: { data: { message: string } } }).response.data.message;
+        message = (e as { response: { data: { message: string } } }).response
+          .data.message;
       }
       setError(message);
     } finally {
@@ -99,14 +107,22 @@ export default function TwoFactorAuth() {
 
   return (
     <div className="border rounded p-4 max-w-md bg-white dark:bg-gray-900">
-      <h2 className="text-xl font-bold mb-2">Two-Factor Authentication (2FA)</h2>
+      <h2 className="text-xl font-bold mb-2">
+        Two-Factor Authentication (2FA)
+      </h2>
       <p className="mb-4 text-gray-600 dark:text-gray-300">
         Protect your account with an extra layer of security.
       </p>
       {status === "enabled" && (
         <>
-          <div className="mb-4 text-green-600">2FA is enabled on your account.</div>
-          <Button onClick={handleDisable2FA} disabled={loading} variant="destructive">
+          <div className="mb-4 text-green-600">
+            2FA is enabled on your account.
+          </div>
+          <Button
+            onClick={handleDisable2FA}
+            disabled={loading}
+            variant="destructive"
+          >
             Disable 2FA
           </Button>
         </>
@@ -119,19 +135,29 @@ export default function TwoFactorAuth() {
       {status === "pending" && (
         <form onSubmit={handleVerify2FA} className="space-y-4">
           <div className="mb-2">
-            <div className="mb-2">Scan this QR code with your authenticator app:</div>
+            <div className="mb-2">
+              Scan this QR code with your authenticator app:
+            </div>
             {qr && (
-              <Image src={qr} alt="2FA QR Code" className="mx-auto" width={200} height={200} />
+              <Image
+                src={qr}
+                alt="2FA QR Code"
+                className="mx-auto"
+                width={200}
+                height={200}
+              />
             )}
             <div className="mt-2 text-xs text-gray-500">Secret: {secret}</div>
           </div>
           <div>
-            <label htmlFor="code" className="block mb-1">Enter 6-digit code:</label>
+            <label htmlFor="code" className="block mb-1">
+              Enter 6-digit code:
+            </label>
             <input
               id="code"
               type="text"
               value={code}
-              onChange={e => setCode(e.target.value)}
+              onChange={(e) => setCode(e.target.value)}
               className="border rounded px-2 py-1 w-full"
               pattern="\\d{6}"
               maxLength={6}

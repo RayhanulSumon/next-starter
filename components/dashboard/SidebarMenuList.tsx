@@ -91,7 +91,7 @@ export const SidebarMenuList: React.FC<{ items: SidebarMenuItemType[] }> = ({
             </SidebarMenuSub>
           )}
         </SidebarMenuItem>
-      )
+      ),
     )}
   </SidebarMenu>
 );

@@ -7,7 +7,12 @@ import Link from "next/link";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const { requestPasswordReset, resetPassword, requestResetLoading, resetLoading } = useAuth();
+  const {
+    requestPasswordReset,
+    resetPassword,
+    requestResetLoading,
+    resetLoading,
+  } = useAuth();
 
   // State for the initial request step
   const [email, setEmail] = useState("");
@@ -24,10 +29,19 @@ export default function ResetPasswordPage() {
 
   const passwordRequirements = [
     { label: "At least 8 characters", test: (v: string) => v.length >= 8 },
-    { label: "At least one uppercase letter", test: (v: string) => /[A-Z]/.test(v) },
-    { label: "At least one lowercase letter", test: (v: string) => /[a-z]/.test(v) },
+    {
+      label: "At least one uppercase letter",
+      test: (v: string) => /[A-Z]/.test(v),
+    },
+    {
+      label: "At least one lowercase letter",
+      test: (v: string) => /[a-z]/.test(v),
+    },
     { label: "At least one number", test: (v: string) => /[0-9]/.test(v) },
-    { label: "At least one symbol", test: (v: string) => /[^A-Za-z0-9]/.test(v) },
+    {
+      label: "At least one symbol",
+      test: (v: string) => /[^A-Za-z0-9]/.test(v),
+    },
   ];
 
   // Handle the initial password reset request
@@ -44,7 +58,7 @@ export default function ResetPasswordPage() {
 
       const response = await requestPasswordReset({
         email: email || undefined,
-        phone: phone || undefined
+        phone: phone || undefined,
       });
 
       setRequestSent(true);
@@ -88,7 +102,7 @@ export default function ResetPasswordPage() {
         phone: phone || undefined,
         token: token || undefined,
         password,
-        password_confirmation: passwordConfirmation
+        password_confirmation: passwordConfirmation,
       });
 
       setResetSuccess(true);
@@ -97,13 +111,13 @@ export default function ResetPasswordPage() {
       setTimeout(() => {
         router.replace("/login");
       }, 3000);
-
     } catch (error) {
       if (
-        typeof error === 'object' &&
+        typeof error === "object" &&
         error !== null &&
-        'response' in error &&
-        typeof (error as { response?: { status?: number } }).response === 'object' &&
+        "response" in error &&
+        typeof (error as { response?: { status?: number } }).response ===
+          "object" &&
         (error as { response?: { status?: number } }).response?.status === 429
       ) {
         setResetError("Too many attempts, please try again later.");
@@ -137,7 +151,7 @@ export default function ResetPasswordPage() {
               type="email"
               placeholder="Enter your email"
               value={email}
-              onChange={e => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
               disabled={requestResetLoading}
             />
@@ -152,7 +166,7 @@ export default function ResetPasswordPage() {
               type="tel"
               placeholder="Enter your phone number"
               value={phone}
-              onChange={e => setPhone(e.target.value)}
+              onChange={(e) => setPhone(e.target.value)}
               className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
               disabled={requestResetLoading}
             />
@@ -191,7 +205,8 @@ export default function ResetPasswordPage() {
             Password reset successful!
           </div>
           <p className="text-gray-600">
-            Your password has been reset. You&apos;ll be redirected to the loginAction page shortly.
+            Your password has been reset. You&apos;ll be redirected to the
+            loginAction page shortly.
           </p>
           <Link
             href="/login"
@@ -216,7 +231,7 @@ export default function ResetPasswordPage() {
               type="text"
               placeholder="Enter reset code"
               value={token}
-              onChange={e => setToken(e.target.value)}
+              onChange={(e) => setToken(e.target.value)}
               className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
               disabled={resetLoading}
               required
@@ -232,22 +247,32 @@ export default function ResetPasswordPage() {
               type="password"
               placeholder="Enter new password"
               value={password}
-              onChange={e => { setPassword(e.target.value); setPasswordValue(e.target.value); }}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setPasswordValue(e.target.value);
+              }}
               className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
               required
               autoComplete="new-password"
             />
             <div className="mt-1 space-y-1">
               {passwordRequirements.map((req) => (
-                <div key={req.label} className={`text-xs flex items-center gap-1 ${req.test(passwordValue) ? "text-green-600" : "text-gray-400"}`}>
-                  <span>{req.test(passwordValue) ? "✔" : "✗"}</span> {req.label}
+                <div
+                  key={req.label}
+                  className={`text-xs flex items-center gap-1 ${req.test(passwordValue) ? "text-green-600" : "text-gray-400"}`}
+                >
+                  <span>{req.test(passwordValue) ? "✔" : "✗"}</span>{" "}
+                  {req.label}
                 </div>
               ))}
             </div>
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="passwordConfirmation" className="block text-sm font-medium">
+            <label
+              htmlFor="passwordConfirmation"
+              className="block text-sm font-medium"
+            >
               Confirm New Password
             </label>
             <input
@@ -255,7 +280,7 @@ export default function ResetPasswordPage() {
               type="password"
               placeholder="Confirm new password"
               value={passwordConfirmation}
-              onChange={e => setPasswordConfirmation(e.target.value)}
+              onChange={(e) => setPasswordConfirmation(e.target.value)}
               className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
               required
               autoComplete="new-password"

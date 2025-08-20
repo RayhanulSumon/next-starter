@@ -7,7 +7,7 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
     <div
       className={cn(
         "bg-white text-gray-900 flex flex-col gap-6 rounded-xl border border-gray-200 py-8 px-8 shadow-lg",
-        className
+        className,
       )}
       {...props}
     />
@@ -37,7 +37,7 @@ function CardAction({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="card-action"
       className={cn(
         "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
-        className
+        className,
       )}
       {...props}
     />

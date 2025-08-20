@@ -59,7 +59,7 @@ export interface AuthContextType {
   logout: () => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   requestPasswordReset: (
-    data: PasswordResetRequest
+    data: PasswordResetRequest,
   ) => Promise<PasswordResetResponse>;
   resetPassword: (data: PasswordResetData) => Promise<PasswordResetResponse>;
 }

@@ -1,36 +1,41 @@
 "use server";
 import type { User } from "@/types/auth";
-import { cookieStore, apiRequest } from "../shared";
+import { cookieStore } from "../shared";
+import { apiFetch, ApiClientResponse } from "@/lib/apiClient";
 
-export async function getCurrentUser(): Promise<User | null> {
-  // Only check for token in cookies (server-side)
+export async function getCurrentUser(): Promise<ApiClientResponse<User | null>> {
   const token = await cookieStore.get("token");
   if (!token) {
-    return null;
+    return {
+      message: "Not authenticated",
+      data: null,
+      errors: [],
+      status: 401,
+    };
   }
   try {
-    const data = await apiRequest<any>("/user", {
+    const result = await apiFetch<User>("/user", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
-    // Debug: Log the backend response
-    console.log("getCurrentUser: backend response:", data);
-    // Handle both direct user object and { message, data } format
-    if (data && typeof data === "object") {
-      if ("id" in data && "name" in data && "role" in data) {
-        return data as User;
-      }
-      if ("data" in data && data.data && typeof data.data === "object" && "id" in data.data) {
-        return data.data as User;
-      }
+    if (result.data && typeof result.data === "object" && "id" in result.data) {
+      return {
+        ...result,
+        message: "User found",
+        status: result.status,
+      };
     }
-    return null;
+    return {
+      ...result,
+      message: "User not found",
+      data: null,
+      status: 404,
+    };
   } catch (error) {
-    console.error("getCurrentUser error:", error);
     await cookieStore.delete("token");
-    return null;
+    throw error;
   }
 }
