@@ -6,28 +6,19 @@ import type { RegisterData, User } from "@/types/auth";
 
 export async function registerAction(data: RegisterData): Promise<ApiClientResponse<{ user: User; token: string }>> {
   const result = await apiPost<{ token: string; user: User }>("/register", data);
-  function isRegisterResponse(data: unknown): data is { token: string; user: User } {
-    return (
-      typeof data === "object" &&
-      data !== null &&
-      Object.prototype.hasOwnProperty.call(data, "token") &&
-      Object.prototype.hasOwnProperty.call(data, "user")
-    );
+  if (
+    typeof result.data === "object" &&
+    result.data !== null &&
+    Object.prototype.hasOwnProperty.call(result.data, "token") &&
+    Object.prototype.hasOwnProperty.call(result.data, "user")
+  ) {
+    await cookieStore.set("token", result.data.token, {
+      httpOnly: true,
+      path: "/",
+      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+    });
+    revalidatePath("/user/dashboard");
   }
-  if (!isRegisterResponse(result.data)) {
-    throw new Error("Unexpected register response from /register.");
-  }
-  await cookieStore.set("token", result.data.token, {
-    httpOnly: true,
-    path: "/",
-    sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
-  });
-  revalidatePath("/user/dashboard");
-  return {
-    message: result.message,
-    data: { user: result.data.user, token: result.data.token },
-    errors: result.errors,
-    status: result.status,
-  };
+  return result;
 }
