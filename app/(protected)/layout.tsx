@@ -6,9 +6,9 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const initialUser = await getCurrentUser();
+  const initialUserResponse = await getCurrentUser();
   return (
-    <ProtectedLayoutClient initialUser={initialUser}>
+    <ProtectedLayoutClient initialUser={initialUserResponse.data}>
       {children}
     </ProtectedLayoutClient>
   );

@@ -18,7 +18,7 @@ export async function loginAction(
     typeof data === "object" &&
     data !== null &&
     Object.prototype.hasOwnProperty.call(data, "twofa_required") &&
-    (data as any).twofa_required === true;
+    (data as { twofa_required: unknown }).twofa_required === true;
 
   // Type guard for login response
   const isLoginResponse = (data: unknown): data is LoginResponse =>

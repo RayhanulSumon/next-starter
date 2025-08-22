@@ -1,12 +1,12 @@
 "use client";
 import { AuthProvider } from "@/context/auth-context";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardTopbar from "@/components/dashboard/DashboardTopbar";
 import React from "react";
 
 function SidebarLayout({ children }: { children: React.ReactNode }) {
-  const { state } = require("@/components/ui/sidebar").useSidebar();
+  useSidebar();
   return (
     <div className="flex min-h-screen bg-background text-foreground w-full">
       <div className="sticky top-0 h-screen">
@@ -24,7 +24,7 @@ export default function ProtectedLayoutClient({
   initialUser,
   children,
 }: {
-  initialUser: any;
+  initialUser: import("@/types/auth").User | null;
   children: React.ReactNode;
 }) {
   return (

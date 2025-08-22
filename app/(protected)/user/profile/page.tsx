@@ -1,7 +1,8 @@
 import { getCurrentUser } from "@/app/actions/auth/getCurrentUser";
 
 export default async function UserProfilePage() {
-  const user = await getCurrentUser();
+  const userResponse = await getCurrentUser();
+  const user = userResponse.data;
 
   if (!user) {
     return (
