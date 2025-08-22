@@ -57,13 +57,6 @@ export default function LoginPage() {
   async function onSubmit(data: LoginFormValues) {
     try {
       const response = await login(data.identifier, data.password);
-      // Handle structured error from loginAction
-      if (response && response.data && response.data.error) {
-        form.setError("root", {
-          message: response.data.error,
-        });
-        return;
-      }
       if (response && "twofa_required" in response && response.twofa_required) {
         setTwoFARequired(true);
         setPendingLogin({
