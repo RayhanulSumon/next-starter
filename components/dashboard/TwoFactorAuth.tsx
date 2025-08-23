@@ -8,6 +8,7 @@ import {
   disable2FAAction,
   TwoFAResponse,
 } from "@/app/actions/auth/twoFactorActions";
+import Image from "next/image";
 
 export default function TwoFactorAuth() {
   const { user } = useAuth();
@@ -100,12 +101,13 @@ export default function TwoFactorAuth() {
               Scan this QR code with your authenticator app:
             </div>
             {qr && (
-              <img
+              <Image
                 src={`data:image/svg+xml;utf8,${encodeURIComponent(qr.trim())}`}
                 alt="2FA QR Code"
                 className="mx-auto"
                 width={200}
                 height={200}
+                unoptimized={true}
               />
             )}
             <div className="mt-2 text-xs text-gray-500">Secret: {secret}</div>
