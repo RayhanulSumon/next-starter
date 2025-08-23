@@ -4,26 +4,12 @@ import { cookieStore } from "../shared";
 import { apiFetch, ApiClientResponse } from "@/lib/apiClient";
 
 export async function getCurrentUser(): Promise<ApiClientResponse<User | null>> {
-  let token = await cookieStore.get("token");
-  if (!token || token.trim() === "") {
-    return {
-      message: "Not authenticated",
-      data: null,
-      errors: [],
-      status: 401,
-    };
-  }
   try {
-    token = decodeURIComponent(token);
-  } catch {}
-  try {
-    // For /user endpoint, the user object is at the top level of the response
-    const result = await apiFetch<User>("/user", undefined, "GET", token);
-    // Type guard: ensure result is a User
-    if (result && typeof result === "object" && "id" in result) {
+    const response = await apiFetch<User>("/user");
+    if (response.data) {
       return {
         message: "User found",
-        data: result as User,
+        data: response.data,
         errors: [],
         status: 200,
       };

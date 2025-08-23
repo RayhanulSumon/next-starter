@@ -1,6 +1,6 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { apiPost, ApiClientResponse } from "@/lib/apiClient";
+import { apiFetch, ApiClientResponse } from "@/lib/apiClient";
 import type { LoginActionResult, LoginResponse } from "@/types/auth";
 import { cookieStore } from "../shared";
 
@@ -8,9 +8,9 @@ export async function loginAction(
   identifier: string,
   password: string,
 ): Promise<ApiClientResponse<LoginActionResult>> {
-  const result = await apiPost<LoginResponse | { twofa_required?: boolean }>(
+  const result = await apiFetch<LoginResponse | { twofa_required?: boolean }>(
     "/login",
-    { identifier, password }
+    { method: "POST", data: { identifier, password } }
   );
   // Side effect: set cookie if login is successful
   // Type guard for 2FA required
