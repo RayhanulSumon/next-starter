@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { getCurrentUser } from "./actions/auth/getCurrentUser";
 import { generateMetadata } from "@/app/(public)/_lib/metadata";
 import { ThemeProvider } from "@/components/theme-provider";
-import { AuthProvider } from "@/context/auth-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,9 +24,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Fetch the current user on the server side
-  const { data: initialUser } = await getCurrentUser();
-
   return (
     <html lang="en" suppressHydrationWarning>
       {/* ...existing code... */}
@@ -42,9 +37,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider initialUser={initialUser}>
-            <main className="flex min-h-screen flex-col">{children}</main>
-          </AuthProvider>
+          <main className="flex min-h-screen flex-col">{children}</main>
         </ThemeProvider>
       </body>
     </html>

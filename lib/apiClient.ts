@@ -78,8 +78,11 @@ function normalizeApiError(data: unknown, status: number): ApiError {
     normalizedErrors = errorsRaw as Record<string, string[]>;
   }
 
-  const message = typeof errorData.message === 'string' ? errorData.message : 'Unknown error';
+  let message = typeof errorData.message === 'string' ? errorData.message : 'Unknown error';
   const respStatus = typeof errorData.status === 'number' ? errorData.status : status;
+  if (respStatus === 401 || respStatus === 403) {
+    message = 'You are not authenticated. Please log in.';
+  }
   const respData = errorData.data;
   // Remove unused destructuring to fix ESLint warning
   const apiErrorData: Record<string, unknown> = { message, status: respStatus, data: respData };
@@ -134,7 +137,16 @@ export async function apiFetch<T = unknown>(
     fetchOptions.method = method;
     const res = await fetch(url, fetchOptions);
     let data: ApiClientResponse<T>;
-    try { data = await res.json(); } catch { throw new ApiError('Server not found. Please try again later.', 0, {}); }
+    try {
+      data = await res.json();
+    } catch {
+      // Handle non-JSON error responses
+      if (res.status === 401 || res.status === 403) {
+        throw new ApiError('You are not authenticated. Please log in.', res.status, {});
+      } else {
+        throw new ApiError('Unexpected server response.', res.status, {});
+      }
+    }
     if (!res.ok) {
       throw normalizeApiError(data, res.status);
     }

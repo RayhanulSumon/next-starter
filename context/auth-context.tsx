@@ -73,9 +73,11 @@ const AuthContext = createContext<EnhancedAuthContextType>({
 export const AuthProvider = ({
   children,
   initialUser = null,
+  fetchUserOnMount = true,
 }: {
   children: ReactNode;
   initialUser?: User | null;
+  fetchUserOnMount?: boolean;
 }) => {
   // User state
   const [user, setUser] = useState<User | null>(initialUser);
@@ -205,6 +207,7 @@ export const AuthProvider = ({
 
   // Fetch current user on mount (for hydration after reload)
   React.useEffect(() => {
+    if (!fetchUserOnMount) return;
     // Only fetch if user is not already set from initialUser
     if (user !== null) return;
     let isMounted = true;
@@ -222,7 +225,7 @@ export const AuthProvider = ({
     return () => {
       isMounted = false;
     };
-  }, [user]);
+  }, [user, fetchUserOnMount]);
 
   // Memoize context value for performance
   const value = useMemo(

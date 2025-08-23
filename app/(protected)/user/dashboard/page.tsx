@@ -11,8 +11,8 @@ import TwoFactorAuth from "@/components/dashboard/TwoFactorAuth";
 export default function DashboardPage() {
   const { toggleSidebar } = useSidebar();
   const { user, loading } = useAuth();
-  console.log("DashboardPage useAuth user:", user);
-  console.log("DashboardPage useAuth loading:", loading);
+  // console.log("DashboardPage useAuth user:", user);
+  // console.log("DashboardPage useAuth loading:", loading);
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
 

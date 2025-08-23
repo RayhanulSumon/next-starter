@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthProvider } from "@/context/auth-context";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -64,6 +65,14 @@ const registerSchema = z
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
+  return (
+    <AuthProvider fetchUserOnMount={false}>
+      <RegisterPageContent />
+    </AuthProvider>
+  );
+}
+
+function RegisterPageContent() {
   const { register, user, loading: authLoading } = useAuth();
   const router = useRouter();
   const form = useForm<RegisterFormValues>({

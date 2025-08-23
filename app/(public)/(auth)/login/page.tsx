@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthProvider } from "@/context/auth-context";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,6 +29,14 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
+  return (
+    <AuthProvider fetchUserOnMount={false}>
+      <LoginPageContent />
+    </AuthProvider>
+  );
+}
+
+function LoginPageContent() {
   const { login, user, loginLoading, loading: authLoading } = useAuth();
   const router = useRouter();
   const form = useForm<LoginFormValues>({

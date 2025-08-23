@@ -1,6 +1,5 @@
 "use server";
 import type { User } from "@/types/auth";
-import { cookieStore } from "../shared";
 import { apiFetch, ApiClientResponse } from "@/lib/apiClient";
 
 export async function getCurrentUser(): Promise<ApiClientResponse<User | null>> {
@@ -21,7 +20,7 @@ export async function getCurrentUser(): Promise<ApiClientResponse<User | null>> 
       status: 404,
     };
   } catch (error) {
-    await cookieStore.delete("token");
+    // Do not attempt to delete cookies here; handle in server action or client as appropriate
     throw error;
   }
 }
