@@ -14,7 +14,7 @@ export async function loginHandler(
     throw new Error(result.message || 'Login failed');
   }
   if (isTwoFARequired(data)) {
-    return { twofa_required: true };
+    return { "2fa_required": true, user: data.user };
   }
   if (isUserToken(data)) {
     startTransition(() => {

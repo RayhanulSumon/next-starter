@@ -1,11 +1,12 @@
 import type { User } from "@/types/auth";
 
-export function isTwoFARequired(data: unknown): data is { twofa_required: true } {
+export function isTwoFARequired(data: unknown): data is { "2fa_required": true; user: User } {
   return (
     typeof data === 'object' &&
     data !== null &&
-    'twofa_required' in data &&
-    (data as { twofa_required?: boolean }).twofa_required === true
+    '2fa_required' in data &&
+    (data as { [key: string]: unknown })["2fa_required"] === true &&
+    'user' in data
   );
 }
 

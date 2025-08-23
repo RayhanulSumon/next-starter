@@ -32,7 +32,7 @@ export function LoginForm({ onTwoFARequired }: LoginFormProps) {
   async function onSubmit(data: LoginFormValues) {
     try {
       const response = await login(data.identifier, data.password);
-      if (response && typeof response === "object" && "twofa_required" in response && response.twofa_required) {
+      if (response && typeof response === "object" && "2fa_required" in response && response["2fa_required"]) {
         onTwoFARequired(data.identifier, data.password);
         return;
       }

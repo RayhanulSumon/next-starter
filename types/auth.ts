@@ -50,7 +50,7 @@ export interface LoginResponse {
 
 export type LoginActionResult =
   | { user: User; token: string }
-  | { twofa_required: true };
+  | { "2fa_required": true; user: User };
 
 export interface AuthContextType {
   user: User | null;
