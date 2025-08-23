@@ -121,15 +121,22 @@ export const AuthProvider = ({
   const register = useCallback(async (data: RegisterData): Promise<void> => {
     setRegisterLoading(true);
     try {
-      // Ensure role is one of the valid enum values
       if (!Object.values(UserRole).includes(data.role)) {
-        data.role = UserRole.USER; // Default to user if invalid role
+        data.role = UserRole.USER;
       }
 
       const result = await registerAction(data);
-      startTransition(() => {
-        setUser(result.data?.user ?? null);
-      });
+
+      if (result.data && result.data.user) {
+        setUser(result.data.user);
+        setInitialLoading(false);
+        // Optionally: store token for client-side API calls
+        // localStorage.setItem('token', result.data.token);
+      } else {
+        setUser(null);
+        setInitialLoading(false);
+        throw new Error("Registration did not return a user.");
+      }
     } catch (error) {
       console.error("Registration error:", error);
       throw error;

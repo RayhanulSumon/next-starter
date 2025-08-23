@@ -2,6 +2,7 @@
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardTopbar from "@/components/dashboard/DashboardTopbar";
+import { useAuth } from "@/hook/useAuth";
 import React from "react";
 
 function SidebarLayout({ children }: { children: React.ReactNode }) {
