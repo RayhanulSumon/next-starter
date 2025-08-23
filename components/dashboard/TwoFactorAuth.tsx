@@ -16,7 +16,6 @@ export default function TwoFactorAuth() {
   );
   const [qr, setQr] = useState<string | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
-  const [code, setCode] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -119,16 +118,14 @@ export default function TwoFactorAuth() {
               id="code"
               name="code"
               type="text"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
               className="border rounded px-2 py-1 w-full"
-              pattern="\\d{6}"
+              pattern="\d{6}"
               maxLength={6}
               required
               autoComplete="one-time-code"
             />
           </div>
-          <Button type="submit" disabled={pending || code.length !== 6}>
+          <Button type="submit" disabled={pending}>
             Verify & Enable
           </Button>
         </form>
