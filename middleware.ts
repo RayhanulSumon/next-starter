@@ -20,12 +20,12 @@ export default function middleware(request: NextRequest) {
   );
 
   // Debug logging
-  console.log('MIDDLEWARE DEBUG', {
-    pathname,
-    normalizedPath,
-    isPublicPath,
-    token,
-  });
+  // console.log('MIDDLEWARE DEBUG', {
+  //   pathname,
+  //   normalizedPath,
+  //   isPublicPath,
+  //   token,
+  // });
 
   // Redirect to loginAction if accessing protected route without token
   if (!token && !isPublicPath) {

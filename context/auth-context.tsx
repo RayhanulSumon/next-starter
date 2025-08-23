@@ -203,6 +203,26 @@ export const AuthProvider = ({
     [],
   );
 
+  // Fetch current user on mount (for hydration after reload)
+  React.useEffect(() => {
+    // Only fetch if user is not already set from initialUser
+    if (user !== null) return;
+    let isMounted = true;
+    (async () => {
+      try {
+        const { getCurrentUser } = await import("@/app/actions/auth/getCurrentUser");
+        const result = await getCurrentUser();
+        if (isMounted) {
+          setUser(result.data ?? null);
+        }
+      } catch (error) {
+        if (isMounted) setUser(null);
+      }
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
 
   // Memoize context value for performance
   const value = useMemo(

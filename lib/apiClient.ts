@@ -25,6 +25,13 @@ export class ApiError extends Error {
   }
 }
 
+// Helper to get token from normal cookie (client-side only)
+function getTokenFromCookie(): string | undefined {
+  if (typeof document === 'undefined') return undefined;
+  const match = document.cookie.match(new RegExp('(^| )token=([^;]+)'));
+  return match ? decodeURIComponent(match[2]) : undefined;
+}
+
 /**
  * Global API fetch utility for both client and server components.
  * Handles Laravel-style responses and network/server errors.
@@ -41,10 +48,10 @@ export async function apiFetch<T = unknown>(
   input: string,
   options?: RequestInit,
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' = 'GET',
+  token?: string // Optional: pass token explicitly (for server-side)
 ): Promise<ApiClientResponse<T>> {
   try {
     let url = input;
-    // If running on the server and input is a relative path, prepend base URL
     if (typeof window === 'undefined' && input.startsWith('/')) {
       const base = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || '';
       if (!base) {
@@ -56,12 +63,10 @@ export async function apiFetch<T = unknown>(
       }
       url = base.replace(/\/$/, '') + input;
     }
-    // Debug: log the final URL being fetched
     if (process.env.NODE_ENV !== 'production') {
       // eslint-disable-next-line no-console
       console.log('[apiFetch] Fetching URL:', url);
     }
-    // Remove body from options if method is GET or HEAD
     const methodUpper = (method || 'GET').toUpperCase();
     let safeOptions = { ...options };
     if ((methodUpper === 'GET' || methodUpper === 'HEAD') && 'body' in safeOptions) {
@@ -76,21 +81,42 @@ export async function apiFetch<T = unknown>(
     // Remove method from safeOptions to ensure the explicit method argument is always used
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { method: _method, ...finalOptions } = safeOptions;
-    // Debug: log the final fetch options
-    if (process.env.NODE_ENV !== 'production') {
-      // eslint-disable-next-line no-console
-      console.log('[apiFetch] Final fetch options:', { ...finalOptions, method: methodUpper });
+
+    // --- Bearer Token Logic ---
+    let bearerToken = token;
+    if (!bearerToken && typeof window !== 'undefined') {
+      bearerToken = getTokenFromCookie();
     }
-    // Use fetch for both server and client
-    const res = await fetch(url, {
+    if (bearerToken) {
+      try {
+        bearerToken = decodeURIComponent(bearerToken);
+      } catch (e) {
+        // If decoding fails, fallback to original
+      }
+    }
+    // Set Authorization header if token is available
+    const headers = {
+      Accept: 'application/json',
+      ...(finalOptions?.headers || {}),
+      ...(bearerToken ? { Authorization: `Bearer ${bearerToken}` } : {}),
+    };
+    if (process.env.NODE_ENV !== 'production' && bearerToken) {
+      // eslint-disable-next-line no-console
+      console.log('[apiFetch] Authorization header:', headers.Authorization);
+    }
+
+    // Only set credentials: 'include' if not using Bearer token (i.e., for cookie-based auth)
+    const fetchOptions: RequestInit = {
       ...finalOptions,
       method: methodUpper,
-      credentials: 'include',
-      headers: {
-        Accept: 'application/json',
-        ...(finalOptions?.headers || {}),
-      },
-    });
+      headers,
+    };
+    // If not sending a Bearer token, maybe using cookies, so include credentials
+    if (!bearerToken) {
+      fetchOptions.credentials = 'include';
+    }
+
+    const res = await fetch(url, fetchOptions);
     let data: ApiClientResponse<T>;
     try {
       data = await res.json();

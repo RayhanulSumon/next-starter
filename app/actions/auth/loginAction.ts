@@ -35,10 +35,11 @@ export async function loginAction(
   }
   if (isLoginResponse(result.data)) {
     const responseData = result.data;
+    // Set cookie as httpOnly: false and sameSite: 'lax' for local development
     await cookieStore.set("token", responseData.token, {
-      httpOnly: true,
+      httpOnly: false,
       path: "/",
-      sameSite: "strict",
+      sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
     });
     revalidatePath("/user/dashboard");
