@@ -10,19 +10,17 @@ import TwoFactorAuth from "@/components/dashboard/TwoFactorAuth";
 
 export default function DashboardPage() {
   const { toggleSidebar } = useSidebar();
-  const { user, loading } = useAuth();
-  // console.log("DashboardPage useAuth user:", user);
-  // console.log("DashboardPage useAuth loading:", loading);
+  const { user, initialLoading } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!initialLoading && !user) {
       router.replace("/login");
     }
-  }, [user, loading, router]);
+  }, [user, initialLoading, router]);
 
-  if (loading) {
+  if (initialLoading) {
     return (
       <div className="mt-20 p-6 border rounded text-center bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         Loading...

@@ -1,6 +1,5 @@
 "use client";
 
-import { AuthProvider } from "@/context/auth-context";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -65,11 +64,7 @@ const registerSchema = z
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
-  return (
-    <AuthProvider fetchUserOnMount={false}>
-      <RegisterPageContent />
-    </AuthProvider>
-  );
+  return <RegisterPageContent />;
 }
 
 function RegisterPageContent() {
@@ -87,6 +82,7 @@ function RegisterPageContent() {
     },
   });
 
+  // SPA redirect after registration using router.replace
   useEffect(() => {
     if (!authLoading && user && user.id && window.location.pathname !== "/user/dashboard") {
       router.replace("/user/dashboard");
@@ -103,8 +99,7 @@ function RegisterPageContent() {
   async function onSubmit(data: RegisterFormValues) {
     try {
       await register(data);
-      // Remove router.refresh() and router.push("/user/dashboard");
-      // Redirect will be handled by useEffect after user state is updated
+      // No need for window.location.replace; redirect handled by useEffect
     } catch (err) {
       if (
         typeof err === "object" &&

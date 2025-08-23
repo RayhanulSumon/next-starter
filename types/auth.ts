@@ -62,4 +62,9 @@ export interface AuthContextType {
     data: PasswordResetRequest,
   ) => Promise<PasswordResetResponse>;
   resetPassword: (data: PasswordResetData) => Promise<PasswordResetResponse>;
+  loginLoading: boolean;
+  registerLoading: boolean;
+  resetLoading: boolean;
+  requestResetLoading: boolean;
+  initialLoading: boolean;
 }

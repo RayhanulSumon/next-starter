@@ -1,6 +1,5 @@
 "use client";
 
-import { AuthProvider } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hook/useAuth";
@@ -10,11 +9,7 @@ import { LoginForm } from "./LoginForm";
 import { TwoFactorForm } from "./TwoFactorForm";
 
 export default function LoginPage() {
-  return (
-    <AuthProvider fetchUserOnMount={false}>
-      <LoginPageContent />
-    </AuthProvider>
-  );
+  return <LoginPageContent />;
 }
 
 function LoginPageContent() {

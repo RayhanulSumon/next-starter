@@ -1,5 +1,4 @@
 "use client";
-import { AuthProvider } from "@/context/auth-context";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardTopbar from "@/components/dashboard/DashboardTopbar";
@@ -21,17 +20,13 @@ function SidebarLayout({ children }: { children: React.ReactNode }) {
 }
 
 export default function ProtectedLayoutClient({
-  initialUser,
   children,
 }: {
-  initialUser: import("@/types/auth").User | null;
   children: React.ReactNode;
 }) {
   return (
-    <AuthProvider initialUser={initialUser}>
-      <SidebarProvider>
-        <SidebarLayout>{children}</SidebarLayout>
-      </SidebarProvider>
-    </AuthProvider>
+    <SidebarProvider>
+      <SidebarLayout>{children}</SidebarLayout>
+    </SidebarProvider>
   );
 }

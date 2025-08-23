@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { generateMetadata } from "@/app/(public)/_lib/metadata";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/context/auth-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,7 +38,9 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <main className="flex min-h-screen flex-col">{children}</main>
+          <AuthProvider>
+            <main className="flex min-h-screen flex-col">{children}</main>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

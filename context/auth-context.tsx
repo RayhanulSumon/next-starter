@@ -44,6 +44,7 @@ interface EnhancedAuthContextType {
   registerLoading: boolean;
   resetLoading: boolean;
   requestResetLoading: boolean;
+  initialLoading: boolean; // New state to indicate initial loading
 }
 
 // Create a context with a default value that satisfies TypeScript but will be overridden by the provider
@@ -54,6 +55,7 @@ const AuthContext = createContext<EnhancedAuthContextType>({
   registerLoading: false,
   resetLoading: false,
   requestResetLoading: false,
+  initialLoading: true, // Default to true for initial loading
   login: async () => {
     throw new Error("AuthContext not initialized");
   },
@@ -89,10 +91,10 @@ export const AuthProvider = ({
   const [resetLoading, setResetLoading] = useState<boolean>(false);
   const [requestResetLoading, setRequestResetLoading] =
     useState<boolean>(false);
+  const [initialLoading, setInitialLoading] = useState(true); // Add initialLoading state
 
   // Use transition for smoother UI updates
   const [, startTransition] = useTransition();
-
 
   // Login with identifier (email or phone) and password
   const login = useCallback(
@@ -124,14 +126,9 @@ export const AuthProvider = ({
         data.role = UserRole.USER; // Default to user if invalid role
       }
 
-      await registerAction(data);
-      // Refetch user to ensure cookie is set
-      const { getCurrentUser } = await import(
-        "@/app/actions/auth/getCurrentUser"
-      );
-      const freshUser = await getCurrentUser();
+      const result = await registerAction(data);
       startTransition(() => {
-        setUser(freshUser.data ?? null);
+        setUser(result.data?.user ?? null);
       });
     } catch (error) {
       console.error("Registration error:", error);
@@ -184,9 +181,15 @@ export const AuthProvider = ({
 
   // Fetch current user on mount (for hydration after reload)
   React.useEffect(() => {
-    if (!fetchUserOnMount) return;
+    if (!fetchUserOnMount) {
+      setInitialLoading(false);
+      return;
+    }
     // Only fetch if user is not already set from initialUser
-    if (user !== null) return;
+    if (user !== null) {
+      setInitialLoading(false);
+      return;
+    }
     let isMounted = true;
     (async () => {
       try {
@@ -197,6 +200,8 @@ export const AuthProvider = ({
         }
       } catch (error) {
         if (isMounted) setUser(null);
+      } finally {
+        if (isMounted) setInitialLoading(false);
       }
     })();
     return () => {
@@ -210,6 +215,7 @@ export const AuthProvider = ({
       user,
       loading:
         loginLoading || registerLoading || resetLoading || requestResetLoading,
+      initialLoading,
       loginLoading,
       registerLoading,
       resetLoading,
@@ -226,6 +232,7 @@ export const AuthProvider = ({
       registerLoading,
       resetLoading,
       requestResetLoading,
+      initialLoading,
       login,
       logout,
       register,
