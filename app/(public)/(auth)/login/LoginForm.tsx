@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { CustomInputField } from "@/components/ui/CustomInputField";
 import Link from "next/link";
-import { loginSchema, LoginFormValues, isLoginErrorResponse } from "./login-schema";
+import { loginSchema, LoginFormValues } from "./login-schema";
 import { useEffect } from "react";
 
 interface LoginFormProps {
@@ -32,32 +32,16 @@ export function LoginForm({ onTwoFARequired }: LoginFormProps) {
   async function onSubmit(data: LoginFormValues) {
     try {
       const response = await login(data.identifier, data.password);
-      if (isLoginErrorResponse(response) && response.status !== 200) {
-        form.setError("root", { message: response.message || "Login failed. Please try again." });
-        if (response.errors && typeof response.errors === "object") {
-          Object.entries(response.errors).forEach(([field, messages]) => {
-            if (Array.isArray(messages) && messages.length > 0) {
-              form.setError(field as keyof LoginFormValues, { message: messages[0] });
-            }
-          });
-        }
-        return;
-      }
       if (response && typeof response === "object" && "twofa_required" in response && response.twofa_required) {
         onTwoFARequired(data.identifier, data.password);
         return;
       }
       if (response && typeof response === "object" && "user" in response && response.user) {
-        router.push("/user/dashboard");
+        // Successful login, redirect handled by useEffect
         return;
       }
-      if (isLoginErrorResponse(response)) {
-        form.setError("root", { message: response.message || "Unexpected login response." });
-      } else {
-        form.setError("root", { message: "Unexpected login response." });
-      }
-    } catch (err) {
-      form.setError("root", { message: err instanceof Error && err.message ? err.message : "Login failed. Please try again." });
+    } catch (error: any) {
+      form.setError("root", { message: error?.message || "Login failed. Please try again." });
     }
   }
 

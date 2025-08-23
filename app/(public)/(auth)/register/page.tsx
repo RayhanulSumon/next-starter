@@ -103,8 +103,8 @@ function RegisterPageContent() {
   async function onSubmit(data: RegisterFormValues) {
     try {
       await register(data);
-      router.refresh();
-      router.push("/user/dashboard");
+      // Remove router.refresh() and router.push("/user/dashboard");
+      // Redirect will be handled by useEffect after user state is updated
     } catch (err) {
       if (
         typeof err === "object" &&

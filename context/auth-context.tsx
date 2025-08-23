@@ -26,7 +26,6 @@ import {
   resetPasswordAction,
 } from "@/app/actions/auth/resetPasswordAction";
 import { logoutUserAction } from "@/app/actions/auth/logOutAction";
-import { useRouter } from "next/navigation";
 
 // Enhanced AuthContext with loading states for different operations
 interface EnhancedAuthContextType {
@@ -91,7 +90,6 @@ export const AuthProvider = ({
 
   // Use transition for smoother UI updates
   const [, startTransition] = useTransition();
-  const router = useRouter();
 
   // Login with identifier (email or phone) and password
   const login = useCallback(
@@ -102,11 +100,11 @@ export const AuthProvider = ({
       setLoginLoading(true);
       try {
         const result = await loginAction(identifier, password);
-        if (result && result.status && result.status !== 200) {
-          // Return error object to the login page for display
-          return result;
-        }
         const data = result.data;
+        if (result && result.status && result.status !== 200) {
+          // Throw error for failed login with API message
+          throw new Error(result.message || 'Login failed');
+        }
         // Type guard for twofa_required
         if (data && typeof data === 'object' && 'twofa_required' in data && (data as { twofa_required?: boolean }).twofa_required) {
           return { twofa_required: true };
@@ -121,17 +119,20 @@ export const AuthProvider = ({
           (data as { user?: User; token?: string }).token
         ) {
           const userObj = (data as { user: User; token: string }).user;
-          const token = (data as { user: User; token: string }).token;
+          // const token = (data as { user: User; token: string }).token; // token is not used
           startTransition(() => {
             setUser(userObj);
           });
-          return { user: userObj, token };
+          return { user: userObj, token: (data as { token: string }).token };
         }
-        // Fallback: return empty object (should not happen)
+        // Fallback: throw error
         throw new Error('Unexpected login response');
-      } catch (error) {
-        console.error("Login error:", error);
-        throw error;
+      } catch (error: unknown) {
+        // Preserve the original error message if available
+        if (error instanceof Error && error.message) {
+          throw error;
+        }
+        throw new Error('Login failed');
       } finally {
         setLoginLoading(false);
       }
@@ -199,9 +200,6 @@ export const AuthProvider = ({
       setResetLoading(true);
       try {
         return await resetPasswordAction(data);
-      } catch (error) {
-        console.error("Password reset error:", error);
-        throw error;
       } finally {
         setResetLoading(false);
       }
