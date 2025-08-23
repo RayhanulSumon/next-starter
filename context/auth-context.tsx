@@ -27,6 +27,7 @@ import {
 } from "@/app/actions/auth/resetPasswordAction";
 import { logoutUserAction } from "@/app/actions/auth/logOutAction";
 import { isTwoFARequired, isUserToken } from "@/lib/authGuards";
+import { loginHandler } from "@/lib/auth/loginHandler";
 
 // Enhanced AuthContext with loading states for different operations
 interface EnhancedAuthContextType {
@@ -101,21 +102,7 @@ export const AuthProvider = ({
     ): Promise<LoginActionResult> => {
       setLoginLoading(true);
       try {
-        const result = await loginAction(identifier, password);
-        const data = result.data;
-        if (result.status && result.status !== 200) {
-          throw new Error(result.message || 'Login failed');
-        }
-        if (isTwoFARequired(data)) {
-          return { twofa_required: true };
-        }
-        if (isUserToken(data)) {
-          startTransition(() => {
-            setUser(data.user);
-          });
-          return { user: data.user, token: data.token };
-        }
-        throw new Error('Unexpected login response');
+        return await loginHandler(identifier, password, setUser, startTransition);
       } catch (error: unknown) {
         if (error instanceof Error && error.message) {
           throw error;
@@ -125,7 +112,7 @@ export const AuthProvider = ({
         setLoginLoading(false);
       }
     },
-    [],
+    [setUser, startTransition],
   );
 
   // Register a new user
