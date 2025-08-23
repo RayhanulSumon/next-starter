@@ -21,3 +21,16 @@ export async function getToken(tokenName: string = 'token'): Promise<string | nu
   const match = document.cookie.match(new RegExp('(^| )' + tokenName + '=([^;]+)'));
   return match ? decodeURIComponent(match[2]) : null;
 }
+
+// Normalize API errors to string[] | Record<string, string[]>
+export function normalizeApiErrors(errors: unknown): string[] | Record<string, string[]> {
+  if (Array.isArray(errors)) {
+    return errors.map(e => String(e));
+  }
+  if (errors && typeof errors === 'object') {
+    const obj = errors as Record<string, unknown>;
+    if (Object.values(obj).every(v => Array.isArray(v) && v.every(i => typeof i === 'string')))
+      return errors as Record<string, string[]>;
+  }
+  return [];
+}

@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { apiFetch, ApiClientResponse } from "@/lib/apiClient";
 import type { LoginActionResult, LoginResponse } from "@/types/auth";
 import { cookieStore } from "../shared";
+import { normalizeApiErrors } from "@/lib/utils";
 
 export async function loginAction(
   identifier: string,
@@ -60,26 +61,12 @@ export async function loginAction(
       status: result.status || 500,
     };
   } catch (err: unknown) {
-    // Always return a structured error object
     if (err && typeof err === 'object' && 'status' in (err as Record<string, unknown>)) {
       const errorObj = err as { message?: string; data?: { errors?: unknown }; status?: number };
-      let errors: string[] | Record<string, string[]> = [];
-      const rawErrors = errorObj.data?.errors;
-      if (Array.isArray(rawErrors)) {
-        errors = rawErrors.map(e => String(e));
-      } else if (rawErrors && typeof rawErrors === 'object') {
-        // Check if it's a Record<string, string[]>
-        const isRecord = Object.values(rawErrors).every(
-          v => Array.isArray(v) && v.every(i => typeof i === 'string')
-        );
-        if (isRecord) {
-          errors = rawErrors as Record<string, string[]>;
-        }
-      }
       return {
         message: errorObj.message || 'Login failed.',
         data: null,
-        errors,
+        errors: normalizeApiErrors(errorObj.data?.errors),
         status: errorObj.status || 500,
       };
     }
