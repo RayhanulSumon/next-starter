@@ -5,6 +5,7 @@ export type ApiClientResponse<T = unknown> = {
   data: T | null;
   errors: Record<string, string[]> | string[];
   status: number;
+  rawText?: string; // Optional rawText for non-JSON responses
 };
 
 // Custom ApiError class for consistent error handling
@@ -132,7 +133,7 @@ export async function apiFetch<T = unknown>(
   try {
     data = JSON.parse(rawText);
     isJson = true;
-  } catch (e) {
+  } catch {
     // Not JSON, keep isJson false
   }
   if (!res.ok) {
@@ -152,7 +153,7 @@ export async function apiFetch<T = unknown>(
   }
   // If successful, but not JSON, return raw text as data
   if (!isJson) {
-    return { message: '', data: rawText as any, errors: [], status: res.status };
+    return { message: '', data: null, errors: [], status: res.status, rawText };
   }
   return data as ApiClientResponse<T>;
 }

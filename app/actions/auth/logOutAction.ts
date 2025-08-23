@@ -11,12 +11,12 @@ export async function logoutUserAction(): Promise<ApiClientResponse<void>> {
         await apiFetch<void>(
           '/logout',
           {
+            method: 'POST',
             headers: {
               Authorization: `Bearer ${token}`,
               'Content-Type': 'application/json',
             },
-          },
-          'POST'
+          }
         );
       } catch (error: unknown) {
         apiErrorMessage = error instanceof Error ? error.message : 'API logout failed';

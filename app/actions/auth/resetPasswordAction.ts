@@ -5,20 +5,11 @@ import type {
   PasswordResetData,
   PasswordResetResponse,
 } from "@/types/auth";
-import { z } from "zod";
-
-const passwordResetRequestSchema = z.object({
-  email: z.string().email("Invalid email address"),
-});
-const passwordResetSchema = z.object({
-  token: z.string().min(1, "Token is required"),
-  newPassword: z.string().min(6, "Password must be at least 6 characters"),
-});
 
 export async function requestPasswordReset(
   data: PasswordResetRequest,
 ): Promise<ApiClientResponse<PasswordResetResponse | undefined>> {
-  const result = await apiFetch<PasswordResetResponse>(
+  return apiFetch<PasswordResetResponse>(
     "/request-password-reset",
     {
       method: "POST",
@@ -26,13 +17,12 @@ export async function requestPasswordReset(
       body: JSON.stringify(data),
     },
   );
-  return result;
 }
 
 export async function resetPasswordAction(
   data: PasswordResetData,
 ): Promise<ApiClientResponse<PasswordResetResponse | undefined>> {
-  const result = await apiFetch<PasswordResetResponse>(
+  return apiFetch<PasswordResetResponse>(
     "/reset-password",
     {
       method: "POST",
@@ -40,5 +30,4 @@ export async function resetPasswordAction(
       body: JSON.stringify(data),
     },
   );
-  return result;
 }

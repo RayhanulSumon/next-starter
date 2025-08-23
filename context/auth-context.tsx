@@ -19,14 +19,12 @@ import type {
 import { UserRole } from "@/types/auth";
 
 // Import server actions
-import { loginAction } from "@/app/actions/auth/loginAction";
 import { registerAction } from "@/app/actions/auth/registerAction";
 import {
   requestPasswordReset,
   resetPasswordAction,
 } from "@/app/actions/auth/resetPasswordAction";
 import { logoutUserAction } from "@/app/actions/auth/logOutAction";
-import { isTwoFARequired, isUserToken } from "@/lib/authGuards";
 import { loginHandler } from "@/lib/auth/loginHandler";
 
 // Enhanced AuthContext with loading states for different operations
@@ -205,7 +203,7 @@ export const AuthProvider = ({
         if (isMounted) {
           setUser(result.data ?? null);
         }
-      } catch (error) {
+      } catch {
         if (isMounted) setUser(null);
       } finally {
         if (isMounted) setInitialLoading(false);

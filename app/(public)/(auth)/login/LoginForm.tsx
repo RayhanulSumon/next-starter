@@ -40,8 +40,12 @@ export function LoginForm({ onTwoFARequired }: LoginFormProps) {
         // Successful login, redirect handled by useEffect
         return;
       }
-    } catch (error: any) {
-      form.setError("root", { message: error?.message || "Login failed. Please try again." });
+    } catch (error: unknown) {
+      if (error && typeof error === "object" && "message" in error && typeof error.message === "string") {
+        form.setError("root", { message: error.message });
+      } else {
+        form.setError("root", { message: "Login failed. Please try again." });
+      }
     }
   }
 

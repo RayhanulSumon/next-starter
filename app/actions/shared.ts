@@ -1,12 +1,9 @@
 // Shared types, constants, and error class for auth actions
-import { z } from "zod";
 
 // Only import 'cookies' if running in a server environment
 import { cookies as serverCookies } from "next/headers";
 const cookies = typeof window === "undefined" ? serverCookies : undefined;
 
-export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
 
 export type CookieOptions = {
   httpOnly?: boolean;

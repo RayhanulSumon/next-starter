@@ -5,7 +5,7 @@ export function isTwoFARequired(data: unknown): data is { twofa_required: true }
     typeof data === 'object' &&
     data !== null &&
     'twofa_required' in data &&
-    (data as { twofa_required?: boolean }).twofa_required
+    (data as { twofa_required?: boolean }).twofa_required === true
   );
 }
 
