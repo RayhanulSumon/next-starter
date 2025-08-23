@@ -4,10 +4,8 @@ import { AuthProvider } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hook/useAuth";
-import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { useState, useEffect } from "react";
-import { axiosClient } from "@/hook/axiosClient";
 import { LoginForm } from "./LoginForm";
 import { TwoFactorForm } from "./TwoFactorForm";
 
