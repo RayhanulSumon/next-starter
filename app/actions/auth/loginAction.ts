@@ -44,12 +44,12 @@ export async function loginAction(
     }
     if (isLoginResponse(result.data)) {
       const responseData = result.data;
-      // Set cookie as httpOnly: false and sameSite: 'lax' for local development
+      // Always set cross-site cookie for production (Vercel)
       await cookieStore.set("token", responseData.token, {
         httpOnly: false,
         path: "/",
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
+        sameSite: "none",
+        secure: true,
       });
       revalidatePath("/user/dashboard");
       return {
