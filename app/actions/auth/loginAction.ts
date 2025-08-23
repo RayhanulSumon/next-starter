@@ -44,12 +44,14 @@ export async function loginAction(
     }
     if (isLoginResponse(result.data)) {
       const responseData = result.data;
-      // Always set cross-site cookie for production (Vercel)
+      // Dynamically set cookie options for dev/prod and cross-origin
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+      const isLocalhost = apiUrl.includes("localhost") || apiUrl.includes("127.0.0.1");
       await cookieStore.set("token", responseData.token, {
         httpOnly: false,
         path: "/",
-        sameSite: "none",
-        secure: true,
+        sameSite: isLocalhost ? "lax" : "none",
+        secure: !isLocalhost, // secure: true for prod/remote, false for localhost
       });
       revalidatePath("/user/dashboard");
       return {
