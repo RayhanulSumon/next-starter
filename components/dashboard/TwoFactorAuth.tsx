@@ -1,9 +1,12 @@
 "use client";
 import { useState } from "react";
-import { axiosClient } from "@/hook/axiosClient";
 import { useAuth } from "@/hook/useAuth";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import {
+  enable2FAAction,
+  verify2FAAction,
+  disable2FAAction,
+} from "@/app/actions/auth/twoFactorActions";
 
 export default function TwoFactorAuth() {
   const { user } = useAuth();
@@ -13,97 +16,57 @@ export default function TwoFactorAuth() {
   const [qr, setQr] = useState<string | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
   const [code, setCode] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Start 2FA setup: get QR and secret
-  const handleEnable2FA = async () => {
-    setLoading(true);
+  // Enable 2FA form handler
+  async function onEnable2FA(formData: FormData) {
+    setPending(true);
     setError(null);
     setSuccess(null);
-    try {
-      const res = await axiosClient.post("/2fa/enable");
-      setQr(res.data.qr);
-      setSecret(res.data.secret);
-      setStatus("pending");
-    } catch (e) {
-      let message = "Failed to start 2FA setup.";
-      if (
-        typeof e === "object" &&
-        e !== null &&
-        "response" in e &&
-        typeof (e as { response?: { data?: unknown } }).response === "object" &&
-        (e as { response?: { data?: { message?: string } } }).response?.data
-          ?.message
-      ) {
-        message = (e as { response: { data: { message: string } } }).response
-          .data.message;
-      }
-      setError(message);
-    } finally {
-      setLoading(false);
+    const data = await enable2FAAction();
+    setPending(false);
+    if (data?.error) {
+      setError(data.error);
+      return;
     }
-  };
+    setQr(data.qr || null);
+    setSecret(data.secret || null);
+    setStatus("pending");
+  }
 
-  // Verify 2FA code
-  const handleVerify2FA = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  // Verify 2FA form handler
+  async function onVerify2FA(formData: FormData) {
+    setPending(true);
     setError(null);
     setSuccess(null);
-    try {
-      await axiosClient.post("/2fa/verify", { code });
-      setStatus("enabled");
-      setSuccess("Two-factor authentication enabled!");
-      setQr(null);
-      setSecret(null);
-    } catch (e) {
-      let message = "Invalid or expired code.";
-      if (
-        typeof e === "object" &&
-        e !== null &&
-        "response" in e &&
-        typeof (e as { response?: { data?: unknown } }).response === "object" &&
-        (e as { response?: { data?: { message?: string } } }).response?.data
-          ?.message
-      ) {
-        message = (e as { response: { data: { message: string } } }).response
-          .data.message;
-      }
-      setError(message);
-    } finally {
-      setLoading(false);
+    const data = await verify2FAAction(formData);
+    setPending(false);
+    if (data?.error) {
+      setError(data.error);
+      return;
     }
-  };
+    setStatus("enabled");
+    setSuccess("Two-factor authentication enabled!");
+    setQr(null);
+    setSecret(null);
+  }
 
-  // Disable 2FA
-  const handleDisable2FA = async () => {
-    setLoading(true);
+  // Disable 2FA form handler
+  async function onDisable2FA(formData: FormData) {
+    setPending(true);
     setError(null);
     setSuccess(null);
-    try {
-      await axiosClient.post("/2fa/disable");
-      setStatus("disabled");
-      setSuccess("Two-factor authentication disabled.");
-    } catch (e) {
-      let message = "Failed to disable 2FA.";
-      if (
-        typeof e === "object" &&
-        e !== null &&
-        "response" in e &&
-        typeof (e as { response?: { data?: unknown } }).response === "object" &&
-        (e as { response?: { data?: { message?: string } } }).response?.data
-          ?.message
-      ) {
-        message = (e as { response: { data: { message: string } } }).response
-          .data.message;
-      }
-      setError(message);
-    } finally {
-      setLoading(false);
+    const data = await disable2FAAction();
+    setPending(false);
+    if (data?.error) {
+      setError(data.error);
+      return;
     }
-  };
+    setStatus("disabled");
+    setSuccess("Two-factor authentication disabled.");
+  }
 
   return (
     <div className="border rounded p-4 max-w-md bg-white dark:bg-gray-900">
@@ -114,33 +77,31 @@ export default function TwoFactorAuth() {
         Protect your account with an extra layer of security.
       </p>
       {status === "enabled" && (
-        <>
+        <form action={onDisable2FA}>
           <div className="mb-4 text-green-600">
             2FA is enabled on your account.
           </div>
-          <Button
-            onClick={handleDisable2FA}
-            disabled={loading}
-            variant="destructive"
-          >
+          <Button type="submit" disabled={pending} variant="destructive">
             Disable 2FA
           </Button>
-        </>
+        </form>
       )}
       {status === "disabled" && (
-        <Button onClick={handleEnable2FA} disabled={loading}>
-          Enable 2FA
-        </Button>
+        <form action={onEnable2FA}>
+          <Button type="submit" disabled={pending}>
+            Enable 2FA
+          </Button>
+        </form>
       )}
       {status === "pending" && (
-        <form onSubmit={handleVerify2FA} className="space-y-4">
+        <form action={onVerify2FA} className="space-y-4">
           <div className="mb-2">
             <div className="mb-2">
               Scan this QR code with your authenticator app:
             </div>
             {qr && (
-              <Image
-                src={qr}
+              <img
+                src={`data:image/svg+xml;utf8,${encodeURIComponent(qr.trim())}`}
                 alt="2FA QR Code"
                 className="mx-auto"
                 width={200}
@@ -155,6 +116,7 @@ export default function TwoFactorAuth() {
             </label>
             <input
               id="code"
+              name="code"
               type="text"
               value={code}
               onChange={(e) => setCode(e.target.value)}
@@ -165,7 +127,7 @@ export default function TwoFactorAuth() {
               autoComplete="one-time-code"
             />
           </div>
-          <Button type="submit" disabled={loading || code.length !== 6}>
+          <Button type="submit" disabled={pending || code.length !== 6}>
             Verify & Enable
           </Button>
         </form>
