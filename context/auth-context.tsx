@@ -102,6 +102,10 @@ export const AuthProvider = ({
       setLoginLoading(true);
       try {
         const result = await loginAction(identifier, password);
+        if (result && result.status && result.status !== 200) {
+          // Return error object to the login page for display
+          return result;
+        }
         const data = result.data;
         // Type guard for twofa_required
         if (data && typeof data === 'object' && 'twofa_required' in data && (data as { twofa_required?: boolean }).twofa_required) {

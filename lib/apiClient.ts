@@ -1,5 +1,4 @@
 // lib/apiClient.ts
-import { cookieStore } from "@/app/actions/shared";
 
 export type ApiClientResponse<T = unknown> = {
   message: string;
@@ -80,7 +79,7 @@ function normalizeApiError(data: unknown, status: number): ApiError {
 
   let message = typeof errorData.message === 'string' ? errorData.message : 'Unknown error';
   const respStatus = typeof errorData.status === 'number' ? errorData.status : status;
-  if (respStatus === 401 || respStatus === 403) {
+  if ((respStatus === 401 || respStatus === 403) && !errorData.message) {
     message = 'You are not authenticated. Please log in.';
   }
   const respData = errorData.data;
@@ -108,51 +107,52 @@ export async function apiFetch<T = unknown>(
     [key: string]: unknown;
   } = {}
 ): Promise<ApiClientResponse<T>> {
-  try {
-    const url = buildApiUrl(input);
-    const method = (options.method || 'GET').toUpperCase();
-    // --- Universal token logic ---
-    let token = options.token;
-    if (!token && typeof window === 'undefined') {
-      // On server, try to get from cookieStore
-      try {
-        const mod = await import("@/app/actions/shared");
-        token = await mod.cookieStore.get("token");
-      } catch {}
-    }
-    const fetchOptions = { ...options } as RequestInit & { data?: unknown; token?: string };
-    delete fetchOptions.data;
-    delete fetchOptions.token;
-    if (options.data && method !== 'GET' && method !== 'HEAD') {
-      fetchOptions.body = JSON.stringify(options.data);
-      fetchOptions.headers = {
-        'Content-Type': 'application/json',
-        ...(options.headers || {}),
-      };
-    } else {
-      delete fetchOptions.body;
-    }
-    fetchOptions.headers = buildHeaders(fetchOptions.headers as Record<string, string> | undefined, token);
-    if (!getBearerToken(token)) fetchOptions.credentials = 'include';
-    fetchOptions.method = method;
-    const res = await fetch(url, fetchOptions);
-    let data: ApiClientResponse<T>;
+  const url = buildApiUrl(input);
+  const method = (options.method || 'GET').toUpperCase();
+  let token = options.token;
+  if (!token && typeof window === 'undefined') {
     try {
-      data = await res.json();
-    } catch {
-      // Handle non-JSON error responses
-      if (res.status === 401 || res.status === 403) {
-        throw new ApiError('You are not authenticated. Please log in.', res.status, {});
-      } else {
-        throw new ApiError('Unexpected server response.', res.status, {});
-      }
-    }
-    if (!res.ok) {
-      throw normalizeApiError(data, res.status);
-    }
-    return data;
-  } catch (err: unknown) {
-    if (err instanceof ApiError) throw err;
-    throw new ApiError('Server not found. Please try again later.', 0, {}, err);
+      const mod = await import("@/app/actions/shared");
+      token = await mod.cookieStore.get("token");
+    } catch {}
   }
+  const fetchOptions: RequestInit = {
+    method,
+    headers: buildHeaders(options.headers, token),
+    credentials: getBearerToken(token) ? undefined : 'include',
+  };
+  if (options.data && method !== 'GET' && method !== 'HEAD') {
+    fetchOptions.body = JSON.stringify(options.data);
+    (fetchOptions.headers as Record<string, string>)['Content-Type'] = 'application/json';
+  }
+  const res = await fetch(url, fetchOptions);
+  const rawText = await res.text();
+  let data: ApiClientResponse<T> | undefined = undefined;
+  let isJson = false;
+  try {
+    data = JSON.parse(rawText);
+    isJson = true;
+  } catch (e) {
+    // Not JSON, keep isJson false
+  }
+  if (!res.ok) {
+    // Debug log for backend error responses
+    console.error('API error response:', {
+      status: res.status,
+      rawText,
+      parsed: data
+    });
+    if (isJson && data) {
+      throw normalizeApiError(data, res.status);
+    } else if (res.status === 401 || res.status === 403) {
+      throw new ApiError('You are not authenticated. Please log in.', res.status, { rawText });
+    } else {
+      throw new ApiError('Unexpected server response.', res.status, { rawText });
+    }
+  }
+  // If successful, but not JSON, return raw text as data
+  if (!isJson) {
+    return { message: '', data: rawText as any, errors: [], status: res.status };
+  }
+  return data as ApiClientResponse<T>;
 }
