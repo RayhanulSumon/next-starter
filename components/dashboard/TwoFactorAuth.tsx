@@ -6,6 +6,7 @@ import {
   enable2FAAction,
   verify2FAAction,
   disable2FAAction,
+  TwoFAResponse,
 } from "@/app/actions/auth/twoFactorActions";
 
 export default function TwoFactorAuth() {
@@ -21,13 +22,13 @@ export default function TwoFactorAuth() {
   const [success, setSuccess] = useState<string | null>(null);
 
   // Enable 2FA form handler
-  async function onEnable2FA(formData: FormData) {
+  async function onEnable2FA() {
     setPending(true);
     setError(null);
     setSuccess(null);
-    const data = await enable2FAAction();
+    const data: TwoFAResponse = await enable2FAAction();
     setPending(false);
-    if (data?.error) {
+    if (data.error) {
       setError(data.error);
       return;
     }
@@ -41,9 +42,9 @@ export default function TwoFactorAuth() {
     setPending(true);
     setError(null);
     setSuccess(null);
-    const data = await verify2FAAction(formData);
+    const data: TwoFAResponse = await verify2FAAction(formData);
     setPending(false);
-    if (data?.error) {
+    if (data.error) {
       setError(data.error);
       return;
     }
@@ -54,13 +55,13 @@ export default function TwoFactorAuth() {
   }
 
   // Disable 2FA form handler
-  async function onDisable2FA(formData: FormData) {
+  async function onDisable2FA() {
     setPending(true);
     setError(null);
     setSuccess(null);
-    const data = await disable2FAAction();
+    const data: TwoFAResponse = await disable2FAAction();
     setPending(false);
-    if (data?.error) {
+    if (data.error) {
       setError(data.error);
       return;
     }
