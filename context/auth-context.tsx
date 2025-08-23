@@ -26,6 +26,7 @@ import {
   resetPasswordAction,
 } from "@/app/actions/auth/resetPasswordAction";
 import { logoutUserAction } from "@/app/actions/auth/logOutAction";
+import { isTwoFARequired, isUserToken } from "@/lib/authGuards";
 
 // Enhanced AuthContext with loading states for different operations
 interface EnhancedAuthContextType {
@@ -91,25 +92,6 @@ export const AuthProvider = ({
   // Use transition for smoother UI updates
   const [, startTransition] = useTransition();
 
-  // Type guards for login response
-  function isTwoFARequired(data: unknown): data is { twofa_required: true } {
-    return (
-      typeof data === 'object' &&
-      data !== null &&
-      'twofa_required' in data &&
-      Boolean((data as { twofa_required?: boolean }).twofa_required)
-    );
-  }
-  function isUserToken(data: unknown): data is { user: User; token: string } {
-    return (
-      typeof data === 'object' &&
-      data !== null &&
-      'user' in data &&
-      'token' in data &&
-      (data as { user?: User }).user !== undefined &&
-      (data as { token?: string }).token !== undefined
-    );
-  }
 
   // Login with identifier (email or phone) and password
   const login = useCallback(
