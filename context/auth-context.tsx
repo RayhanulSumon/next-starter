@@ -91,6 +91,26 @@ export const AuthProvider = ({
   // Use transition for smoother UI updates
   const [, startTransition] = useTransition();
 
+  // Type guards for login response
+  function isTwoFARequired(data: unknown): data is { twofa_required: true } {
+    return (
+      typeof data === 'object' &&
+      data !== null &&
+      'twofa_required' in data &&
+      Boolean((data as { twofa_required?: boolean }).twofa_required)
+    );
+  }
+  function isUserToken(data: unknown): data is { user: User; token: string } {
+    return (
+      typeof data === 'object' &&
+      data !== null &&
+      'user' in data &&
+      'token' in data &&
+      (data as { user?: User }).user !== undefined &&
+      (data as { token?: string }).token !== undefined
+    );
+  }
+
   // Login with identifier (email or phone) and password
   const login = useCallback(
     async (
@@ -101,34 +121,20 @@ export const AuthProvider = ({
       try {
         const result = await loginAction(identifier, password);
         const data = result.data;
-        if (result && result.status && result.status !== 200) {
-          // Throw error for failed login with API message
+        if (result.status && result.status !== 200) {
           throw new Error(result.message || 'Login failed');
         }
-        // Type guard for twofa_required
-        if (data && typeof data === 'object' && 'twofa_required' in data && (data as { twofa_required?: boolean }).twofa_required) {
+        if (isTwoFARequired(data)) {
           return { twofa_required: true };
         }
-        // Type guard for user and token
-        if (
-          data &&
-          typeof data === 'object' &&
-          'user' in data &&
-          'token' in data &&
-          (data as { user?: User; token?: string }).user &&
-          (data as { user?: User; token?: string }).token
-        ) {
-          const userObj = (data as { user: User; token: string }).user;
-          // const token = (data as { user: User; token: string }).token; // token is not used
+        if (isUserToken(data)) {
           startTransition(() => {
-            setUser(userObj);
+            setUser(data.user);
           });
-          return { user: userObj, token: (data as { token: string }).token };
+          return { user: data.user, token: data.token };
         }
-        // Fallback: throw error
         throw new Error('Unexpected login response');
       } catch (error: unknown) {
-        // Preserve the original error message if available
         if (error instanceof Error && error.message) {
           throw error;
         }
