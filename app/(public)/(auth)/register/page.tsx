@@ -103,8 +103,50 @@ function RegisterPageContent() {
     } catch (err) {
       // Log the full error object for debugging
       console.error('Registration error:', err);
-      const errorMessage = "Registration failed. Please try again.";
-      // Show the entire error object for debugging
+      let errorMessage = "Registration failed. Please try again.";
+      // Try to extract backend error message if available
+      if (
+        err &&
+        typeof err === 'object' &&
+        err !== null &&
+        (Object.getPrototypeOf(err) === Object.prototype || Object.getPrototypeOf(err) === null)
+      ) {
+        const errObj = err as Record<string, unknown>;
+        if (
+          'response' in errObj &&
+          errObj.response &&
+          typeof errObj.response === 'object' &&
+          (Object.getPrototypeOf(errObj.response) === Object.prototype || Object.getPrototypeOf(errObj.response) === null)
+        ) {
+          const responseObj = errObj.response as Record<string, unknown>;
+          if (
+            'data' in responseObj &&
+            responseObj.data &&
+            typeof responseObj.data === 'object' &&
+            (Object.getPrototypeOf(responseObj.data) === Object.prototype || Object.getPrototypeOf(responseObj.data) === null)
+          ) {
+            const dataObj = responseObj.data as Record<string, unknown>;
+            if (typeof dataObj.message === 'string') {
+              errorMessage = dataObj.message;
+            } else if (typeof dataObj.error === 'string') {
+              errorMessage = dataObj.error;
+            } else {
+              errorMessage = JSON.stringify(dataObj);
+            }
+          } else if ('data' in responseObj) {
+            errorMessage = String(responseObj.data);
+          } else if ('statusText' in responseObj) {
+            errorMessage = String(responseObj.statusText);
+          }
+        } else if ('data' in errObj) {
+          errorMessage = String(errObj.data);
+        } else if ('message' in errObj && errObj.message) {
+          errorMessage = String(errObj.message);
+        }
+      } else if (err instanceof Error && err.message) {
+        errorMessage = String(err.message);
+      }
+      // Always show debug info for now
       form.setError("root", {
         message: errorMessage + "\nDebug: " + JSON.stringify(err, Object.getOwnPropertyNames(err)),
       });
