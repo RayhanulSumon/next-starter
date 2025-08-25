@@ -103,49 +103,10 @@ function RegisterPageContent() {
     } catch (err) {
       // Log the full error object for debugging
       console.error('Registration error:', err);
-      let errorMessage = "Registration failed. Please try again.";
-      if (
-        err &&
-        typeof err === 'object' &&
-        err !== null &&
-        (Object.getPrototypeOf(err) === Object.prototype || Object.getPrototypeOf(err) === null)
-      ) {
-        // Try to extract more details from the error object
-        const errObj = err as Record<string, unknown>;
-        if (
-          'response' in errObj &&
-          errObj.response &&
-          typeof errObj.response === 'object' &&
-          (Object.getPrototypeOf(errObj.response) === Object.prototype || Object.getPrototypeOf(errObj.response) === null)
-        ) {
-          const responseObj = errObj.response as Record<string, unknown>;
-          if ('data' in responseObj) {
-            try {
-              errorMessage = typeof responseObj.data === 'string'
-                ? responseObj.data
-                : JSON.stringify(responseObj.data);
-            } catch {
-              errorMessage = String(responseObj.data);
-            }
-          } else if ('statusText' in responseObj) {
-            errorMessage = String(responseObj.statusText);
-          }
-        } else if ('data' in errObj) {
-          try {
-            errorMessage = typeof errObj.data === 'string'
-              ? errObj.data
-              : JSON.stringify(errObj.data);
-          } catch {
-            errorMessage = String(errObj.data);
-          }
-        } else if ('message' in errObj && errObj.message) {
-          errorMessage = String(errObj.message);
-        }
-      } else if (err instanceof Error && err.message) {
-        errorMessage = String(err.message);
-      }
+      const errorMessage = "Registration failed. Please try again.";
+      // Show the entire error object for debugging
       form.setError("root", {
-        message: errorMessage,
+        message: errorMessage + "\nDebug: " + JSON.stringify(err, Object.getOwnPropertyNames(err)),
       });
     }
   }
