@@ -101,24 +101,50 @@ function RegisterPageContent() {
       await register(data);
       // No need for window.location.replace; redirect handled by useEffect
     } catch (err) {
+      // Log the full error object for debugging
+      console.error('Registration error:', err);
+      let errorMessage = "Registration failed. Please try again.";
       if (
-        typeof err === "object" &&
+        err &&
+        typeof err === 'object' &&
         err !== null &&
-        "response" in err &&
-        typeof (err as { response?: { status?: number } }).response ===
-          "object" &&
-        (err as { response?: { status?: number } }).response?.status === 429
+        (Object.getPrototypeOf(err) === Object.prototype || Object.getPrototypeOf(err) === null)
       ) {
-        form.setError("root", {
-          message: "Too many attempts, please try again later.",
-        });
-        return;
+        // Try to extract more details from the error object
+        if (
+          'response' in (err as object) &&
+          (err as any).response &&
+          typeof (err as any).response === 'object' &&
+          (Object.getPrototypeOf((err as any).response) === Object.prototype || Object.getPrototypeOf((err as any).response) === null)
+        ) {
+          // Axios-style error
+          if ('data' in (err as any).response) {
+            try {
+              errorMessage = typeof (err as any).response.data === 'string'
+                ? (err as any).response.data
+                : JSON.stringify((err as any).response.data);
+            } catch {
+              errorMessage = String((err as any).response.data);
+            }
+          } else if ('statusText' in (err as any).response) {
+            errorMessage = String((err as any).response.statusText);
+          }
+        } else if ('data' in (err as any)) {
+          try {
+            errorMessage = typeof (err as any).data === 'string'
+              ? (err as any).data
+              : JSON.stringify((err as any).data);
+          } catch {
+            errorMessage = String((err as any).data);
+          }
+        } else if ('message' in (err as any) && (err as any).message) {
+          errorMessage = String((err as any).message);
+        }
+      } else if (err instanceof Error && err.message) {
+        errorMessage = String(err.message);
       }
       form.setError("root", {
-        message:
-          err instanceof Error && err.message
-            ? err.message
-            : "Registration failed. Please try again.",
+        message: errorMessage,
       });
     }
   }
