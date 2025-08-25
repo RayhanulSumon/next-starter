@@ -111,34 +111,35 @@ function RegisterPageContent() {
         (Object.getPrototypeOf(err) === Object.prototype || Object.getPrototypeOf(err) === null)
       ) {
         // Try to extract more details from the error object
+        const errObj = err as Record<string, unknown>;
         if (
-          'response' in (err as object) &&
-          (err as any).response &&
-          typeof (err as any).response === 'object' &&
-          (Object.getPrototypeOf((err as any).response) === Object.prototype || Object.getPrototypeOf((err as any).response) === null)
+          'response' in errObj &&
+          errObj.response &&
+          typeof errObj.response === 'object' &&
+          (Object.getPrototypeOf(errObj.response) === Object.prototype || Object.getPrototypeOf(errObj.response) === null)
         ) {
-          // Axios-style error
-          if ('data' in (err as any).response) {
+          const responseObj = errObj.response as Record<string, unknown>;
+          if ('data' in responseObj) {
             try {
-              errorMessage = typeof (err as any).response.data === 'string'
-                ? (err as any).response.data
-                : JSON.stringify((err as any).response.data);
+              errorMessage = typeof responseObj.data === 'string'
+                ? responseObj.data
+                : JSON.stringify(responseObj.data);
             } catch {
-              errorMessage = String((err as any).response.data);
+              errorMessage = String(responseObj.data);
             }
-          } else if ('statusText' in (err as any).response) {
-            errorMessage = String((err as any).response.statusText);
+          } else if ('statusText' in responseObj) {
+            errorMessage = String(responseObj.statusText);
           }
-        } else if ('data' in (err as any)) {
+        } else if ('data' in errObj) {
           try {
-            errorMessage = typeof (err as any).data === 'string'
-              ? (err as any).data
-              : JSON.stringify((err as any).data);
+            errorMessage = typeof errObj.data === 'string'
+              ? errObj.data
+              : JSON.stringify(errObj.data);
           } catch {
-            errorMessage = String((err as any).data);
+            errorMessage = String(errObj.data);
           }
-        } else if ('message' in (err as any) && (err as any).message) {
-          errorMessage = String((err as any).message);
+        } else if ('message' in errObj && errObj.message) {
+          errorMessage = String(errObj.message);
         }
       } else if (err instanceof Error && err.message) {
         errorMessage = String(err.message);
