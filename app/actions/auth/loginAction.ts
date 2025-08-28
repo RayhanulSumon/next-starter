@@ -27,7 +27,7 @@ export async function loginAction(
     Object.prototype.hasOwnProperty.call(data, "user");
 
   try {
-    const result = await apiFetch<LoginResponse | { twofa_required?: boolean }>(
+    const result = await apiFetch<unknown>(
       "/login",
       { method: "POST", data: { identifier, password } }
     );
@@ -49,10 +49,13 @@ export async function loginAction(
         secure: process.env.NODE_ENV === "production",
       });
       revalidatePath("/user/dashboard");
+      return {
+        ...result,
+        data: { user: responseData.user, token: responseData.token },
+      };
     }
-    return result;
+    throw new Error("Unexpected login response");
   } catch (error) {
-    // Let ApiError propagate for consistent error handling
     throw error;
   }
 }
