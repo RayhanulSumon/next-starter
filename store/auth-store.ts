@@ -60,9 +60,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       await logoutUserAction();
       get().resetAuthState();
-      if (typeof window !== "undefined") {
-        window.location.href = redirectTo;
-      }
+      // Removed window.location.href redirect to avoid double navigation and delay
     } catch (error) {
       set({ error: error instanceof Error ? error.message : 'Logout failed' });
       throw error;
