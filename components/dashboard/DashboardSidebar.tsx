@@ -60,7 +60,9 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ className }) => {
       <SidebarHeader>
         <div className="flex flex-col items-center gap-2 py-4">
           <Avatar className="group-data-[collapsible=icon]:flex">
-            <AvatarImage src="/file.svg" alt="User avatar" />
+            {user?.avatar ? (
+              <AvatarImage src={user.avatar} alt="User avatar" />
+            ) : null}
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
           <div className="text-sm font-medium group-data-[collapsible=icon]:hidden">

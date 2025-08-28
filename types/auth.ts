@@ -13,6 +13,7 @@ export interface User {
   phone?: string;
   role: UserRole;
   two_factor_enabled?: boolean;
+  avatar?: string | null;
 }
 
 export interface RegisterData {
