@@ -7,11 +7,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import DashboardCard from "@/components/dashboard/DashboardCard";
-import { useSidebar } from "@/components/ui/sidebar";
 import TwoFactorAuth from "@/components/dashboard/TwoFactorAuth";
 
 export default function DashboardPage() {
-  const { toggleSidebar } = useSidebar();
   const { user, initialLoading, fetchCurrentUser, error, clearError } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
@@ -64,14 +62,6 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col flex-1 w-full max-w-none space-y-6">
-      <div className="mb-4">
-        <button
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-          onClick={toggleSidebar}
-        >
-          Toggle Sidebar
-        </button>
-      </div>
       <div className="border-b border-gray-200 dark:border-gray-800 w-full">
         <nav className="-mb-px flex space-x-8 w-full">
           {["overview", "activity", "settings"].map((tab) => (
