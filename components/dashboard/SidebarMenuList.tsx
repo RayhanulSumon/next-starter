@@ -16,6 +16,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuAction,
 } from "@/components/ui/sidebar";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export type SidebarMenuItemType = {
   name: string;
@@ -25,6 +26,8 @@ export type SidebarMenuItemType = {
   subMenu?: Array<SidebarMenuItemType>;
   action?: React.ReactNode;
   collapsible?: boolean;
+  isActive?: boolean;
+  footer?: boolean;
 };
 
 export const SidebarMenuList: React.FC<{ items: SidebarMenuItemType[] }> = ({
@@ -72,32 +75,30 @@ export const SidebarMenuList: React.FC<{ items: SidebarMenuItemType[] }> = ({
         </Collapsible>
       ) : (
         <SidebarMenuItem key={item.name}>
-          <SidebarMenuButton asChild variant="default" className="flex items-center">
-            <Link href={item.href}>
-              <span className="w-5 flex justify-center items-center">
-                <item.icon />
-              </span>
-              <span>{item.name}</span>
-            </Link>
-          </SidebarMenuButton>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <SidebarMenuButton
+                asChild
+                variant="default"
+                className="flex items-center"
+                aria-current={item.isActive ? "page" : undefined}
+              >
+                <Link href={item.href} tabIndex={0}>
+                  <span className="w-5 flex justify-center items-center">
+                    <item.icon />
+                  </span>
+                  <span className="flex-1 group-data-[collapsible=icon]:hidden">
+                    {item.name}
+                  </span>
+                </Link>
+              </SidebarMenuButton>
+            </TooltipTrigger>
+            <TooltipContent side="right" className="group-data-[collapsible=icon]:block hidden">
+              {item.name}
+            </TooltipContent>
+          </Tooltip>
           {item.badge && <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>}
           {item.action && <SidebarMenuAction>{item.action}</SidebarMenuAction>}
-          {item.subMenu && (
-            <SidebarMenuSub>
-              {item.subMenu.map((sub) => (
-                <SidebarMenuSubItem key={sub.name}>
-                  <SidebarMenuSubButton asChild>
-                    <Link href={sub.href}>
-                      <span className="w-5 flex justify-center items-center">
-                        <sub.icon />
-                      </span>
-                      <span>{sub.name}</span>
-                    </Link>
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-              ))}
-            </SidebarMenuSub>
-          )}
         </SidebarMenuItem>
       ),
     )}
