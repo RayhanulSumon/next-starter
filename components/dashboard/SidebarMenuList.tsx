@@ -41,7 +41,9 @@ export const SidebarMenuList: React.FC<{ items: SidebarMenuItemType[] }> = ({
           <SidebarMenuItem>
             <CollapsibleTrigger asChild>
               <SidebarMenuButton>
-                <item.icon className="mr-2" />
+                <span className="w-5 flex justify-center items-center">
+                  <item.icon />
+                </span>
                 <span className="flex-1">{item.name}</span>
                 <ChevronDown className="ml-2 transition-transform group-data-[state=open]/collapsible:rotate-180" />
               </SidebarMenuButton>
@@ -56,7 +58,9 @@ export const SidebarMenuList: React.FC<{ items: SidebarMenuItemType[] }> = ({
                   <SidebarMenuSubItem key={sub.name}>
                     <SidebarMenuSubButton asChild>
                       <Link href={sub.href}>
-                        <sub.icon className="mr-2" />
+                        <span className="w-5 flex justify-center items-center">
+                          <sub.icon />
+                        </span>
                         <span>{sub.name}</span>
                       </Link>
                     </SidebarMenuSubButton>
@@ -68,9 +72,11 @@ export const SidebarMenuList: React.FC<{ items: SidebarMenuItemType[] }> = ({
         </Collapsible>
       ) : (
         <SidebarMenuItem key={item.name}>
-          <SidebarMenuButton asChild variant="default">
+          <SidebarMenuButton asChild variant="default" className="flex items-center">
             <Link href={item.href}>
-              <item.icon className="mr-2" />
+              <span className="w-5 flex justify-center items-center">
+                <item.icon />
+              </span>
               <span>{item.name}</span>
             </Link>
           </SidebarMenuButton>
@@ -82,7 +88,9 @@ export const SidebarMenuList: React.FC<{ items: SidebarMenuItemType[] }> = ({
                 <SidebarMenuSubItem key={sub.name}>
                   <SidebarMenuSubButton asChild>
                     <Link href={sub.href}>
-                      <sub.icon className="mr-2" />
+                      <span className="w-5 flex justify-center items-center">
+                        <sub.icon />
+                      </span>
                       <span>{sub.name}</span>
                     </Link>
                   </SidebarMenuSubButton>

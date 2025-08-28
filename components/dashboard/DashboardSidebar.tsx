@@ -21,35 +21,19 @@ import {
 import {
   Home,
   Activity,
-  Settings,
   User2,
   ChevronDown,
   MoreHorizontal,
   Plus,
-  Calendar,
-  Inbox,
-  Search,
 } from "lucide-react";
 
 import { SidebarMenuList, SidebarMenuItemType } from "./SidebarMenuList";
 
 const navItems: SidebarMenuItemType[] = [
   {
-    name: "Activity",
-    href: "/user/dashboard?tab=activity",
-    icon: Activity,
-    badge: 3,
-  },
-  {
-    name: "Settings",
-    href: "/user/dashboard?tab=settings",
-    icon: Settings,
-    collapsible: true,
-    subMenu: [
-      { name: "Inbox", href: "/user/dashboard/inbox", icon: Inbox },
-      { name: "Calendar", href: "/user/dashboard/calendar", icon: Calendar },
-      { name: "Search", href: "/user/dashboard/search", icon: Search },
-    ],
+    name: "examples",
+    href: "/user/dashboard/examples",
+    icon: Activity, // You can change this icon if you want a different one
   },
 ];
 
@@ -81,10 +65,12 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ className }) => {
               variant="default"
               size="lg"
               isActive
-              className={collapsedClasses}
+              className={`flex items-center ${collapsedClasses}`}
             >
               <Link href="/user/dashboard">
-                <Home className={`mr-2 ${collapsedIconClasses}`} />
+                <span className="w-5 flex justify-center items-center">
+                  <Home />
+                </span>
                 <span className={collapsedTextClasses}>Dashboard</span>
               </Link>
             </SidebarMenuButton>
@@ -107,10 +93,12 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ className }) => {
             <SidebarMenuButton
               asChild
               variant="default"
-              className={collapsedClasses}
+              className={`flex items-center ${collapsedClasses}`}
             >
               <Link href="/user/profile">
-                <User2 className={`mr-2 ${collapsedIconClasses}`} />
+                <span className="w-5 flex justify-center items-center">
+                  <User2 />
+                </span>
                 <span className={collapsedTextClasses}>Profile</span>
                 <ChevronDown className={`ml-auto ${collapsedIconClasses}`} />
               </Link>
