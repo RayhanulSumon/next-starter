@@ -1,4 +1,6 @@
 "use client";
+export const dynamic = "force-dynamic";
+
 import { useAuth } from "@/hook/useAuth";
 import { UserRole } from "@/types/auth";
 import { useState, useEffect } from "react";
