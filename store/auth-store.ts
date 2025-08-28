@@ -5,7 +5,7 @@ import { registerAction } from '../app/actions/auth/registerAction';
 import { logoutUserAction } from '../app/actions/auth/logOutAction';
 import { requestPasswordReset, resetPasswordAction } from '../app/actions/auth/resetPasswordAction';
 import { getCurrentUser } from '../app/actions/auth/getCurrentUser';
-import type { PasswordResetRequest, PasswordResetData } from '../types/auth';
+import type { PasswordResetRequest, PasswordResetData, PasswordResetResponse } from '../types/auth';
 
 interface AuthState {
   user: User | null;
@@ -18,10 +18,10 @@ interface AuthState {
   login: (identifier: string, password: string) => Promise<LoginActionResult>;
   register: (data: RegisterData) => Promise<void>;
   logout: (redirectTo?: string) => Promise<void>;
-  requestPasswordReset: (data: PasswordResetRequest) => Promise<any>; // Update to reflect actual response type
-  resetPassword: (data: PasswordResetData) => Promise<any>; // Update to reflect actual response type
+  requestPasswordReset: (data: PasswordResetRequest) => Promise<PasswordResetResponse>;
+  resetPassword: (data: PasswordResetData) => Promise<PasswordResetResponse>;
   fetchCurrentUser: () => Promise<void>;
-  // Add other actions as needed
+  resetAuthState: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -32,21 +32,28 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   requestResetLoading: false,
   initialLoading: true,
   setUser: (user) => set({ user }),
+  resetAuthState: () => set({
+    user: null,
+    loginLoading: false,
+    registerLoading: false,
+    resetLoading: false,
+    requestResetLoading: false,
+    initialLoading: false,
+  }),
   login: async (identifier, password) => {
     set({ loginLoading: true });
     try {
-      const result = await loginHandler(identifier, password, get().setUser, () => {});
-      return result;
-    } catch (error: any) {
-      throw error?.message ? error : new Error('Login failed');
+      return await loginHandler(identifier, password, get().setUser, () => {});
+    } catch (error) {
+      throw error instanceof Error ? error : new Error('Login failed');
     } finally {
       set({ loginLoading: false });
     }
   },
-  logout: async (redirectTo: string = "/login") => {
+  logout: async (redirectTo = "/login") => {
     try {
       await logoutUserAction();
-      set({ user: null });
+      get().resetAuthState();
       if (typeof window !== "undefined") {
         window.location.href = redirectTo;
       }
@@ -54,18 +61,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       throw error;
     }
   },
-  requestPasswordReset: async (data: PasswordResetRequest) => {
+  requestPasswordReset: async (data) => {
     set({ requestResetLoading: true });
     try {
-      return await requestPasswordReset(data); // Return the response
+      return await requestPasswordReset(data);
     } finally {
       set({ requestResetLoading: false });
     }
   },
-  resetPassword: async (data: PasswordResetData) => {
+  resetPassword: async (data) => {
     set({ resetLoading: true });
     try {
-      return await resetPasswordAction(data); // Return the response
+      return await resetPasswordAction(data);
     } finally {
       set({ resetLoading: false });
     }
