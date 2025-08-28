@@ -13,6 +13,7 @@ import {
   User2,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useAuth } from "@/hook/useAuth";
 
 import { SidebarMenuList, SidebarMenuItemType } from "./SidebarMenuList";
 
@@ -41,7 +42,14 @@ type DashboardSidebarProps = {
 };
 
 const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ className }) => {
-
+  const { user } = useAuth();
+  const initials = user?.name
+    ? user.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+    : "U";
   return (
     <Sidebar
       className={className}
@@ -53,10 +61,14 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ className }) => {
         <div className="flex flex-col items-center gap-2 py-4">
           <Avatar className="group-data-[collapsible=icon]:flex">
             <AvatarImage src="/file.svg" alt="User avatar" />
-            <AvatarFallback>JD</AvatarFallback>
+            <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
-          <div className="text-sm font-medium group-data-[collapsible=icon]:hidden">John Doe</div>
-          <div className="text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">john@example.com</div>
+          <div className="text-sm font-medium group-data-[collapsible=icon]:hidden">
+            {user?.name || "User"}
+          </div>
+          <div className="text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
+            {user?.email || "No email"}
+          </div>
         </div>
       </SidebarHeader>
       <SidebarSeparator className="my-2" />
