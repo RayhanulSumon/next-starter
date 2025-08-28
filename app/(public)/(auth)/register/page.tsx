@@ -67,7 +67,7 @@ export default function RegisterPage() {
 }
 
 function RegisterPageContent() {
-    const {register, user, registerLoading} = useAuth();
+    const {register} = useAuth();
     const router = useRouter();
     const form = useForm<RegisterFormValues>({
         resolver: zodResolver(registerSchema),
