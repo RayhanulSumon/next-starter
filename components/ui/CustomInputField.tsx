@@ -2,7 +2,6 @@ import * as React from "react";
 import { Control, FieldValues, Path } from "react-hook-form";
 import { FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-// ...existing code...
 
 type CustomInputFieldProps<T extends FieldValues> = {
   control: Control<T>;
@@ -107,22 +106,14 @@ export const CustomInputField = <T extends FieldValues>({
           </div>
 
           {/* Helper text */}
-          {helperText && (
-            <span
-              id={`${name}-helper`}
-              className="text-xs text-gray-500 mt-1 block"
-            >
-              {helperText}
-            </span>
+          {helperText && !fieldState.error && (
+            <div className="text-xs text-gray-500 mt-1">{helperText}</div>
           )}
           {/* Error message with fade-in animation */}
-          {fieldState.error?.message && (
-            <span
-              id={`${name}-error`}
-              className="text-xs text-red-600 mt-2 block font-medium animate-fade-in"
-            >
+          {fieldState.error && (
+            <div className="text-xs text-red-600 mt-1">
               {fieldState.error.message}
-            </span>
+            </div>
           )}
         </FormItem>
       )}
