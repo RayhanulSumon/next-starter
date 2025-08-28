@@ -90,16 +90,16 @@ export default function DashboardPage() {
           <DashboardCard title="User Information" className="w-full max-w-none">
             <div className="space-y-2">
               <p>
-                <span className="font-medium">Name:</span> {user.name}
+                <span className="font-medium">Name:</span> {user!.name}
               </p>
               <p>
-                <span className="font-medium">Email:</span> {user.email || "Not provided"}
+                <span className="font-medium">Email:</span> {user!.email || "Not provided"}
               </p>
               <p>
-                <span className="font-medium">Phone:</span> {user.phone || "Not provided"}
+                <span className="font-medium">Phone:</span> {user!.phone || "Not provided"}
               </p>
               <p>
-                <span className="font-medium">Role:</span> {user.role || UserRole.USER}
+                <span className="font-medium">Role:</span> {user!.role || UserRole.USER}
               </p>
             </div>
           </DashboardCard>
