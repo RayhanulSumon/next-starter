@@ -1,12 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import DashboardSidebar from "../components/dashboard/DashboardSidebar";
+import UserSidebar from "../app/(protected)/user/dashboard/components/UserSidebar";
 
-describe("DashboardSidebar", () => {
+describe("UserSidebar", () => {
   it("renders Dashboard navigation item", () => {
     render(
       <SidebarProvider>
-        <DashboardSidebar />
+        <UserSidebar />
       </SidebarProvider>,
     );
     expect(screen.getByText("Dashboard")).toBeInTheDocument();
@@ -14,7 +14,7 @@ describe("DashboardSidebar", () => {
   it("renders Profile navigation item", () => {
     render(
       <SidebarProvider>
-        <DashboardSidebar />
+        <UserSidebar />
       </SidebarProvider>,
     );
     expect(screen.getByText("Profile")).toBeInTheDocument();
@@ -22,7 +22,7 @@ describe("DashboardSidebar", () => {
   it("renders Activity navigation item", () => {
     render(
       <SidebarProvider>
-        <DashboardSidebar />
+        <UserSidebar />
       </SidebarProvider>,
     );
     expect(screen.getByText("Activity")).toBeInTheDocument();

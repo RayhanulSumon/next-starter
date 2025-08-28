@@ -1,6 +1,6 @@
 "use client";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
-import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
+import UserSidebar from "@/app/(protected)/user/dashboard/components/UserSidebar";
 import DashboardTopbar from "@/components/dashboard/DashboardTopbar";
 import React from "react";
 
@@ -9,7 +9,7 @@ function SidebarLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-background text-foreground w-full">
       <div className="sticky top-0 h-screen">
-        <DashboardSidebar />
+        <UserSidebar />
       </div>
       <div className="flex-1 flex flex-col min-h-screen">
         <DashboardTopbar />

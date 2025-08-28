@@ -6,7 +6,6 @@ import {
   SidebarFooter,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Home,
   Activity,
@@ -15,7 +14,7 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hook/useAuth";
 
-import { SidebarMenuList, SidebarMenuItemType } from "./SidebarMenuList";
+import { SidebarMenuList, SidebarMenuItemType } from "@/components/dashboard/SidebarMenuList";
 
 const navItems: SidebarMenuItemType[] = [
   {
@@ -41,7 +40,7 @@ type DashboardSidebarProps = {
   className?: string;
 };
 
-const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ className }) => {
+const UserSidebar: React.FC<DashboardSidebarProps> = ({ className }) => {
   const { user } = useAuth();
   const initials = user?.name
     ? user.name
@@ -85,4 +84,4 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ className }) => {
   );
 };
 
-export default DashboardSidebar;
+export default UserSidebar;

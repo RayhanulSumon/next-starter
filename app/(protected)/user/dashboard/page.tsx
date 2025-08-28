@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import TwoFactorAuth from "@/components/dashboard/TwoFactorAuth";
 import DashboardTabs from "@/components/dashboard/DashboardTabs";
-import UserInfoCard from "@/components/dashboard/UserInfoCard";
+import UserInfoCard from "@/app/(protected)/user/dashboard/components/UserInfoCard";
 import StatsGrid from "@/components/dashboard/StatsGrid";
 import DashboardError from "@/components/dashboard/DashboardError";
 
