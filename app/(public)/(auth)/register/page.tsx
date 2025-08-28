@@ -68,7 +68,7 @@ export default function RegisterPage() {
 }
 
 function RegisterPageContent() {
-    const {register, user, loading: authLoading} = useAuth();
+    const {register, user, registerLoading} = useAuth();
     const router = useRouter();
     const form = useForm<RegisterFormValues>({
         resolver: zodResolver(registerSchema),
@@ -84,15 +84,15 @@ function RegisterPageContent() {
 
     // SPA redirect after registration using router.replace
     useEffect(() => {
-        if (!authLoading && user && user.id && window.location.pathname !== "/user/dashboard") {
+        if (!registerLoading && user && user.id && window.location.pathname !== "/user/dashboard") {
             router.replace("/user/dashboard");
         }
-    }, [user, authLoading, router]);
+    }, [user, registerLoading, router]);
 
-    if (authLoading) {
+    if (registerLoading) {
         return <div>Loading...</div>;
     }
-    if (user && user.id && !authLoading && typeof window !== 'undefined' && window.location.pathname !== "/user/dashboard") {
+    if (user && user.id && !registerLoading && typeof window !== 'undefined' && window.location.pathname !== "/user/dashboard") {
         return null;
     }
 

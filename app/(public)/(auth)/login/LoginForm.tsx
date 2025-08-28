@@ -16,7 +16,7 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ onTwoFARequired }: LoginFormProps) {
-  const { login, user, loginLoading, loading: authLoading } = useAuth();
+  const { login, user, loginLoading } = useAuth();
   const router = useRouter();
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -24,10 +24,10 @@ export function LoginForm({ onTwoFARequired }: LoginFormProps) {
   });
 
   useEffect(() => {
-    if (user && user.id && !authLoading) {
+    if (user && user.id && !loginLoading) {
       router.replace("/user/dashboard");
     }
-  }, [user, authLoading, router]);
+  }, [user, loginLoading, router]);
 
   async function onSubmit(data: LoginFormValues) {
     try {

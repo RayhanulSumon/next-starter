@@ -13,7 +13,7 @@ export default function LoginPage() {
 }
 
 function LoginPageContent() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loginLoading } = useAuth();
   const router = useRouter();
 
   const [twoFARequired, setTwoFARequired] = useState(false);
@@ -24,10 +24,10 @@ function LoginPageContent() {
 
   // Redirect when authenticated
   useEffect(() => {
-    if (user && user.id && !authLoading) {
+    if (user && user.id && !loginLoading) {
       router.replace("/user/dashboard");
     }
-  }, [user, authLoading, router]);
+  }, [user, loginLoading, router]);
 
   function handleTwoFARequired(identifier: string, password: string) {
     setTwoFARequired(true);
