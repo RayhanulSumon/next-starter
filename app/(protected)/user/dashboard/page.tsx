@@ -2,12 +2,15 @@
 export const dynamic = "force-dynamic";
 
 import { useAuth } from "@/hook/useAuth";
-import { UserRole } from "@/types/auth";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import TwoFactorAuth from "@/components/dashboard/TwoFactorAuth";
+import DashboardTabs from "@/components/dashboard/DashboardTabs";
+import UserInfoCard from "@/components/dashboard/UserInfoCard";
+import StatsGrid from "@/components/dashboard/StatsGrid";
+import DashboardError from "@/components/dashboard/DashboardError";
 
 const TABS = ["overview", "activity", "settings"];
 
@@ -38,23 +41,17 @@ export default function DashboardPage() {
 
   if (error) {
     return (
-      <div className="mt-20 p-6 border rounded text-center bg-white dark:bg-gray-900 text-red-700 dark:text-red-400">
-        <h1 className="text-2xl font-bold mb-4">Error</h1>
-        <p>{error}</p>
-        <button
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-          onClick={async () => {
-            clearError();
-            try {
-              await fetchCurrentUser();
-            } catch (err) {
-              console.error('Failed to fetch current user:', err);
-            }
-          }}
-        >
-          Retry
-        </button>
-      </div>
+      <DashboardError
+        error={error}
+        onRetry={async () => {
+          clearError();
+          try {
+            await fetchCurrentUser();
+          } catch (err) {
+            console.error('Failed to fetch current user:', err);
+          }
+        }}
+      />
     );
   }
 
@@ -66,57 +63,15 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col flex-1 w-full max-w-none space-y-6">
-      <div className="border-b border-gray-200 dark:border-gray-800 w-full">
-        <nav className="-mb-px flex space-x-8 w-full">
-          {TABS.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={
-                `whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ` +
-                (activeTab === tab
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300")
-              }
-            >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
-          ))}
-        </nav>
-      </div>
+      <DashboardTabs tabs={TABS} activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {activeTab === "overview" && (
         <div className="flex flex-col w-full max-w-none space-y-6">
           <DashboardCard title="User Information" className="w-full max-w-none">
-            <div className="space-y-2">
-              <p>
-                <span className="font-medium">Name:</span> {user!.name}
-              </p>
-              <p>
-                <span className="font-medium">Email:</span> {user!.email || "Not provided"}
-              </p>
-              <p>
-                <span className="font-medium">Phone:</span> {user!.phone || "Not provided"}
-              </p>
-              <p>
-                <span className="font-medium">Role:</span> {user!.role || UserRole.USER}
-              </p>
-            </div>
+            <UserInfoCard user={user!} />
           </DashboardCard>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-none">
-            {stats.map((stat) => (
-              <DashboardCard
-                key={stat.name}
-                title={stat.name}
-                className="text-center w-full max-w-none"
-              >
-                <div className="text-3xl font-semibold text-blue-600">
-                  {stat.value}
-                </div>
-              </DashboardCard>
-            ))}
-          </div>
+          <StatsGrid stats={stats} />
         </div>
       )}
 
