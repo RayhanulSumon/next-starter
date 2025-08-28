@@ -13,9 +13,11 @@ export default function DashboardPage() {
   const { user, initialLoading, fetchCurrentUser, error, clearError } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
+  const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
     if (!initialLoading && !user) {
+      setRedirecting(true);
       router.replace("/login");
     }
   }, [user, initialLoading, router]);
@@ -25,21 +27,12 @@ export default function DashboardPage() {
     fetchCurrentUser();
   }, [fetchCurrentUser]);
 
-  if (initialLoading) {
-    return (
-      <div className="mt-20 p-6 border rounded text-center bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-        Loading...
-      </div>
-    );
+  if (initialLoading || redirecting) {
+    return null; // Or a spinner if you prefer
   }
 
   if (!user) {
-    return (
-      <div className="mt-20 p-6 border rounded text-center bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-        <h1 className="text-2xl font-bold mb-4">Unauthorized</h1>
-        <p>Please log in to access the dashboard.</p>
-      </div>
-    );
+    return null;
   }
 
   if (!initialLoading && error) {
