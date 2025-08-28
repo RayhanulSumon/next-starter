@@ -9,40 +9,34 @@ import { useRouter } from "next/navigation";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import TwoFactorAuth from "@/components/dashboard/TwoFactorAuth";
 
+const TABS = ["overview", "activity", "settings"];
+
 export default function DashboardPage() {
   const { user, initialLoading, fetchCurrentUser, error, clearError } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
-  const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
     if (!initialLoading && !user) {
-      setRedirecting(true);
       router.replace("/login");
     }
   }, [user, initialLoading, router]);
 
   useEffect(() => {
-    // Always fetch the current user on mount for fresh/redirected dashboard
     (async () => {
       try {
         await fetchCurrentUser();
       } catch (err) {
-        // Optionally log the error
         console.error('Failed to fetch current user:', err);
       }
     })();
   }, [fetchCurrentUser]);
 
-  if (initialLoading || redirecting) {
-    return null; // Or a spinner if you prefer
-  }
-
-  if (!user) {
+  if (initialLoading || (!user && !initialLoading)) {
     return null;
   }
 
-  if (!initialLoading && error) {
+  if (error) {
     return (
       <div className="mt-20 p-6 border rounded text-center bg-white dark:bg-gray-900 text-red-700 dark:text-red-400">
         <h1 className="text-2xl font-bold mb-4">Error</h1>
@@ -64,7 +58,6 @@ export default function DashboardPage() {
     );
   }
 
-  // Stats for the overview tab
   const stats = [
     { name: "Total Sessions", value: "24" },
     { name: "Active Time", value: "5.2 hrs" },
@@ -75,18 +68,16 @@ export default function DashboardPage() {
     <div className="flex flex-col flex-1 w-full max-w-none space-y-6">
       <div className="border-b border-gray-200 dark:border-gray-800 w-full">
         <nav className="-mb-px flex space-x-8 w-full">
-          {["overview", "activity", "settings"].map((tab) => (
+          {TABS.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`
-                whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
-                ${
-                  activeTab === tab
-                    ? "border-blue-500 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }
-              `}
+              className={
+                `whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ` +
+                (activeTab === tab
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300")
+              }
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
@@ -102,16 +93,13 @@ export default function DashboardPage() {
                 <span className="font-medium">Name:</span> {user.name}
               </p>
               <p>
-                <span className="font-medium">Email:</span>{" "}
-                {user.email || "Not provided"}
+                <span className="font-medium">Email:</span> {user.email || "Not provided"}
               </p>
               <p>
-                <span className="font-medium">Phone:</span>{" "}
-                {user.phone || "Not provided"}
+                <span className="font-medium">Phone:</span> {user.phone || "Not provided"}
               </p>
               <p>
-                <span className="font-medium">Role:</span>{" "}
-                {user.role || UserRole.USER}
+                <span className="font-medium">Role:</span> {user.role || UserRole.USER}
               </p>
             </div>
           </DashboardCard>
