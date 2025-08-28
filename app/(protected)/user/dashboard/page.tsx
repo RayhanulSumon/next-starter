@@ -24,7 +24,14 @@ export default function DashboardPage() {
 
   useEffect(() => {
     // Always fetch the current user on mount for fresh/redirected dashboard
-    fetchCurrentUser();
+    (async () => {
+      try {
+        await fetchCurrentUser();
+      } catch (err) {
+        // Optionally log the error
+        console.error('Failed to fetch current user:', err);
+      }
+    })();
   }, [fetchCurrentUser]);
 
   if (initialLoading || redirecting) {
@@ -42,9 +49,13 @@ export default function DashboardPage() {
         <p>{error}</p>
         <button
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-          onClick={() => {
+          onClick={async () => {
             clearError();
-            fetchCurrentUser();
+            try {
+              await fetchCurrentUser();
+            } catch (err) {
+              console.error('Failed to fetch current user:', err);
+            }
           }}
         >
           Retry
