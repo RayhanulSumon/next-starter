@@ -17,7 +17,7 @@ interface AuthState {
   error: string | null;
   setUser: (user: User | null) => void;
   login: (identifier: string, password: string) => Promise<LoginActionResult>;
-  register: (data: RegisterData) => Promise<void>;
+  register: (data: { identifier: string; password: string; password_confirmation: string }) => Promise<void>;
   logout: (redirectTo?: string) => Promise<void>;
   requestPasswordReset: (data: PasswordResetRequest) => Promise<PasswordResetResponse>;
   resetPassword: (data: PasswordResetData) => Promise<PasswordResetResponse>;
