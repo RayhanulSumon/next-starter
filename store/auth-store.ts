@@ -14,6 +14,7 @@ interface AuthState {
   resetLoading: boolean;
   requestResetLoading: boolean;
   initialLoading: boolean;
+  error: string | null;
   setUser: (user: User | null) => void;
   login: (identifier: string, password: string) => Promise<LoginActionResult>;
   register: (data: RegisterData) => Promise<void>;
@@ -22,6 +23,7 @@ interface AuthState {
   resetPassword: (data: PasswordResetData) => Promise<PasswordResetResponse>;
   fetchCurrentUser: () => Promise<void>;
   resetAuthState: () => void;
+  clearError: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -31,7 +33,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   resetLoading: false,
   requestResetLoading: false,
   initialLoading: true,
+  error: null,
   setUser: (user) => set({ user }),
+  clearError: () => set({ error: null }),
   resetAuthState: () => set({
     user: null,
     loginLoading: false,
@@ -39,13 +43,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     resetLoading: false,
     requestResetLoading: false,
     initialLoading: false,
+    error: null,
   }),
   login: async (identifier, password) => {
-    set({ loginLoading: true });
+    set({ loginLoading: true, error: null });
     try {
-      return await loginHandler(identifier, password, get().setUser, () => {});
+      return await loginHandler(identifier, password, get().setUser);
     } catch (error) {
-      throw error instanceof Error ? error : new Error('Login failed');
+      set({ error: error instanceof Error ? error.message : 'Login failed' });
+      throw error;
     } finally {
       set({ loginLoading: false });
     }
@@ -58,38 +64,46 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         window.location.href = redirectTo;
       }
     } catch (error) {
+      set({ error: error instanceof Error ? error.message : 'Logout failed' });
       throw error;
     }
   },
   requestPasswordReset: async (data) => {
-    set({ requestResetLoading: true });
+    set({ requestResetLoading: true, error: null });
     try {
       return await requestPasswordReset(data);
+    } catch (error) {
+      set({ error: error instanceof Error ? error.message : 'Password reset request failed' });
+      throw error;
     } finally {
       set({ requestResetLoading: false });
     }
   },
   resetPassword: async (data) => {
-    set({ resetLoading: true });
+    set({ resetLoading: true, error: null });
     try {
       return await resetPasswordAction(data);
+    } catch (error) {
+      set({ error: error instanceof Error ? error.message : 'Password reset failed' });
+      throw error;
     } finally {
       set({ resetLoading: false });
     }
   },
   fetchCurrentUser: async () => {
-    set({ initialLoading: true });
+    set({ initialLoading: true, error: null });
     try {
       const result = await getCurrentUser();
       set({ user: result.data ?? null });
-    } catch {
-      set({ user: null });
+    } catch (error) {
+      set({ user: null, error: error instanceof Error ? error.message : 'Failed to fetch user' });
+      throw error;
     } finally {
       set({ initialLoading: false });
     }
   },
   register: async (data) => {
-    set({ registerLoading: true });
+    set({ registerLoading: true, error: null });
     try {
       if (!Object.values(UserRole).includes(data.role)) {
         data.role = UserRole.USER;
@@ -102,6 +116,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         throw new Error("Registration did not return a user.");
       }
     } catch (error) {
+      set({ error: error instanceof Error ? error.message : 'Registration failed' });
       throw error;
     } finally {
       set({ registerLoading: false });

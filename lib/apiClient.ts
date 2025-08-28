@@ -149,15 +149,19 @@ export async function apiFetch<T = unknown>(
         });
         if (isJson && data) {
             throw normalizeApiError(data, res.status);
-        } else if (res.status === 401 || res.status === 403) {
-            throw new ApiError('You are not authenticated. Please log in.', res.status, {rawText});
         } else {
-            throw new ApiError('Unexpected server response.', res.status, {rawText});
+            throw new ApiError('API Error', res.status, { rawText });
         }
     }
-    // If successful, but not JSON, return raw text as data
-    if (!isJson) {
-        return {message: '', data: null, errors: [], status: res.status, rawText};
+    if (isJson && data) {
+        return data;
     }
-    return data as ApiClientResponse<T>;
+    // If not JSON, return a generic response
+    return {
+        message: 'Non-JSON response',
+        data: null,
+        errors: [],
+        status: res.status,
+        rawText,
+    };
 }

@@ -10,7 +10,7 @@ import TwoFactorAuth from "@/components/dashboard/TwoFactorAuth";
 
 export default function DashboardPage() {
   const { toggleSidebar } = useSidebar();
-  const { user, initialLoading, fetchCurrentUser } = useAuth();
+  const { user, initialLoading, fetchCurrentUser, error, clearError } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -21,10 +21,9 @@ export default function DashboardPage() {
   }, [user, initialLoading, router]);
 
   useEffect(() => {
-    if (initialLoading && !user) {
-      fetchCurrentUser();
-    }
-  }, [initialLoading, user, fetchCurrentUser]);
+    // Always fetch the current user on mount for fresh/redirected dashboard
+    fetchCurrentUser();
+  }, [fetchCurrentUser]);
 
   if (initialLoading) {
     return (
@@ -39,6 +38,24 @@ export default function DashboardPage() {
       <div className="mt-20 p-6 border rounded text-center bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         <h1 className="text-2xl font-bold mb-4">Unauthorized</h1>
         <p>Please log in to access the dashboard.</p>
+      </div>
+    );
+  }
+
+  if (!initialLoading && error) {
+    return (
+      <div className="mt-20 p-6 border rounded text-center bg-white dark:bg-gray-900 text-red-700 dark:text-red-400">
+        <h1 className="text-2xl font-bold mb-4">Error</h1>
+        <p>{error}</p>
+        <button
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          onClick={() => {
+            clearError();
+            fetchCurrentUser();
+          }}
+        >
+          Retry
+        </button>
       </div>
     );
   }

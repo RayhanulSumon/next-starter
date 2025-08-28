@@ -5,8 +5,7 @@ import type { User, LoginActionResult } from "@/types/auth";
 export async function loginHandler(
   identifier: string,
   password: string,
-  setUser: (user: User) => void,
-  startTransition: (cb: () => void) => void
+  setUser: (user: User) => void
 ): Promise<LoginActionResult> {
   const result = await loginAction(identifier, password);
   const data = result.data;
@@ -17,9 +16,7 @@ export async function loginHandler(
     return { "2fa_required": true, user: data.user };
   }
   if (isUserToken(data)) {
-    startTransition(() => {
-      setUser(data.user);
-    });
+    setUser(data.user); // Set user immediately for reliable redirect
     return { user: data.user, token: data.token };
   }
   throw new Error('Unexpected login response');

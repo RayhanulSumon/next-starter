@@ -3,7 +3,6 @@ import { revalidatePath } from "next/cache";
 import { apiFetch, ApiClientResponse } from "@/lib/apiClient";
 import type { LoginActionResult, LoginResponse, User } from "@/types/auth";
 import { cookieStore } from "../shared";
-import { normalizeApiErrors } from "@/lib/utils";
 
 type TwoFARequiredResponse = { "2fa_required": true; user: User };
 
@@ -32,9 +31,6 @@ export async function loginAction(
       "/login",
       { method: "POST", data: { identifier, password } }
     );
-    // Log the raw result for debugging validation errors
-    console.log('loginAction result:', JSON.stringify(result, null, 2));
-
     if (isTwoFARequired(result.data)) {
       const twoFAData = result.data as TwoFARequiredResponse;
       return {
@@ -44,43 +40,19 @@ export async function loginAction(
     }
     if (isLoginResponse(result.data)) {
       const responseData = result.data;
-      // Dynamically set cookie options for dev/prod and cross-origin
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
       const isLocalhost = apiUrl.includes("localhost") || apiUrl.includes("127.0.0.1");
       await cookieStore.set("token", responseData.token, {
-        httpOnly: false,
+        httpOnly: true,
         path: "/",
-        sameSite: isLocalhost ? "lax" : "none",
-        secure: !isLocalhost, // secure: true for prod/remote, false for localhost
+        sameSite: isLocalhost ? "lax" : "strict",
+        secure: process.env.NODE_ENV === "production",
       });
       revalidatePath("/user/dashboard");
-      return {
-        ...result,
-        data: { user: responseData.user, token: responseData.token },
-      };
     }
-    // If not 2FA or login, return error object
-    return {
-      message: result.message || 'Login failed.',
-      data: null,
-      errors: result.errors || [],
-      status: result.status || 500,
-    };
-  } catch (err: unknown) {
-    if (err && typeof err === 'object' && 'status' in (err as Record<string, unknown>)) {
-      const errorObj = err as { message?: string; data?: { errors?: unknown }; status?: number };
-      return {
-        message: errorObj.message || 'Login failed.',
-        data: null,
-        errors: normalizeApiErrors(errorObj.data?.errors),
-        status: errorObj.status || 500,
-      };
-    }
-    return {
-      message: 'An unexpected error occurred.',
-      data: null,
-      errors: [],
-      status: 500,
-    };
+    return result;
+  } catch (error) {
+    // Let ApiError propagate for consistent error handling
+    throw error;
   }
 }
