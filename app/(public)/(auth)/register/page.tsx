@@ -25,7 +25,6 @@ import {
     CardContent,
     CardFooter,
 } from "@/components/ui/card";
-import {useEffect} from "react";
 
 const passwordRequirements = [
     {label: "At least 8 characters", test: (v: string) => v.length >= 8},
@@ -82,24 +81,10 @@ function RegisterPageContent() {
         },
     });
 
-    // SPA redirect after registration using router.replace
-    useEffect(() => {
-        if (!registerLoading && user && user.id && window.location.pathname !== "/user/dashboard") {
-            router.replace("/user/dashboard");
-        }
-    }, [user, registerLoading, router]);
-
-    if (registerLoading) {
-        return <div>Loading...</div>;
-    }
-    if (user && user.id && !registerLoading && typeof window !== 'undefined' && window.location.pathname !== "/user/dashboard") {
-        return null;
-    }
-
     async function onSubmit(data: RegisterFormValues) {
         try {
             await register(data);
-            // No need for window.location.replace; redirect handled by useEffect
+            router.replace("/user/dashboard");
         } catch (err) {
             if (
                 typeof err === "object" &&
