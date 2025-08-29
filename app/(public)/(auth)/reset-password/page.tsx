@@ -135,8 +135,7 @@ export default function ResetPasswordPage() {
                           setRequestError("Please provide an email or phone number");
                           return;
                         }
-                        // Debug: log payload
-                        // console.log("Payload sent to API:", payload);
+
                         const response = await requestPasswordReset(payload);
                         setRequestSent(true);
                         if (response.code) {

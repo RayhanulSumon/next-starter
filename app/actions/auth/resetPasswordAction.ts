@@ -11,8 +11,7 @@ export async function requestPasswordReset(
 ): Promise<ApiClientResponse<PasswordResetResponse | undefined>> {
   return apiFetch<PasswordResetResponse>("/request-password-reset", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    data,
   });
 }
 
