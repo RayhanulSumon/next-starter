@@ -43,10 +43,27 @@ export function isApiErrorWithFieldErrors(e: unknown): e is { data: { errors: Re
 // Optionally, get errors for a specific field
 export function getFieldErrors(error: unknown, field: string): string[] {
   if (isApiErrorWithFieldErrors(error)) {
-    const errorsObj = error.data.errors;
+    const errorsObj = (error as { data: { errors: Record<string, string[]> } }).data.errors;
     if (field in errorsObj && Array.isArray(errorsObj[field])) {
       return errorsObj[field];
     }
   }
   return [];
+}
+
+// Extract user from API response
+export function extractUserFromApiResponse<T extends { user?: unknown }>(result: unknown): T['user'] | null {
+  if (
+    typeof result === 'object' &&
+    result !== null &&
+    'data' in result &&
+    typeof (result as Record<string, unknown>).data === 'object' &&
+    (result as Record<string, unknown>).data !== null
+  ) {
+    const data = (result as Record<string, unknown>).data;
+    if (isObject(data) && 'user' in data) {
+      return (data as { user?: T['user'] }).user ?? null;
+    }
+  }
+  return null;
 }

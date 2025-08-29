@@ -5,7 +5,7 @@ import { registerAction } from '@/app/actions/auth/registerAction';
 import { logoutUserAction } from '@/app/actions/auth/logOutAction';
 import { requestPasswordReset, resetPasswordAction } from '@/app/actions/auth/resetPasswordAction';
 import { getCurrentUser } from '@/app/actions/auth/getCurrentUser';
-import { extractValidationErrors, isApiErrorWithFieldErrors } from '@/lib/apiErrorHelpers';
+import { extractValidationErrors, isApiErrorWithFieldErrors, extractUserFromApiResponse } from '@/lib/apiErrorHelpers';
 
 interface AuthState {
   user: User | null;
@@ -96,34 +96,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const result = await registerAction(data);
       if ('error' in result && result.error) {
-        throw result.error;
+        // Always throw a normalized error object
+        const allMessages = extractValidationErrors(result.error);
+        const fieldErrors = isApiErrorWithFieldErrors(result.error) ? result.error.data.errors : undefined;
+        throw { data: { errors: allMessages, fieldErrors } };
       }
-      // Type guard for result.data
-      if (
-        typeof result === 'object' &&
-        result !== null &&
-        'data' in result &&
-        result.data &&
-        typeof result.data === 'object' &&
-        'user' in result.data &&
-        result.data.user
-      ) {
-        set({ user: result.data.user, initialLoading: false });
-      } else {
-        set({ user: null, initialLoading: false });
-        throw new Error("Registration did not return a user.");
+      const user = extractUserFromApiResponse<{ user: User }>(result);
+      if (user) {
+        set({ user, initialLoading: false });
+        return;
       }
+      set({ user: null, initialLoading: false });
+      throw { data: { errors: ["Registration did not return a user."] } };
     } catch (error: unknown) {
       set({ error: error instanceof Error ? error.message : 'Registration failed' });
       const allMessages = extractValidationErrors(error);
-      let fieldErrors: Record<string, string[]> | undefined = undefined;
-      if (isApiErrorWithFieldErrors(error)) {
-        fieldErrors = error.data.errors;
-      }
-      if (allMessages.length > 0 || fieldErrors) {
-        throw { data: { errors: allMessages, fieldErrors } };
-      }
-      throw error;
+      const fieldErrors = isApiErrorWithFieldErrors(error) ? error.data.errors : undefined;
+      throw { data: { errors: allMessages.length > 0 ? allMessages : ["Registration failed. Please try again."], fieldErrors } };
     } finally {
       set({ registerLoading: false });
     }

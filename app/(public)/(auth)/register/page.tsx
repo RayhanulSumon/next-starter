@@ -78,23 +78,26 @@ function RegisterPageContent() {
             await register(payload);
             router.replace("/user/dashboard");
         } catch (err: unknown) {
-            const allMessages = extractValidationErrors(err);
-            if (isApiErrorWithFieldErrors(err)) {
-                const errorsObj = err.data.errors;
-                const fieldMap: Record<string, string> = {
-                    identifier: 'identifier',
-                    password: 'password',
-                    password_confirmation: 'password_confirmation',
-                };
-                Object.entries(errorsObj).forEach(([field, messages]) => {
-                    const formField = fieldMap[field] || field;
-                    if (Array.isArray(messages) && messages.length > 0) {
-                        form.setError(formField as keyof RegisterFormValues, { message: messages[0] });
-                    }
-                });
+            // Type guard for error with data property
+            function hasData(obj: unknown): obj is { data: { errors?: string[]; fieldErrors?: Record<string, string[]> } } {
+                return typeof obj === 'object' && obj !== null &&
+                    'data' in obj &&
+                    typeof (obj as Record<string, unknown>).data === 'object' &&
+                    (obj as Record<string, unknown>).data !== null;
             }
-            // Defensive: if no messages, show fallback
-            form.setError("root", { message: allMessages.length > 0 ? allMessages.join("\n") : "Registration failed. Please try again." });
+            let errors: string[] = [];
+            let fieldErrors: Record<string, string[]> = {};
+            if (hasData(err)) {
+                const data = err.data;
+                errors = Array.isArray(data.errors) ? data.errors : [];
+                fieldErrors = typeof data.fieldErrors === 'object' && data.fieldErrors !== null ? data.fieldErrors : {};
+            }
+            Object.entries(fieldErrors).forEach(([field, messages]) => {
+                if (Array.isArray(messages) && messages.length > 0) {
+                    form.setError(field as keyof RegisterFormValues, { message: messages[0] });
+                }
+            });
+            form.setError("root", { message: errors.length > 0 ? errors.join("\n") : "Registration failed. Please try again." });
         }
     }
 
