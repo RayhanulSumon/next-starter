@@ -1,5 +1,5 @@
 "use server";
-import type { User } from "@/types/auth";
+import type { User } from "@/types/auth-types";
 import { apiFetch, ApiClientResponse } from "@/lib/apiClient";
 
 export async function getCurrentUser(): Promise<ApiClientResponse<User | null>> {

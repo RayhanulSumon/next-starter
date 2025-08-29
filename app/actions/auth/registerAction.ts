@@ -2,7 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { cookieStore } from "../shared";
 import { apiFetch, ApiClientResponse } from "@/lib/apiClient";
-import type { RegisterData, User } from "@/types/auth";
+import type { RegisterData, User } from "@/types/auth-types";
 
 export async function registerAction(data: RegisterData): Promise<ApiClientResponse<{ user: User; token: string }>> {
   try {

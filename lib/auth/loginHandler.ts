@@ -1,6 +1,6 @@
 import { loginAction } from "@/app/actions/auth/loginAction";
 import { isTwoFARequired, isUserToken } from "@/lib/authGuards";
-import type { User, LoginActionResult } from "@/types/auth";
+import type { User, LoginActionResult } from "@/types/auth-types";
 
 export async function loginHandler(
   identifier: string,

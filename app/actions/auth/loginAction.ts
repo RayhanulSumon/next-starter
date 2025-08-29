@@ -1,7 +1,7 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { apiFetch, ApiClientResponse } from "@/lib/apiClient";
-import type { LoginActionResult, LoginResponse, User } from "@/types/auth";
+import type { LoginActionResult, LoginResponse, User } from "@/types/auth-types";
 import { cookieStore } from "../shared";
 
 type TwoFARequiredResponse = { "2fa_required": true; user: User };

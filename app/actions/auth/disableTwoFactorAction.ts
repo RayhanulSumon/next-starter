@@ -1,7 +1,7 @@
 "use server";
 import { apiFetch, ApiClientResponse } from "@/lib/apiClient";
 import { cookieStore } from "../shared";
-import type { User } from "@/types/auth";
+import type { User } from "@/types/auth-types";
 
 export async function disableTwoFactorAction(): Promise<ApiClientResponse<User>> {
   const token = await cookieStore.get("token");

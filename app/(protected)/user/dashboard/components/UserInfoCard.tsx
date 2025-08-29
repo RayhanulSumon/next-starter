@@ -1,5 +1,5 @@
 import React from "react";
-import { User, UserRole } from "@/types/auth";
+import { User, UserRole } from "@/types/auth-types";
 
 type UserInfoCardProps = {
   user: User;

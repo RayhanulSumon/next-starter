@@ -4,7 +4,7 @@ import type {
   PasswordResetRequest,
   PasswordResetData,
   PasswordResetResponse,
-} from "@/types/auth";
+} from "@/types/auth-types";
 
 export async function requestPasswordReset(
   data: PasswordResetRequest,

@@ -1,4 +1,4 @@
-import type { User } from "@/types/auth";
+import type { User } from "@/types/auth-types";
 
 export function isTwoFARequired(data: unknown): data is { "2fa_required": true; user: User } {
   return (
