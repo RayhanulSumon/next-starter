@@ -83,9 +83,7 @@ describe("RegisterPage", () => {
     fireEvent.change(screen.getByPlaceholderText(/confirm your password/i), { target: { value: "Password1!" } });
     fireEvent.click(screen.getByRole("button", { name: /register/i }));
     await waitFor(() => {
-      // Try to find the error message near the identifier input
-      const error = screen.queryByText((content) => content.includes("already been taken"));
-      expect(error).toBeInTheDocument();
+      expect(screen.getByText(/already been taken/i)).toBeInTheDocument();
     });
   });
 
