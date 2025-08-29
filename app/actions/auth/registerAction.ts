@@ -3,8 +3,9 @@ import { revalidatePath } from "next/cache";
 import { cookieStore } from "../shared";
 import { apiFetch, ApiClientResponse } from "@/lib/apiClient";
 import type { RegisterData, User } from "@/types/auth-types";
+import { extractValidationErrors } from "@/lib/apiErrorHelpers";
 
-export async function registerAction(data: RegisterData): Promise<ApiClientResponse<{ user: User; token: string }> | { error: { message: string; errors?: any; status?: number } }> {
+export async function registerAction(data: RegisterData): Promise<ApiClientResponse<{ user: User; token: string }> | { error: { message: string; errors?: string[]; status?: number } }> {
   try {
     const result = await apiFetch<{ token: string; user: User }>(
       "/register",
@@ -25,19 +26,20 @@ export async function registerAction(data: RegisterData): Promise<ApiClientRespo
       revalidatePath("/user/dashboard");
     }
     return result;
-  } catch (error: any) {
-    // Extract error info for serialization
+  } catch (error: unknown) {
+    const errors = extractValidationErrors(error);
     let message = "Registration failed.";
-    let errors = undefined;
-    let status = undefined;
+    let status: number | undefined = undefined;
     if (error && typeof error === 'object') {
-      message = error.message || message;
+      message = (error as { message?: string }).message || message;
       if ('data' in error && error.data && typeof error.data === 'object') {
-        errors = error.data.errors;
-        status = error.data.status;
+        const data = (error as { data?: { status?: number } }).data;
+        if (data && typeof data.status === 'number') {
+          status = data.status;
+        }
       }
-      if ('status' in error && typeof error.status === 'number') {
-        status = error.status;
+      if ('status' in error) {
+        status = (error as { status?: number }).status;
       }
     }
     return { error: { message, errors, status } };
