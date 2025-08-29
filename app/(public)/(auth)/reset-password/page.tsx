@@ -6,22 +6,57 @@ import { useAuth } from "@/hook/useAuth";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CustomInputField } from "@/components/ui/CustomInputField";
+import { Form } from "@/components/ui/form";
+
+const requestSchema = z
+  .object({
+    email: z.string().email("Enter a valid email").optional().or(z.literal("")),
+    phone: z
+      .string()
+      .regex(/^\+?[0-9]{10,15}$/, "Enter a valid phone number")
+      .optional()
+      .or(z.literal("")),
+  })
+  .superRefine((data, ctx) => {
+    if (!data.email && !data.phone) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Email or phone is required.",
+        path: [],
+      });
+    }
+  });
+
+const resetSchema = z
+  .object({
+    token: z.string().min(1, "Reset code is required"),
+    password: z
+      .string()
+      .min(8, "At least 8 characters")
+      .regex(/[A-Z]/, "At least one uppercase letter")
+      .regex(/[a-z]/, "At least one lowercase letter")
+      .regex(/[0-9]/, "At least one number")
+      .regex(/[^A-Za-z0-9]/, "At least one symbol"),
+    passwordConfirmation: z.string().min(8, "Confirm your password"),
+  })
+  .refine((data) => data.password === data.passwordConfirmation, {
+    message: "Passwords do not match",
+    path: ["passwordConfirmation"],
+  });
 
 export default function ResetPasswordPage() {
   const router = useRouter();
   const { requestPasswordReset, resetPassword, requestResetLoading, resetLoading } = useAuth();
 
   // State for the initial request step
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
   const [requestSent, setRequestSent] = useState(false);
   const [requestError, setRequestError] = useState<string | null>(null);
 
   // State for the reset step
-  const [token, setToken] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [resetError, setResetError] = useState<string | null>(null);
   const [resetSuccess, setResetSuccess] = useState(false);
 
@@ -44,91 +79,14 @@ export default function ResetPasswordPage() {
     },
   ];
 
-  // Handle the initial password reset request
-  const handleRequestReset = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setRequestError(null);
-
-    try {
-      // At least one of email or phone must be provided
-      if (!email && !phone) {
-        setRequestError("Please provide either an email or phone number");
-        return;
-      }
-
-      const response = await requestPasswordReset({
-        email: email || undefined,
-        phone: phone || undefined,
-      });
-
-      setRequestSent(true);
-      // If there's a code in the response, pre-fill it
-      if (response.code) {
-        setToken(response.code);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        setRequestError(error.message);
-      } else {
-        setRequestError("Failed to request password reset");
-      }
-    }
-  };
-
-  // Track password for live feedback
-  const [passwordValue, setPasswordValue] = useState("");
-
-  // Handle the actual password reset
-  const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setResetError(null);
-
-    // Validate passwords match
-    if (password !== passwordConfirmation) {
-      setResetError("Passwords do not match");
-      return;
-    }
-    // Validate strong password
-    for (const req of passwordRequirements) {
-      if (!req.test(password)) {
-        setResetError("Password does not meet all requirements.");
-        return;
-      }
-    }
-
-    try {
-      await resetPassword({
-        email: email || undefined,
-        phone: phone || undefined,
-        token: token || undefined,
-        password,
-        password_confirmation: passwordConfirmation,
-      });
-
-      setResetSuccess(true);
-
-      // Redirect to loginAction after a delay
-      setTimeout(() => {
-        router.replace("/login");
-      }, 3000);
-    } catch (error) {
-      if (
-        typeof error === "object" &&
-        error !== null &&
-        "response" in error &&
-        typeof (error as { response?: { status?: number } }).response === "object" &&
-        (error as { response?: { status?: number } }).response?.status === 429
-      ) {
-        setResetError("Too many attempts, please try again later.");
-        return;
-      }
-      if (error instanceof Error) {
-        setResetError(error.message);
-      } else {
-        setResetError("Failed to reset password");
-      }
-    }
-  };
+  const requestForm = useForm({
+    resolver: zodResolver(requestSchema),
+    defaultValues: { email: "", phone: "" },
+  });
+  const resetForm = useForm({
+    resolver: zodResolver(resetSchema),
+    defaultValues: { token: "", password: "", passwordConfirmation: "" },
+  });
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
@@ -161,63 +119,88 @@ export default function ResetPasswordPage() {
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
-                <form onSubmit={handleRequestReset} className="space-y-4">
-                  {method === "email" && (
-                    <div className="space-y-2">
-                      <label htmlFor="email" className="block text-sm font-medium">
-                        Email
-                      </label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="Enter your email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        disabled={requestResetLoading}
-                        required
-                      />
-                    </div>
-                  )}
-                  {method === "mobile" && (
-                    <div className="space-y-2">
-                      <label htmlFor="phone" className="block text-sm font-medium">
-                        Phone Number
-                      </label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="Enter your phone number"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        disabled={requestResetLoading}
-                        required
-                      />
-                    </div>
-                  )}
-                  {requestError && (
-                    <div
-                      className="rounded border border-red-200 bg-red-50 p-3 text-red-700"
-                      role="alert"
-                    >
-                      {requestError}
-                    </div>
-                  )}
-                  <button
-                    type="submit"
-                    className="w-full rounded bg-blue-600 p-2 text-white transition hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50"
-                    disabled={requestResetLoading}
+                <Form {...requestForm}>
+                  <form
+                    onSubmit={requestForm.handleSubmit(async (values) => {
+                      setRequestError(null);
+                      try {
+                        const payload: Record<string, string> = {};
+                        if (method === "email" && values.email) {
+                          payload.email = values.email;
+                        }
+                        if (method === "mobile" && values.phone) {
+                          payload.phone = values.phone;
+                        }
+                        if (Object.keys(payload).length === 0) {
+                          setRequestError("Please provide an email or phone number");
+                          return;
+                        }
+                        // Debug: log payload
+                        // console.log("Payload sent to API:", payload);
+                        const response = await requestPasswordReset(payload);
+                        setRequestSent(true);
+                        if (response.code) {
+                          resetForm.setValue("token", response.code);
+                        }
+                      } catch (error: unknown) {
+                        if (error instanceof Error) {
+                          setRequestError(error.message);
+                        } else {
+                          setRequestError("Failed to request password reset");
+                        }
+                      }
+                    })}
+                    className="space-y-4"
                   >
-                    {requestResetLoading ? "Sending..." : "Send Reset Instructions"}
-                  </button>
-                  <div className="mt-4 text-center">
-                    <p className="text-sm">
-                      Remember your password?{" "}
-                      <Link href="/login" className="text-blue-600 hover:underline">
-                        Login here
-                      </Link>
-                    </p>
-                  </div>
-                </form>
+                    {method === "email" && (
+                      <div className="space-y-2">
+                        <CustomInputField
+                          control={requestForm.control}
+                          name="email"
+                          type="email"
+                          placeholder="Enter your email"
+                          disabled={requestResetLoading}
+                          className="!mt-0"
+                        />
+                      </div>
+                    )}
+                    {method === "mobile" && (
+                      <div className="space-y-2">
+                        <CustomInputField
+                          control={requestForm.control}
+                          name="phone"
+                          type="tel"
+                          placeholder="Enter your phone number"
+                          disabled={requestResetLoading}
+                          className="!mt-0"
+                        />
+                      </div>
+                    )}
+                    {requestError && (
+                      <div
+                        className="my-2 flex w-full flex-col items-center justify-center gap-2 rounded-lg border border-[color:var(--destructive)] bg-[color:var(--destructive)/0.1] px-4 py-3 text-center text-sm font-medium text-[color:var(--destructive)] shadow-sm"
+                        role="alert"
+                      >
+                        {requestError}
+                      </div>
+                    )}
+                    <button
+                      type="submit"
+                      className="bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary w-full rounded p-2 transition focus:ring-2 focus:outline-none disabled:opacity-50"
+                      disabled={requestResetLoading}
+                    >
+                      {requestResetLoading ? "Sending..." : "Send Reset Instructions"}
+                    </button>
+                    <div className="mt-4 text-center">
+                      <p className="text-sm text-[color:var(--muted-foreground)]">
+                        Remember your password?{" "}
+                        <Link href="/login" className="text-primary hover:underline">
+                          Login here
+                        </Link>
+                      </p>
+                    </div>
+                  </form>
+                </Form>
               </>
             ) : resetSuccess ? (
               // Success message
@@ -232,99 +215,93 @@ export default function ResetPasswordPage() {
                 </Link>
               </div>
             ) : (
-              // Step 2: Enter new password with token
-              <form onSubmit={handleResetPassword} className="space-y-4">
-                <p className="mb-4 text-sm text-gray-600">
-                  Enter the reset code you received and your new password.
-                </p>
-
-                <div className="space-y-2">
-                  <label htmlFor="token" className="block text-sm font-medium">
-                    Reset Code
-                  </label>
-                  <input
-                    id="token"
-                    type="text"
+              <Form {...resetForm}>
+                <form
+                  onSubmit={resetForm.handleSubmit(async (values) => {
+                    setResetError(null);
+                    try {
+                      await resetPassword({
+                        token: values.token,
+                        password: values.password,
+                        password_confirmation: values.passwordConfirmation,
+                        email: method === "email" ? requestForm.getValues("email") : undefined,
+                        phone: method === "mobile" ? requestForm.getValues("phone") : undefined,
+                      });
+                      setResetSuccess(true);
+                      setTimeout(() => {
+                        router.replace("/login");
+                      }, 3000);
+                    } catch (error: unknown) {
+                      if (error instanceof Error) {
+                        setResetError(error.message);
+                      } else {
+                        setResetError("Failed to reset password");
+                      }
+                    }
+                  })}
+                  className="space-y-4"
+                >
+                  <CustomInputField
+                    control={resetForm.control}
+                    name="token"
                     placeholder="Enter reset code"
-                    value={token}
-                    onChange={(e) => setToken(e.target.value)}
-                    className="w-full rounded border p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     disabled={resetLoading}
-                    required
                   />
-                </div>
-
-                <div className="space-y-2">
-                  <label htmlFor="password" className="block text-sm font-medium">
-                    New Password
-                  </label>
-                  <input
-                    id="password"
+                  <CustomInputField
+                    control={resetForm.control}
+                    name="password"
                     type="password"
                     placeholder="Enter new password"
-                    value={password}
-                    onChange={(e) => {
-                      setPassword(e.target.value);
-                      setPasswordValue(e.target.value);
-                    }}
-                    className="w-full rounded border p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                    required
-                    autoComplete="new-password"
+                    disabled={resetLoading}
                   />
                   <div className="mt-1 space-y-1">
                     {passwordRequirements.map((req) => (
                       <div
                         key={req.label}
-                        className={`flex items-center gap-1 text-xs ${req.test(passwordValue) ? "text-green-600" : "text-gray-400"}`}
+                        className={`flex items-center gap-1 text-xs ${
+                          req.test(resetForm.watch("password"))
+                            ? "text-success"
+                            : "text-[color:var(--muted-foreground)]"
+                        }`}
                       >
-                        <span>{req.test(passwordValue) ? "✔" : "✗"}</span> {req.label}
+                        <span>{req.test(resetForm.watch("password")) ? "✔" : "✗"}</span>{" "}
+                        {req.label}
                       </div>
                     ))}
                   </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label htmlFor="passwordConfirmation" className="block text-sm font-medium">
-                    Confirm New Password
-                  </label>
-                  <input
-                    id="passwordConfirmation"
+                  <CustomInputField
+                    control={resetForm.control}
+                    name="passwordConfirmation"
+                    label="Confirm New Password"
                     type="password"
                     placeholder="Confirm new password"
-                    value={passwordConfirmation}
-                    onChange={(e) => setPasswordConfirmation(e.target.value)}
-                    className="w-full rounded border p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                    required
-                    autoComplete="new-password"
+                    disabled={resetLoading}
                   />
-                </div>
-
-                {resetError && (
-                  <div
-                    className="rounded border border-red-200 bg-red-50 p-3 text-red-700"
-                    role="alert"
+                  {resetError && (
+                    <div
+                      className="my-2 flex w-full flex-col items-center justify-center gap-2 rounded-lg border border-[color:var(--destructive)] bg-[color:var(--destructive)/0.1] px-4 py-3 text-center text-sm font-medium text-[color:var(--destructive)] shadow-sm"
+                      role="alert"
+                    >
+                      {resetError}
+                    </div>
+                  )}
+                  <button
+                    type="submit"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary w-full rounded p-2 transition focus:ring-2 focus:outline-none disabled:opacity-50"
+                    disabled={resetLoading}
                   >
-                    {resetError}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  className="w-full rounded bg-blue-600 p-2 text-white transition hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50"
-                  disabled={resetLoading}
-                >
-                  {resetLoading ? "Resetting..." : "Reset Password"}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setRequestSent(false)}
-                  className="mt-2 w-full rounded bg-gray-100 p-2 text-gray-700 transition hover:bg-gray-200 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  disabled={resetLoading}
-                >
-                  Back to Request Form
-                </button>
-              </form>
+                    {resetLoading ? "Resetting..." : "Reset Password"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRequestSent(false)}
+                    className="bg-muted text-foreground hover:bg-muted/80 focus:ring-primary mt-2 w-full rounded p-2 transition focus:ring-2 focus:outline-none disabled:opacity-50"
+                    disabled={resetLoading}
+                  >
+                    Back to Request Form
+                  </button>
+                </form>
+              </Form>
             )}
           </CardContent>
         </Card>
