@@ -22,8 +22,6 @@ import {
 import { extractValidationErrors, getFieldErrors } from "@/lib/apiErrorHelpers";
 
 const REGISTER_FIELDS = ["identifier", "password", "password_confirmation"] as const;
-type RegisterField = typeof REGISTER_FIELDS[number];
-
 const identifierSchema = z.string().refine(
     (val) => {
         // Basic email or phone validation
@@ -73,7 +71,7 @@ function RootError({ message }: { message?: string }) {
                     d="M12 8v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"
                 />
             </svg>
-            {typeof message === 'string' && message.includes('\n') ? (
+            {message.includes('\n') ? (
                 <ul className="list-disc list-inside text-left">
                     {message.split('\n').map((msg, idx) => (
                         <li key={idx}>{msg}</li>
@@ -86,7 +84,7 @@ function RootError({ message }: { message?: string }) {
     );
 }
 
-function setApiFieldErrors<T extends string>(form: any, error: unknown, fields: readonly T[]) {
+function setApiFieldErrors<T extends string>(form: { setError: (field: T, error: { message: string }) => void }, error: unknown, fields: readonly T[]) {
     fields.forEach((field) => {
         const messages = getFieldErrors(error, field);
         if (messages && messages.length > 0) {
