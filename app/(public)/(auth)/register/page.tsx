@@ -21,6 +21,9 @@ import {
 } from "@/components/ui/card";
 import { extractValidationErrors, getFieldErrors } from "@/lib/apiErrorHelpers";
 
+const REGISTER_FIELDS = ["identifier", "password", "password_confirmation"] as const;
+type RegisterField = typeof REGISTER_FIELDS[number];
+
 const identifierSchema = z.string().refine(
     (val) => {
         // Basic email or phone validation
@@ -52,13 +55,48 @@ const registerSchema = z
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
-export default function RegisterPage() {
-    return <RegisterPageContent/>;
+function RootError({ message }: { message?: string }) {
+    if (!message) return null;
+    return (
+        <div className="w-full my-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-center text-sm font-medium shadow-sm flex flex-col items-center justify-center gap-2">
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-red-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+            >
+                <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"
+                />
+            </svg>
+            {typeof message === 'string' && message.includes('\n') ? (
+                <ul className="list-disc list-inside text-left">
+                    {message.split('\n').map((msg, idx) => (
+                        <li key={idx}>{msg}</li>
+                    ))}
+                </ul>
+            ) : (
+                <span>{message}</span>
+            )}
+        </div>
+    );
 }
 
-function RegisterPageContent() {
+function setApiFieldErrors<T extends string>(form: any, error: unknown, fields: readonly T[]) {
+    fields.forEach((field) => {
+        const messages = getFieldErrors(error, field);
+        if (messages && messages.length > 0) {
+            form.setError(field, { message: messages[0] });
+        }
+    });
+}
+
+function useRegisterForm(onSuccess: () => void) {
     const { register } = useAuth();
-    const router = useRouter();
     const form = useForm<RegisterFormValues>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
@@ -68,59 +106,23 @@ function RegisterPageContent() {
         },
     });
 
-    // Helper to set field errors from API
-    function setApiFieldErrors(error: unknown) {
-        ["identifier", "password", "password_confirmation"].forEach((field) => {
-            const messages = getFieldErrors(error, field);
-            if (messages && messages.length > 0) {
-                form.setError(field as keyof RegisterFormValues, { message: messages[0] });
-            }
-        });
-    }
-
-    // Root error display component
-    function RootError() {
-        const rootError = form.formState.errors.root?.message;
-        if (!rootError) return null;
-        return (
-            <div className="w-full my-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-center text-sm font-medium shadow-sm flex flex-col items-center justify-center gap-2">
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-red-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"
-                    />
-                </svg>
-                {typeof rootError === 'string' && rootError.includes('\n') ? (
-                    <ul className="list-disc list-inside text-left">
-                        {rootError.split('\n').map((msg, idx) => (
-                            <li key={idx}>{msg}</li>
-                        ))}
-                    </ul>
-                ) : (
-                    <span>{rootError}</span>
-                )}
-            </div>
-        );
-    }
-
-    async function onSubmit(data: RegisterFormValues) {
+    const handleSubmit = async (data: RegisterFormValues) => {
         try {
             await register(data);
-            router.replace("/user/dashboard");
+            onSuccess();
         } catch (error) {
-            setApiFieldErrors(error);
+            setApiFieldErrors(form, error, REGISTER_FIELDS);
             const errors = extractValidationErrors(error);
             form.setError("root", { message: errors.length > 0 ? errors.join("\n") : "Registration failed. Please try again." });
         }
-    }
+    };
+
+    return { form, handleSubmit };
+}
+
+export default function RegisterPage() {
+    const router = useRouter();
+    const { form, handleSubmit } = useRegisterForm(() => router.replace("/user/dashboard"));
 
     return (
         <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4">
@@ -136,8 +138,8 @@ function RegisterPageContent() {
                     </CardHeader>
                     <CardContent className="w-full">
                         <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                                <RootError />
+                            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                                <RootError message={form.formState.errors.root?.message} />
                                 <CustomInputField
                                     control={form.control}
                                     name="identifier"
