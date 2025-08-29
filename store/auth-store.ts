@@ -1,11 +1,11 @@
 import { create } from 'zustand';
-import { User, UserRole, RegisterData, LoginActionResult } from '../types/auth';
-import { loginHandler } from '../lib/auth/loginHandler';
-import { registerAction } from '../app/actions/auth/registerAction';
-import { logoutUserAction } from '../app/actions/auth/logOutAction';
-import { requestPasswordReset, resetPasswordAction } from '../app/actions/auth/resetPasswordAction';
-import { getCurrentUser } from '../app/actions/auth/getCurrentUser';
-import type { PasswordResetRequest, PasswordResetData, PasswordResetResponse } from '../types/auth';
+import { User, LoginActionResult } from '@/types/auth';
+import { loginHandler } from '@/lib/auth/loginHandler';
+import { registerAction } from '@/app/actions/auth/registerAction';
+import { logoutUserAction } from '@/app/actions/auth/logOutAction';
+import { requestPasswordReset, resetPasswordAction } from '@/app/actions/auth/resetPasswordAction';
+import { getCurrentUser } from '@/app/actions/auth/getCurrentUser';
+import type { PasswordResetRequest, PasswordResetData, PasswordResetResponse } from '@/types/auth';
 
 interface AuthState {
   user: User | null;
