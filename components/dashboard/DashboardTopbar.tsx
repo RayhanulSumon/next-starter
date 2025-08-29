@@ -6,10 +6,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { User2, MoreHorizontal } from "lucide-react";
+import { User2 } from "lucide-react";
 import { useAuth } from "@/hook/useAuth";
 import { useRouter } from "next/navigation";
 import { ModeToggle } from "@/components/ModeToggle";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 function TopbarLeft() {
   return (
@@ -21,17 +22,36 @@ function TopbarLeft() {
 }
 
 function TopbarRight() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const router = useRouter();
+  // Helper to get initials from user name
+  const getInitials = (name?: string) =>
+    name
+      ? name
+          .split(" ")
+          .map((n) => n[0])
+          .join("")
+          .toUpperCase()
+          .slice(0, 2)
+      : "U";
   return (
     <div className="flex items-center gap-4">
       <ModeToggle />
-      <User2 className="text-muted-foreground h-6 w-6" />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="bg-muted hover:bg-accent rounded-full p-2 transition">
-            <MoreHorizontal className="text-muted-foreground h-5 w-5" />
-          </button>
+          <Avatar className="border-border size-8 cursor-pointer border">
+            {user?.avatar ? (
+              <AvatarImage src={user.avatar} alt={user.name || "User"} />
+            ) : (
+              <AvatarFallback>
+                {user?.name ? (
+                  getInitials(user.name)
+                ) : (
+                  <User2 className="text-muted-foreground h-4 w-4" />
+                )}
+              </AvatarFallback>
+            )}
+          </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent side="bottom" align="end" className="min-w-[160px] py-2">
           <DropdownMenuItem className="flex items-center gap-2 px-3 py-2 text-sm">
