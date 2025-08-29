@@ -49,9 +49,6 @@ if (typeof window !== "undefined" && !window.matchMedia) {
       ) {
         listeners = listeners.filter(l => l !== listener);
       },
-      dispatchEvent: function () {
-        return false;
-      },
     } as unknown as MediaQueryList;
   };
 }
