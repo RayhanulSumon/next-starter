@@ -71,15 +71,14 @@ export function LoginForm({ onTwoFARequired }: LoginFormProps) {
           label="Email or Phone"
           type="text"
           placeholder="Enter your email or phone"
-          autoComplete="username"
+          autoComplete="email"
           disabled={loginLoading}
-          helperText="Use your registered email or phone."
           loading={loginLoading}
         />
         <div>
           <div className="mb-1 flex items-center justify-between">
             <span className="text-sm font-medium">Password</span>
-            <Link href="/reset-password" className="text-sm text-blue-600 hover:underline">
+            <Link href="/reset-password" className="primary-link text-sm hover:underline">
               Forgot password?
             </Link>
           </div>
@@ -90,7 +89,6 @@ export function LoginForm({ onTwoFARequired }: LoginFormProps) {
             placeholder="Enter your password"
             autoComplete="current-password"
             disabled={loginLoading}
-            helperText="Enter your account password."
           />
         </div>
         <Button type="submit" className="w-full" disabled={loginLoading}>

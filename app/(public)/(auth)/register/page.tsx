@@ -156,14 +156,14 @@ export default function RegisterPage() {
   const { form, handleSubmit } = useRegisterForm(() => router.replace("/user/dashboard"));
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
+    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <div className="mx-auto w-full max-w-md">
         <Card className="w-full rounded-2xl border border-gray-200 bg-white/90 p-8 shadow-xl backdrop-blur-md dark:border-gray-700 dark:bg-gray-900/90">
           <CardHeader className="space-y-2 text-center">
-            <CardTitle className="mb-2 text-3xl font-extrabold text-gray-900 md:text-4xl dark:text-gray-100">
+            <CardTitle className="text-foreground mb-2 text-3xl font-extrabold md:text-4xl">
               Create Account
             </CardTitle>
-            <CardDescription className="text-base text-gray-600 md:text-lg dark:text-gray-400">
+            <CardDescription className="text-muted-foreground text-base md:text-lg">
               Register to get started with Next Starter
             </CardDescription>
           </CardHeader>
@@ -189,12 +189,9 @@ export default function RegisterPage() {
             </Form>
           </CardContent>
           <CardFooter className="mt-4 flex w-full justify-center">
-            <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-muted-foreground text-center text-sm">
               Already have an account?{" "}
-              <Link
-                href="/login"
-                className="font-medium text-blue-600 hover:underline dark:text-blue-400"
-              >
+              <Link href="/login" className="primary-link font-medium hover:underline">
                 Login here
               </Link>
             </p>
