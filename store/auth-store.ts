@@ -5,6 +5,7 @@ import { registerAction } from '@/app/actions/auth/registerAction';
 import { logoutUserAction } from '@/app/actions/auth/logOutAction';
 import { requestPasswordReset, resetPasswordAction } from '@/app/actions/auth/resetPasswordAction';
 import { getCurrentUser } from '@/app/actions/auth/getCurrentUser';
+import { extractValidationErrors } from '@/lib/utils';
 
 interface AuthState {
   user: User | null;
@@ -106,27 +107,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     } catch (error: unknown) {
       set({ error: error instanceof Error ? error.message : 'Registration failed' });
-      // Axios-style error with response.data.errors
-      if (
-        isObject(error) &&
-        'response' in error &&
-        isObject(error.response) &&
-        'data' in error.response &&
-        isObject(error.response.data) &&
-        'errors' in error.response.data &&
-        error.response.data.errors
-      ) {
-        throw { data: { errors: error.response.data.errors } };
-      }
-      // Plain error with data.errors
-      if (
-        isObject(error) &&
-        'data' in error &&
-        isObject(error.data) &&
-        'errors' in error.data &&
-        error.data.errors
-      ) {
-        throw { data: { errors: error.data.errors } };
+      const validationErrors = extractValidationErrors(error);
+      if (validationErrors) {
+        throw { data: { errors: validationErrors } };
       }
       throw error;
     } finally {

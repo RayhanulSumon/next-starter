@@ -34,3 +34,36 @@ export function normalizeApiErrors(errors: unknown): string[] | Record<string, s
   }
   return [];
 }
+
+// Extracts validation errors from an error object (Axios or plain)
+export function extractValidationErrors(error: unknown): Record<string, string[]> | null {
+  function isObject(val: unknown): val is Record<string, unknown> {
+    return typeof val === 'object' && val !== null;
+  }
+  function isErrorRecord(val: unknown): val is Record<string, string[]> {
+    return isObject(val) && Object.values(val).every(v => Array.isArray(v) && v.every(i => typeof i === 'string'));
+  }
+  if (isObject(error)) {
+    // Axios-style error
+    if (
+      'response' in error &&
+      isObject(error.response) &&
+      'data' in error.response &&
+      isObject(error.response.data) &&
+      'errors' in error.response.data &&
+      isErrorRecord(error.response.data.errors)
+    ) {
+      return error.response.data.errors;
+    }
+    // Plain error with data.errors
+    if (
+      'data' in error &&
+      isObject(error.data) &&
+      'errors' in error.data &&
+      isErrorRecord(error.data.errors)
+    ) {
+      return error.data.errors;
+    }
+  }
+  return null;
+}
