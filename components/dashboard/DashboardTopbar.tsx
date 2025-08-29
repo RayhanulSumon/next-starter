@@ -9,6 +9,7 @@ import {
 import { User2, MoreHorizontal } from "lucide-react";
 import { useAuth } from "@/hook/useAuth";
 import { useRouter } from "next/navigation";
+import { ModeToggle } from "@/components/ModeToggle";
 
 function TopbarLeft() {
   return (
@@ -24,6 +25,7 @@ function TopbarRight() {
   const router = useRouter();
   return (
     <div className="flex items-center gap-4">
+      <ModeToggle />
       <User2 className="text-muted-foreground h-6 w-6" />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
