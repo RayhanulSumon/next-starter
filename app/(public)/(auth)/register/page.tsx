@@ -19,7 +19,7 @@ import {
     CardContent,
     CardFooter,
 } from "@/components/ui/card";
-import { extractValidationErrors } from '@/lib/utils';
+import { extractValidationErrors, isApiErrorWithFieldErrors } from '@/lib/apiErrorHelpers';
 
 const identifierSchema = z.string().refine(
     (val) => {
@@ -69,13 +69,6 @@ function RegisterPageContent() {
     });
 
     async function onSubmit(data: RegisterFormValues) {
-        function isErrorWithFieldErrors(e: unknown): e is { data: { errors: Record<string, string[]> } } {
-            if (typeof e !== 'object' || e === null) return false;
-            const data = (e as Record<string, unknown>).data;
-            if (typeof data !== 'object' || data === null) return false;
-            const errors = (data as Record<string, unknown>).errors;
-            return typeof errors === 'object' && errors !== null;
-        }
         try {
             const payload = {
                 identifier: data.identifier,
@@ -86,8 +79,8 @@ function RegisterPageContent() {
             router.replace("/user/dashboard");
         } catch (err: unknown) {
             const allMessages = extractValidationErrors(err);
-            if (isErrorWithFieldErrors(err)) {
-                const errorsObj = (err as { data: { errors: Record<string, string[]> } }).data.errors;
+            if (isApiErrorWithFieldErrors(err)) {
+                const errorsObj = err.data.errors;
                 const fieldMap: Record<string, string> = {
                     identifier: 'identifier',
                     password: 'password',

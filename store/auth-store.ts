@@ -5,7 +5,7 @@ import { registerAction } from '@/app/actions/auth/registerAction';
 import { logoutUserAction } from '@/app/actions/auth/logOutAction';
 import { requestPasswordReset, resetPasswordAction } from '@/app/actions/auth/resetPasswordAction';
 import { getCurrentUser } from '@/app/actions/auth/getCurrentUser';
-import { extractValidationErrors } from '@/lib/utils';
+import { extractValidationErrors, isApiErrorWithFieldErrors } from '@/lib/apiErrorHelpers';
 
 interface AuthState {
   user: User | null;
@@ -116,8 +116,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error: unknown) {
       set({ error: error instanceof Error ? error.message : 'Registration failed' });
       const allMessages = extractValidationErrors(error);
-      if (allMessages.length > 0) {
-        throw { data: { errors: allMessages } };
+      let fieldErrors: Record<string, string[]> | undefined = undefined;
+      if (isApiErrorWithFieldErrors(error)) {
+        fieldErrors = error.data.errors;
+      }
+      if (allMessages.length > 0 || fieldErrors) {
+        throw { data: { errors: allMessages, fieldErrors } };
       }
       throw error;
     } finally {
