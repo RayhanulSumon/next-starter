@@ -68,9 +68,9 @@ export default function TwoFactorAuth() {
   }
 
   return (
-    <div className="max-w-md rounded border bg-white p-4 dark:bg-gray-900">
+    <div className="bg-card text-card-foreground max-w-md rounded border p-4">
       <h2 className="mb-2 text-xl font-bold">Two-Factor Authentication (2FA)</h2>
-      <p className="mb-4 text-gray-600 dark:text-gray-300">
+      <p className="text-muted-foreground mb-4">
         Protect your account with an extra layer of security.
       </p>
       {status === "enabled" && (
@@ -102,17 +102,17 @@ export default function TwoFactorAuth() {
                 unoptimized={true}
               />
             )}
-            <div className="mt-2 text-xs text-gray-500">Secret: {secret}</div>
+            <div className="text-muted-foreground mt-2 text-xs">Secret: {secret}</div>
           </div>
           <div>
-            <label htmlFor="code" className="mb-1 block">
+            <label htmlFor="code" className="text-foreground mb-1 block text-sm font-medium">
               Enter 6-digit code:
             </label>
             <input
               id="code"
               name="code"
               type="text"
-              className="w-full rounded border px-2 py-1"
+              className="border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-ring w-full rounded border px-2 py-1 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
               pattern="\d{6}"
               maxLength={6}
               required
@@ -124,8 +124,8 @@ export default function TwoFactorAuth() {
           </Button>
         </form>
       )}
-      {error && <div className="mt-4 text-red-600">{error}</div>}
-      {success && <div className="mt-4 text-green-600">{success}</div>}
+      {error && <div className="text-destructive mt-4">{error}</div>}
+      {success && <div className="text-success mt-4">{success}</div>}
     </div>
   );
 }
