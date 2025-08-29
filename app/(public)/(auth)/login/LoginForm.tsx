@@ -93,11 +93,7 @@ export function LoginForm({ onTwoFARequired }: LoginFormProps) {
             helperText="Enter your account password."
           />
         </div>
-        <Button
-          type="submit"
-          className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 font-semibold text-white shadow transition-transform duration-200 hover:scale-105 hover:shadow-xl"
-          disabled={loginLoading}
-        >
+        <Button type="submit" className="w-full" disabled={loginLoading}>
           {loginLoading ? "Logging in..." : "Login"}
         </Button>
       </form>
