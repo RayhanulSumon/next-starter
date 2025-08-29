@@ -77,16 +77,14 @@ export default function DashboardPage() {
 
       {activeTab === "activity" && (
         <DashboardCard title="Recent Activity" className="w-full max-w-none">
-          <p className="text-gray-500 dark:text-gray-400">No recent activity to display.</p>
+          <p className="text-muted-foreground">No recent activity to display.</p>
         </DashboardCard>
       )}
 
       {activeTab === "settings" && (
         <DashboardCard title="Account Settings" className="w-full max-w-none">
-          <p className="mb-4 text-gray-500 dark:text-gray-400">
-            Manage your account settings and preferences
-          </p>
-          <button className="mb-6 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none">
+          <p className="text-muted-foreground mb-4">Manage your account settings and preferences</p>
+          <button className="bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary mb-6 rounded px-4 py-2 focus:ring-2 focus:ring-offset-2 focus:outline-none">
             Update Profile
           </button>
           <TwoFactorAuth />

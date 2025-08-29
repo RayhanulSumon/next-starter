@@ -57,12 +57,12 @@ function RootError({ message }: { message?: string }) {
   const errorLines = message.includes("\n") ? message.split("\n") : null;
   return (
     <div
-      className="my-2 flex w-full flex-col items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-center text-sm font-medium text-red-700 shadow-sm"
+      className="my-2 flex w-full flex-col items-center justify-center gap-2 rounded-lg border border-[color:var(--destructive)] bg-[color:var(--destructive)/0.1] px-4 py-3 text-center text-sm font-medium text-[color:var(--destructive)] shadow-sm"
       role="alert"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="h-5 w-5 text-red-500"
+        className="h-5 w-5 text-[color:var(--destructive)]"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
