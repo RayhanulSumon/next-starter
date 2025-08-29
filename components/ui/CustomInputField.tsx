@@ -2,6 +2,7 @@ import * as React from "react";
 import { Control, FieldValues, Path } from "react-hook-form";
 import { FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 type CustomInputFieldProps<T extends FieldValues> = {
   control: Control<T>;
@@ -59,19 +60,13 @@ export const CustomInputField = <T extends FieldValues>({
               disabled={disabled || loading}
               aria-invalid={!!fieldState.error}
               aria-describedby={`${name}-helper ${name}-error`}
-              className={`
-                block w-full px-4 py-2 text-base bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border rounded-lg shadow-sm transition-all
-                  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed
-                ${
-                  fieldState.error
-                    ? "border-red-500 ring-red-200 animate-shake"
-                    : "border-gray-300 dark:border-gray-700"
-                }
-                  ${leftIcon ? "pl-10" : ""}
-                ${rightIcon || loading ? "pr-10" : ""}
-                ${className ?? ""}
-              `}
+              className={cn(
+                "text-[color:var(--input-foreground)]",
+                fieldState.error ? "border-red-500 ring-red-200 animate-shake" : "",
+                leftIcon ? "pl-10" : "",
+                rightIcon || loading ? "pr-10" : "",
+                className
+              )}
             />
             {rightIcon && !loading && (
               <span className="absolute top-1/2 right-3 -translate-y-1/2 flex items-center pointer-events-none text-gray-400 dark:text-gray-500">
