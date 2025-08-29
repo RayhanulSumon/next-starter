@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 
 // Use a Set for O(1) public path lookup
 const publicPathSet = new Set(["/", "/login", "/register", "/reset-password"]);
+const authPages = new Set(["/login", "/register", "/reset-password"]);
 
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -17,6 +18,15 @@ export default function middleware(request: NextRequest) {
     publicPathSet.has(normalizedPath) ||
     Array.from(publicPathSet).some((path) => path !== "/" && normalizedPath.startsWith(`${path}/`));
 
+  // Check if the path is an auth page
+  const isAuthPage = authPages.has(normalizedPath);
+
+  // If authenticated and on an auth page, redirect to dashboard
+  if (token && isAuthPage) {
+    return NextResponse.redirect(new URL("/user/dashboard", request.url));
+  }
+
+  // If not authenticated and not on a public path, redirect to login
   if (!token && !isPublicPath) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
