@@ -25,6 +25,10 @@ interface AuthState {
   clearError: () => void;
 }
 
+function isObject(val: unknown): val is Record<string, unknown> {
+  return typeof val === 'object' && val !== null;
+}
+
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   loginLoading: false,
@@ -93,7 +97,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   register: async (data) => {
     set({ registerLoading: true, error: null });
     try {
-
       const result = await registerAction(data);
       if (result.data && result.data.user) {
         set({ user: result.data.user, initialLoading: false });
@@ -101,9 +104,31 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({ user: null, initialLoading: false });
         throw new Error("Registration did not return a user.");
       }
-    } catch (error) {
+    } catch (error: unknown) {
       set({ error: error instanceof Error ? error.message : 'Registration failed' });
-      // Do not re-throw
+      // Axios-style error with response.data.errors
+      if (
+        isObject(error) &&
+        'response' in error &&
+        isObject(error.response) &&
+        'data' in error.response &&
+        isObject(error.response.data) &&
+        'errors' in error.response.data &&
+        error.response.data.errors
+      ) {
+        throw { data: { errors: error.response.data.errors } };
+      }
+      // Plain error with data.errors
+      if (
+        isObject(error) &&
+        'data' in error &&
+        isObject(error.data) &&
+        'errors' in error.data &&
+        error.data.errors
+      ) {
+        throw { data: { errors: error.data.errors } };
+      }
+      throw error;
     } finally {
       set({ registerLoading: false });
     }
