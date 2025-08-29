@@ -4,7 +4,6 @@
 import { cookies as serverCookies } from "next/headers";
 const cookies = typeof window === "undefined" ? serverCookies : undefined;
 
-
 export type CookieOptions = {
   httpOnly?: boolean;
   path?: string;
@@ -18,14 +17,10 @@ export type CookieOptions = {
 
 // Add cookieStore utilities
 export const cookieStore = {
-  async set(
-    name: string,
-    value: string,
-    options?: CookieOptions,
-  ): Promise<void> {
+  async set(name: string, value: string, options?: CookieOptions): Promise<void> {
     if (!cookies) {
       throw new Error(
-        "Cookies can only be modified in a Server Action or Route Handler. See: https://nextjs.org/docs/app/api-reference/functions/cookies#options",
+        "Cookies can only be modified in a Server Action or Route Handler. See: https://nextjs.org/docs/app/api-reference/functions/cookies#options"
       );
     }
     const cookieJar = await cookies();

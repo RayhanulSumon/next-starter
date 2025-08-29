@@ -48,11 +48,11 @@ export function TwoFactorForm({ identifier, password, onSuccess }: TwoFactorForm
 
   return (
     <form onSubmit={handle2FASubmit} className="space-y-6">
-      <div className="mb-2 text-center text-blue-700 font-medium">
+      <div className="mb-2 text-center font-medium text-blue-700">
         Two-Factor Authentication Required
       </div>
       <div>
-        <label htmlFor="twofa-code" className="block mb-1">
+        <label htmlFor="twofa-code" className="mb-1 block">
           Enter 6-digit code from your authenticator app:
         </label>
         <input
@@ -60,7 +60,7 @@ export function TwoFactorForm({ identifier, password, onSuccess }: TwoFactorForm
           type="text"
           value={twoFACode}
           onChange={(e) => setTwoFACode(e.target.value)}
-          className="border rounded px-2 py-1 w-full"
+          className="w-full rounded border px-2 py-1"
           pattern="\\d{6}"
           maxLength={6}
           required
@@ -68,18 +68,10 @@ export function TwoFactorForm({ identifier, password, onSuccess }: TwoFactorForm
           disabled={twoFALoading}
         />
       </div>
-      <Button
-        type="submit"
-        disabled={twoFALoading || twoFACode.length !== 6}
-        className="w-full"
-      >
+      <Button type="submit" disabled={twoFALoading || twoFACode.length !== 6} className="w-full">
         {twoFALoading ? "Verifying..." : "Verify & Login"}
       </Button>
-      {twoFAError && (
-        <div className="text-red-600 text-center mt-2">
-          {twoFAError}
-        </div>
-      )}
+      {twoFAError && <div className="mt-2 text-center text-red-600">{twoFAError}</div>}
     </form>
   );
 }

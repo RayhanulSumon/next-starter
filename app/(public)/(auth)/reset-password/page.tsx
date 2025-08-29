@@ -7,12 +7,7 @@ import Link from "next/link";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const {
-    requestPasswordReset,
-    resetPassword,
-    requestResetLoading,
-    resetLoading,
-  } = useAuth();
+  const { requestPasswordReset, resetPassword, requestResetLoading, resetLoading } = useAuth();
 
   // State for the initial request step
   const [email, setEmail] = useState("");
@@ -116,8 +111,7 @@ export default function ResetPasswordPage() {
         typeof error === "object" &&
         error !== null &&
         "response" in error &&
-        typeof (error as { response?: { status?: number } }).response ===
-          "object" &&
+        typeof (error as { response?: { status?: number } }).response === "object" &&
         (error as { response?: { status?: number } }).response?.status === 429
       ) {
         setResetError("Too many attempts, please try again later.");
@@ -132,8 +126,8 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-20 p-6 border rounded shadow-lg">
-      <h1 className="text-2xl font-bold mb-4">Reset Your Password</h1>
+    <div className="mx-auto mt-20 max-w-md rounded border p-6 shadow-lg">
+      <h1 className="mb-4 text-2xl font-bold">Reset Your Password</h1>
 
       {!requestSent ? (
         // Step 1: Request password reset
@@ -152,7 +146,7 @@ export default function ResetPasswordPage() {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full rounded border p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               disabled={requestResetLoading}
             />
           </div>
@@ -167,23 +161,20 @@ export default function ResetPasswordPage() {
               placeholder="Enter your phone number"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full rounded border p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               disabled={requestResetLoading}
             />
           </div>
 
           {requestError && (
-            <div
-              className="p-3 bg-red-50 border border-red-200 text-red-700 rounded"
-              role="alert"
-            >
+            <div className="rounded border border-red-200 bg-red-50 p-3 text-red-700" role="alert">
               {requestError}
             </div>
           )}
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none transition disabled:opacity-50"
+            className="w-full rounded bg-blue-600 p-2 text-white transition hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50"
             disabled={requestResetLoading}
           >
             {requestResetLoading ? "Sending..." : "Send Reset Instructions"}
@@ -200,25 +191,19 @@ export default function ResetPasswordPage() {
         </form>
       ) : resetSuccess ? (
         // Success message
-        <div className="text-center py-8">
-          <div className="text-green-600 mb-4 text-xl">
-            Password reset successful!
-          </div>
+        <div className="py-8 text-center">
+          <div className="mb-4 text-xl text-green-600">Password reset successful!</div>
           <p className="text-gray-600">
-            Your password has been reset. You&apos;ll be redirected to the
-            loginAction page shortly.
+            Your password has been reset. You&apos;ll be redirected to the loginAction page shortly.
           </p>
-          <Link
-            href="/login"
-            className="inline-block mt-4 text-blue-600 hover:underline"
-          >
+          <Link href="/login" className="mt-4 inline-block text-blue-600 hover:underline">
             Login now
           </Link>
         </div>
       ) : (
         // Step 2: Enter new password with token
         <form onSubmit={handleResetPassword} className="space-y-4">
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="mb-4 text-sm text-gray-600">
             Enter the reset code you received and your new password.
           </p>
 
@@ -232,7 +217,7 @@ export default function ResetPasswordPage() {
               placeholder="Enter reset code"
               value={token}
               onChange={(e) => setToken(e.target.value)}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full rounded border p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               disabled={resetLoading}
               required
             />
@@ -251,7 +236,7 @@ export default function ResetPasswordPage() {
                 setPassword(e.target.value);
                 setPasswordValue(e.target.value);
               }}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full rounded border p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               required
               autoComplete="new-password"
             />
@@ -259,20 +244,16 @@ export default function ResetPasswordPage() {
               {passwordRequirements.map((req) => (
                 <div
                   key={req.label}
-                  className={`text-xs flex items-center gap-1 ${req.test(passwordValue) ? "text-green-600" : "text-gray-400"}`}
+                  className={`flex items-center gap-1 text-xs ${req.test(passwordValue) ? "text-green-600" : "text-gray-400"}`}
                 >
-                  <span>{req.test(passwordValue) ? "✔" : "✗"}</span>{" "}
-                  {req.label}
+                  <span>{req.test(passwordValue) ? "✔" : "✗"}</span> {req.label}
                 </div>
               ))}
             </div>
           </div>
 
           <div className="space-y-2">
-            <label
-              htmlFor="passwordConfirmation"
-              className="block text-sm font-medium"
-            >
+            <label htmlFor="passwordConfirmation" className="block text-sm font-medium">
               Confirm New Password
             </label>
             <input
@@ -281,24 +262,21 @@ export default function ResetPasswordPage() {
               placeholder="Confirm new password"
               value={passwordConfirmation}
               onChange={(e) => setPasswordConfirmation(e.target.value)}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full rounded border p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               required
               autoComplete="new-password"
             />
           </div>
 
           {resetError && (
-            <div
-              className="p-3 bg-red-50 border border-red-200 text-red-700 rounded"
-              role="alert"
-            >
+            <div className="rounded border border-red-200 bg-red-50 p-3 text-red-700" role="alert">
               {resetError}
             </div>
           )}
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none transition disabled:opacity-50"
+            className="w-full rounded bg-blue-600 p-2 text-white transition hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50"
             disabled={resetLoading}
           >
             {resetLoading ? "Resetting..." : "Reset Password"}
@@ -307,7 +285,7 @@ export default function ResetPasswordPage() {
           <button
             type="button"
             onClick={() => setRequestSent(false)}
-            className="w-full mt-2 bg-gray-100 text-gray-700 p-2 rounded hover:bg-gray-200 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+            className="mt-2 w-full rounded bg-gray-100 p-2 text-gray-700 transition hover:bg-gray-200 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             disabled={resetLoading}
           >
             Back to Request Form

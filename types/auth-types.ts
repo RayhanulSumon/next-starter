@@ -55,8 +55,6 @@ export interface AuthContextType {
   login: (identifier: string, password: string) => Promise<LoginActionResult>;
   logout: () => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
-  requestPasswordReset: (
-    data: PasswordResetRequest,
-  ) => Promise<PasswordResetResponse>;
+  requestPasswordReset: (data: PasswordResetRequest) => Promise<PasswordResetResponse>;
   resetPassword: (data: PasswordResetData) => Promise<PasswordResetResponse>;
 }

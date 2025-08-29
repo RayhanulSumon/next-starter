@@ -32,7 +32,12 @@ export function LoginForm({ onTwoFARequired }: LoginFormProps) {
   async function onSubmit(data: LoginFormValues) {
     try {
       const response = await login(data.identifier, data.password);
-      if (response && typeof response === "object" && "2fa_required" in response && response["2fa_required"]) {
+      if (
+        response &&
+        typeof response === "object" &&
+        "2fa_required" in response &&
+        response["2fa_required"]
+      ) {
         onTwoFARequired(data.identifier, data.password);
         return;
       }
@@ -41,7 +46,12 @@ export function LoginForm({ onTwoFARequired }: LoginFormProps) {
         return;
       }
     } catch (error: unknown) {
-      if (error && typeof error === "object" && "message" in error && typeof error.message === "string") {
+      if (
+        error &&
+        typeof error === "object" &&
+        "message" in error &&
+        typeof error.message === "string"
+      ) {
         form.setError("root", { message: error.message });
       } else {
         form.setError("root", { message: "Login failed. Please try again." });
@@ -53,9 +63,7 @@ export function LoginForm({ onTwoFARequired }: LoginFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {form.formState.errors.root?.message && (
-          <div className="text-red-600 text-center mb-2">
-            {form.formState.errors.root.message}
-          </div>
+          <div className="mb-2 text-center text-red-600">{form.formState.errors.root.message}</div>
         )}
         <CustomInputField
           control={form.control}
@@ -69,8 +77,8 @@ export function LoginForm({ onTwoFARequired }: LoginFormProps) {
           loading={loginLoading}
         />
         <div>
-          <div className="flex items-center justify-between mb-1">
-            <span className="font-medium text-sm">Password</span>
+          <div className="mb-1 flex items-center justify-between">
+            <span className="text-sm font-medium">Password</span>
             <Link href="/reset-password" className="text-sm text-blue-600 hover:underline">
               Forgot password?
             </Link>
@@ -87,7 +95,7 @@ export function LoginForm({ onTwoFARequired }: LoginFormProps) {
         </div>
         <Button
           type="submit"
-          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg shadow hover:scale-105 hover:shadow-xl transition-transform duration-200"
+          className="w-full rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 font-semibold text-white shadow transition-transform duration-200 hover:scale-105 hover:shadow-xl"
           disabled={loginLoading}
         >
           {loginLoading ? "Logging in..." : "Login"}

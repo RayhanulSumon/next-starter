@@ -8,9 +8,7 @@ jest.mock("../hook/useAuth", () => ({
 describe("TwoFactorAuth", () => {
   it("renders the 2FA heading", () => {
     render(<TwoFactorAuth />);
-    expect(
-      screen.getByText("Two-Factor Authentication (2FA)"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Two-Factor Authentication (2FA)")).toBeInTheDocument();
   });
   it("renders Enable 2FA button when 2FA is disabled", () => {
     render(<TwoFactorAuth />);

@@ -30,7 +30,7 @@ export default function DashboardPage() {
       try {
         await fetchCurrentUser();
       } catch (err) {
-        console.error('Failed to fetch current user:', err);
+        console.error("Failed to fetch current user:", err);
       }
     })();
   }, [fetchCurrentUser]);
@@ -48,7 +48,7 @@ export default function DashboardPage() {
           try {
             await fetchCurrentUser();
           } catch (err) {
-            console.error('Failed to fetch current user:', err);
+            console.error("Failed to fetch current user:", err);
           }
         }}
       />
@@ -62,11 +62,11 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="flex flex-col flex-1 w-full max-w-none space-y-6">
+    <div className="flex w-full max-w-none flex-1 flex-col space-y-6">
       <DashboardTabs tabs={TABS} activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {activeTab === "overview" && (
-        <div className="flex flex-col w-full max-w-none space-y-6">
+        <div className="flex w-full max-w-none flex-col space-y-6">
           <DashboardCard title="User Information" className="w-full max-w-none">
             <UserInfoCard user={user!} />
           </DashboardCard>
@@ -77,18 +77,16 @@ export default function DashboardPage() {
 
       {activeTab === "activity" && (
         <DashboardCard title="Recent Activity" className="w-full max-w-none">
-          <p className="text-gray-500 dark:text-gray-400">
-            No recent activity to display.
-          </p>
+          <p className="text-gray-500 dark:text-gray-400">No recent activity to display.</p>
         </DashboardCard>
       )}
 
       {activeTab === "settings" && (
         <DashboardCard title="Account Settings" className="w-full max-w-none">
-          <p className="text-gray-500 dark:text-gray-400 mb-4">
+          <p className="mb-4 text-gray-500 dark:text-gray-400">
             Manage your account settings and preferences
           </p>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 mb-6">
+          <button className="mb-6 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none">
             Update Profile
           </button>
           <TwoFactorAuth />

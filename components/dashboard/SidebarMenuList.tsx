@@ -1,11 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
-import {
-  Collapsible,
-  CollapsibleTrigger,
-  CollapsibleContent,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import {
   SidebarMenu,
   SidebarMenuItem,
@@ -30,21 +26,15 @@ export type SidebarMenuItemType = {
   footer?: boolean;
 };
 
-export const SidebarMenuList: React.FC<{ items: SidebarMenuItemType[] }> = ({
-  items,
-}) => (
+export const SidebarMenuList: React.FC<{ items: SidebarMenuItemType[] }> = ({ items }) => (
   <SidebarMenu>
     {items.map((item) =>
       item.collapsible && item.subMenu ? (
-        <Collapsible
-          key={item.name}
-          defaultOpen={false}
-          className="group/collapsible"
-        >
+        <Collapsible key={item.name} defaultOpen={false} className="group/collapsible">
           <SidebarMenuItem>
             <CollapsibleTrigger asChild>
               <SidebarMenuButton>
-                <span className="w-5 flex justify-center items-center">
+                <span className="flex w-5 items-center justify-center">
                   <item.icon />
                 </span>
                 <span className="flex-1">{item.name}</span>
@@ -52,16 +42,14 @@ export const SidebarMenuList: React.FC<{ items: SidebarMenuItemType[] }> = ({
               </SidebarMenuButton>
             </CollapsibleTrigger>
             {item.badge && <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>}
-            {item.action && (
-              <SidebarMenuAction>{item.action}</SidebarMenuAction>
-            )}
+            {item.action && <SidebarMenuAction>{item.action}</SidebarMenuAction>}
             <CollapsibleContent>
               <SidebarMenuSub>
                 {item.subMenu.map((sub) => (
                   <SidebarMenuSubItem key={sub.name}>
                     <SidebarMenuSubButton asChild>
                       <Link href={sub.href}>
-                        <span className="w-5 flex justify-center items-center">
+                        <span className="flex w-5 items-center justify-center">
                           <sub.icon />
                         </span>
                         <span>{sub.name}</span>
@@ -84,23 +72,21 @@ export const SidebarMenuList: React.FC<{ items: SidebarMenuItemType[] }> = ({
                 aria-current={item.isActive ? "page" : undefined}
               >
                 <Link href={item.href} tabIndex={0}>
-                  <span className="w-5 flex justify-center items-center">
+                  <span className="flex w-5 items-center justify-center">
                     <item.icon />
                   </span>
-                  <span className="flex-1 group-data-[collapsible=icon]:hidden">
-                    {item.name}
-                  </span>
+                  <span className="flex-1 group-data-[collapsible=icon]:hidden">{item.name}</span>
                 </Link>
               </SidebarMenuButton>
             </TooltipTrigger>
-            <TooltipContent side="right" className="group-data-[collapsible=icon]:block hidden">
+            <TooltipContent side="right" className="hidden group-data-[collapsible=icon]:block">
               {item.name}
             </TooltipContent>
           </Tooltip>
           {item.badge && <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>}
           {item.action && <SidebarMenuAction>{item.action}</SidebarMenuAction>}
         </SidebarMenuItem>
-      ),
+      )
     )}
   </SidebarMenu>
 );

@@ -8,7 +8,7 @@ type TwoFARequiredResponse = { "2fa_required": true; user: User };
 
 export async function loginAction(
   identifier: string,
-  password: string,
+  password: string
 ): Promise<ApiClientResponse<LoginActionResult>> {
   // Side effect: set cookie if login is successful
   // Type guard for 2FA required
@@ -27,10 +27,10 @@ export async function loginAction(
     Object.prototype.hasOwnProperty.call(data, "user");
 
   try {
-    const result = await apiFetch<unknown>(
-      "/login",
-      { method: "POST", data: { identifier, password } }
-    );
+    const result = await apiFetch<unknown>("/login", {
+      method: "POST",
+      data: { identifier, password },
+    });
     if (isTwoFARequired(result.data)) {
       const twoFAData = result.data as TwoFARequiredResponse;
       return {

@@ -63,9 +63,15 @@ describe("RegisterPage", () => {
 
   it("shows error if passwords do not match", async () => {
     render(<RegisterPage />);
-    fireEvent.change(screen.getByPlaceholderText(/enter your mobile number or email/i), { target: { value: "test@example.com" } });
-    fireEvent.change(screen.getByPlaceholderText(/^enter your password$/i), { target: { value: "Password1!" } });
-    fireEvent.change(screen.getByPlaceholderText(/confirm your password/i), { target: { value: "Password2!" } });
+    fireEvent.change(screen.getByPlaceholderText(/enter your mobile number or email/i), {
+      target: { value: "test@example.com" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/^enter your password$/i), {
+      target: { value: "Password1!" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/confirm your password/i), {
+      target: { value: "Password2!" },
+    });
     fireEvent.click(screen.getByRole("button", { name: /register/i }));
     await waitFor(() => {
       expect(screen.getByText(/passwords do not match/i)).toBeInTheDocument();
@@ -74,13 +80,19 @@ describe("RegisterPage", () => {
 
   it("shows error for duplicate email/phone", async () => {
     const mockRegister = jest.fn().mockRejectedValue({
-      data: { errors: { identifier: ["The email has already been taken."] } }
+      data: { errors: { identifier: ["The email has already been taken."] } },
     });
     mockAuthState = getMockAuthState({ register: mockRegister });
     render(<RegisterPage />);
-    fireEvent.change(screen.getByPlaceholderText(/enter your mobile number or email/i), { target: { value: "duplicate@example.com" } });
-    fireEvent.change(screen.getByPlaceholderText(/^enter your password$/i), { target: { value: "Password1!" } });
-    fireEvent.change(screen.getByPlaceholderText(/confirm your password/i), { target: { value: "Password1!" } });
+    fireEvent.change(screen.getByPlaceholderText(/enter your mobile number or email/i), {
+      target: { value: "duplicate@example.com" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/^enter your password$/i), {
+      target: { value: "Password1!" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/confirm your password/i), {
+      target: { value: "Password1!" },
+    });
     fireEvent.click(screen.getByRole("button", { name: /register/i }));
     await waitFor(() => {
       expect(screen.getByText(/already been taken/i)).toBeInTheDocument();
@@ -89,9 +101,15 @@ describe("RegisterPage", () => {
 
   it("shows error for weak password (backend)", async () => {
     render(<RegisterPage />);
-    fireEvent.change(screen.getByPlaceholderText(/enter your mobile number or email/i), { target: { value: "test@example.com" } });
-    fireEvent.change(screen.getByPlaceholderText(/^enter your password$/i), { target: { value: "weakpass" } });
-    fireEvent.change(screen.getByPlaceholderText(/confirm your password/i), { target: { value: "weakpass" } });
+    fireEvent.change(screen.getByPlaceholderText(/enter your mobile number or email/i), {
+      target: { value: "test@example.com" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/^enter your password$/i), {
+      target: { value: "weakpass" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/confirm your password/i), {
+      target: { value: "weakpass" },
+    });
     fireEvent.click(screen.getByRole("button", { name: /register/i }));
     await waitFor(() => {
       expect(screen.getByText(/uppercase/i)).toBeInTheDocument();
@@ -100,9 +118,15 @@ describe("RegisterPage", () => {
 
   it("shows error for invalid email/phone format (frontend)", async () => {
     render(<RegisterPage />);
-    fireEvent.change(screen.getByPlaceholderText(/enter your mobile number or email/i), { target: { value: "notanemail" } });
-    fireEvent.change(screen.getByPlaceholderText(/^enter your password$/i), { target: { value: "Password1!" } });
-    fireEvent.change(screen.getByPlaceholderText(/confirm your password/i), { target: { value: "Password1!" } });
+    fireEvent.change(screen.getByPlaceholderText(/enter your mobile number or email/i), {
+      target: { value: "notanemail" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/^enter your password$/i), {
+      target: { value: "Password1!" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/confirm your password/i), {
+      target: { value: "Password1!" },
+    });
     fireEvent.click(screen.getByRole("button", { name: /register/i }));
     await waitFor(() => {
       expect(screen.getByText(/valid email or mobile/i)).toBeInTheDocument();
@@ -111,9 +135,15 @@ describe("RegisterPage", () => {
 
   it("shows error for password missing required types (frontend)", async () => {
     render(<RegisterPage />);
-    fireEvent.change(screen.getByPlaceholderText(/enter your mobile number or email/i), { target: { value: "test@example.com" } });
-    fireEvent.change(screen.getByPlaceholderText(/^enter your password$/i), { target: { value: "password" } });
-    fireEvent.change(screen.getByPlaceholderText(/confirm your password/i), { target: { value: "password" } });
+    fireEvent.change(screen.getByPlaceholderText(/enter your mobile number or email/i), {
+      target: { value: "test@example.com" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/^enter your password$/i), {
+      target: { value: "password" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/confirm your password/i), {
+      target: { value: "password" },
+    });
     fireEvent.click(screen.getByRole("button", { name: /register/i }));
     await waitFor(() => {
       expect(screen.getByText(/uppercase|number|symbol/i)).toBeInTheDocument();
@@ -124,9 +154,15 @@ describe("RegisterPage", () => {
     const mockRegister = jest.fn().mockRejectedValue(new Error("Server error!"));
     mockAuthState = getMockAuthState({ register: mockRegister });
     render(<RegisterPage />);
-    fireEvent.change(screen.getByPlaceholderText(/enter your mobile number or email/i), { target: { value: "test@example.com" } });
-    fireEvent.change(screen.getByPlaceholderText(/^enter your password$/i), { target: { value: "Password1!" } });
-    fireEvent.change(screen.getByPlaceholderText(/confirm your password/i), { target: { value: "Password1!" } });
+    fireEvent.change(screen.getByPlaceholderText(/enter your mobile number or email/i), {
+      target: { value: "test@example.com" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/^enter your password$/i), {
+      target: { value: "Password1!" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/confirm your password/i), {
+      target: { value: "Password1!" },
+    });
     fireEvent.click(screen.getByRole("button", { name: /register/i }));
     await waitFor(() => {
       // Try to find the error message in any alert or error container
@@ -139,9 +175,15 @@ describe("RegisterPage", () => {
     const mockRegister = jest.fn().mockResolvedValue({});
     mockAuthState = getMockAuthState({ register: mockRegister });
     render(<RegisterPage />);
-    fireEvent.change(screen.getByPlaceholderText(/enter your mobile number or email/i), { target: { value: "success@example.com" } });
-    fireEvent.change(screen.getByPlaceholderText(/^enter your password$/i), { target: { value: "Password1!" } });
-    fireEvent.change(screen.getByPlaceholderText(/confirm your password/i), { target: { value: "Password1!" } });
+    fireEvent.change(screen.getByPlaceholderText(/enter your mobile number or email/i), {
+      target: { value: "success@example.com" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/^enter your password$/i), {
+      target: { value: "Password1!" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/confirm your password/i), {
+      target: { value: "Password1!" },
+    });
     fireEvent.click(screen.getByRole("button", { name: /register/i }));
     await waitFor(() => {
       expect(mockRegister).toHaveBeenCalled();

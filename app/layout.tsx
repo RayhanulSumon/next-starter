@@ -29,7 +29,7 @@ export default async function RootLayout({
       {/* ...existing code... */}
       <body
         suppressHydrationWarning
-        className={`antialiased min-h-screen bg-background ${geistSans.variable} ${geistMono.variable}`}
+        className={`bg-background min-h-screen antialiased ${geistSans.variable} ${geistMono.variable}`}
       >
         <ThemeProvider
           attribute="class"

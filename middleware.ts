@@ -2,7 +2,14 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 // Paths that don't require authentication
-const publicPaths = ["/", "/login", "/register", "/auth/register", "/reset-password", "/auth/reset-password"];
+const publicPaths = [
+  "/",
+  "/login",
+  "/register",
+  "/auth/register",
+  "/reset-password",
+  "/auth/reset-password",
+];
 
 export default function middleware(request: NextRequest) {
   // Get the pathname from the request
@@ -12,11 +19,12 @@ export default function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
 
   // Normalize pathname to remove trailing slash (except for root)
-  const normalizedPath = pathname !== "/" && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+  const normalizedPath =
+    pathname !== "/" && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
 
   // Check if the path is public
   const isPublicPath = publicPaths.some(
-    (path) => normalizedPath === path || normalizedPath.startsWith(`${path}/`),
+    (path) => normalizedPath === path || normalizedPath.startsWith(`${path}/`)
   );
 
   // Debug logging

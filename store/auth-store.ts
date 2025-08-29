@@ -1,11 +1,21 @@
-import { create } from 'zustand';
-import { User, LoginActionResult, PasswordResetRequest, PasswordResetData, PasswordResetResponse } from '@/types/auth-types';
-import { loginHandler } from '@/lib/auth/loginHandler';
-import { registerAction } from '@/app/actions/auth/registerAction';
-import { logoutUserAction } from '@/app/actions/auth/logOutAction';
-import { requestPasswordReset, resetPasswordAction } from '@/app/actions/auth/resetPasswordAction';
-import { getCurrentUser } from '@/app/actions/auth/getCurrentUser';
-import { extractValidationErrors, isApiErrorWithFieldErrors, extractUserFromApiResponse } from '@/lib/apiErrorHelpers';
+import { create } from "zustand";
+import {
+  User,
+  LoginActionResult,
+  PasswordResetRequest,
+  PasswordResetData,
+  PasswordResetResponse,
+} from "@/types/auth-types";
+import { loginHandler } from "@/lib/auth/loginHandler";
+import { registerAction } from "@/app/actions/auth/registerAction";
+import { logoutUserAction } from "@/app/actions/auth/logOutAction";
+import { requestPasswordReset, resetPasswordAction } from "@/app/actions/auth/resetPasswordAction";
+import { getCurrentUser } from "@/app/actions/auth/getCurrentUser";
+import {
+  extractValidationErrors,
+  isApiErrorWithFieldErrors,
+  extractUserFromApiResponse,
+} from "@/lib/apiErrorHelpers";
 
 interface AuthState {
   user: User | null;
@@ -17,7 +27,11 @@ interface AuthState {
   error: string | null;
   setUser: (user: User | null) => void;
   login: (identifier: string, password: string) => Promise<LoginActionResult>;
-  register: (data: { identifier: string; password: string; password_confirmation: string }) => Promise<void>;
+  register: (data: {
+    identifier: string;
+    password: string;
+    password_confirmation: string;
+  }) => Promise<void>;
   logout: () => Promise<void>;
   requestPasswordReset: (data: PasswordResetRequest) => Promise<PasswordResetResponse>;
   resetPassword: (data: PasswordResetData) => Promise<PasswordResetResponse>;
@@ -36,15 +50,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   error: null,
   setUser: (user) => set({ user }),
   clearError: () => set({ error: null }),
-  resetAuthState: () => set({
-    user: null,
-    loginLoading: false,
-    registerLoading: false,
-    resetLoading: false,
-    requestResetLoading: false,
-    initialLoading: false,
-    error: null,
-  }),
+  resetAuthState: () =>
+    set({
+      user: null,
+      loginLoading: false,
+      registerLoading: false,
+      resetLoading: false,
+      requestResetLoading: false,
+      initialLoading: false,
+      error: null,
+    }),
   login: async (identifier, password) => {
     set({ loginLoading: true, error: null });
     try {
@@ -59,7 +74,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       get().resetAuthState();
       // Removed window.location.href redirect to avoid double navigation and delay
     } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Logout failed' });
+      set({ error: error instanceof Error ? error.message : "Logout failed" });
       // Do not re-throw
     }
   },
@@ -85,7 +100,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const result = await getCurrentUser();
       set({ user: result.data ?? null });
     } catch (error) {
-      set({ user: null, error: error instanceof Error ? error.message : 'Failed to fetch user' });
+      set({ user: null, error: error instanceof Error ? error.message : "Failed to fetch user" });
       throw error;
     } finally {
       set({ initialLoading: false });
@@ -95,10 +110,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ registerLoading: true, error: null });
     try {
       const result = await registerAction(data);
-      if ('error' in result && result.error) {
+      if ("error" in result && result.error) {
         // Always throw a normalized error object
         const allMessages = extractValidationErrors(result.error);
-        const fieldErrors = isApiErrorWithFieldErrors(result.error) ? result.error.data.errors : undefined;
+        const fieldErrors = isApiErrorWithFieldErrors(result.error)
+          ? result.error.data.errors
+          : undefined;
         throw { data: { errors: allMessages, fieldErrors } };
       }
       const user = extractUserFromApiResponse<{ user: User }>(result);
@@ -109,10 +126,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ user: null, initialLoading: false });
       throw { data: { errors: ["Registration did not return a user."] } };
     } catch (error: unknown) {
-      set({ error: error instanceof Error ? error.message : 'Registration failed' });
+      set({ error: error instanceof Error ? error.message : "Registration failed" });
       const allMessages = extractValidationErrors(error);
       const fieldErrors = isApiErrorWithFieldErrors(error) ? error.data.errors : undefined;
-      throw { data: { errors: allMessages.length > 0 ? allMessages : ["Registration failed. Please try again."], fieldErrors } };
+      throw {
+        data: {
+          errors: allMessages.length > 0 ? allMessages : ["Registration failed. Please try again."],
+          fieldErrors,
+        },
+      };
     } finally {
       set({ registerLoading: false });
     }

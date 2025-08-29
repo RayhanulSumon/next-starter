@@ -23,7 +23,7 @@ export function LogoutButton({
   const handleLogout = async () => {
     setLoading(true);
     try {
-      await fetch('/api/logout', { method: 'POST' });
+      await fetch("/api/logout", { method: "POST" });
       await logout(); // for local state cleanup if needed
       router.replace(redirectTo);
     } catch {

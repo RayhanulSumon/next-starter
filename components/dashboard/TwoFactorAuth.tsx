@@ -12,9 +12,7 @@ import Image from "next/image";
 
 export default function TwoFactorAuth() {
   const { user } = useAuth();
-  const [status, setStatus] = useState(
-    user?.two_factor_enabled ? "enabled" : "disabled",
-  );
+  const [status, setStatus] = useState(user?.two_factor_enabled ? "enabled" : "disabled");
   const [qr, setQr] = useState<string | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -70,18 +68,14 @@ export default function TwoFactorAuth() {
   }
 
   return (
-    <div className="border rounded p-4 max-w-md bg-white dark:bg-gray-900">
-      <h2 className="text-xl font-bold mb-2">
-        Two-Factor Authentication (2FA)
-      </h2>
+    <div className="max-w-md rounded border bg-white p-4 dark:bg-gray-900">
+      <h2 className="mb-2 text-xl font-bold">Two-Factor Authentication (2FA)</h2>
       <p className="mb-4 text-gray-600 dark:text-gray-300">
         Protect your account with an extra layer of security.
       </p>
       {status === "enabled" && (
         <form action={onDisable2FA}>
-          <div className="mb-4 text-green-600">
-            2FA is enabled on your account.
-          </div>
+          <div className="mb-4 text-green-600">2FA is enabled on your account.</div>
           <Button type="submit" disabled={pending} variant="destructive">
             Disable 2FA
           </Button>
@@ -97,9 +91,7 @@ export default function TwoFactorAuth() {
       {status === "pending" && (
         <form action={onVerify2FA} className="space-y-4">
           <div className="mb-2">
-            <div className="mb-2">
-              Scan this QR code with your authenticator app:
-            </div>
+            <div className="mb-2">Scan this QR code with your authenticator app:</div>
             {qr && (
               <Image
                 src={`data:image/svg+xml;utf8,${encodeURIComponent(qr.trim())}`}
@@ -113,14 +105,14 @@ export default function TwoFactorAuth() {
             <div className="mt-2 text-xs text-gray-500">Secret: {secret}</div>
           </div>
           <div>
-            <label htmlFor="code" className="block mb-1">
+            <label htmlFor="code" className="mb-1 block">
               Enter 6-digit code:
             </label>
             <input
               id="code"
               name="code"
               type="text"
-              className="border rounded px-2 py-1 w-full"
+              className="w-full rounded border px-2 py-1"
               pattern="\d{6}"
               maxLength={6}
               required

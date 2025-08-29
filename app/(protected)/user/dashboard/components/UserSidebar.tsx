@@ -6,11 +6,7 @@ import {
   SidebarFooter,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import {
-  Home,
-  Activity,
-  User2,
-} from "lucide-react";
+import { Home, Activity, User2 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hook/useAuth";
 
@@ -50,24 +46,17 @@ const UserSidebar: React.FC<DashboardSidebarProps> = ({ className }) => {
         .toUpperCase()
     : "U";
   return (
-    <Sidebar
-      className={className}
-      collapsible="icon"
-      side="left"
-      variant="sidebar"
-    >
+    <Sidebar className={className} collapsible="icon" side="left" variant="sidebar">
       <SidebarHeader data-testid="sidebar-header">
         <div className="flex flex-col items-center gap-2 py-4">
           <Avatar className="group-data-[collapsible=icon]:flex">
-            {user?.avatar ? (
-              <AvatarImage src={user.avatar} alt="User avatar" />
-            ) : null}
+            {user?.avatar ? <AvatarImage src={user.avatar} alt="User avatar" /> : null}
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
           <div className="text-sm font-medium group-data-[collapsible=icon]:hidden">
             {user?.name || "User"}
           </div>
-          <div className="text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
+          <div className="text-muted-foreground text-xs group-data-[collapsible=icon]:hidden">
             {user?.email || "No email"}
           </div>
         </div>

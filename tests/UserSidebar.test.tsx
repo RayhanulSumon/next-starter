@@ -11,7 +11,7 @@ describe("UserSidebar", () => {
     render(
       <SidebarProvider>
         <UserSidebar />
-      </SidebarProvider>,
+      </SidebarProvider>
     );
     expect(screen.getByText("Dashboard")).toBeInTheDocument();
   });
@@ -19,7 +19,7 @@ describe("UserSidebar", () => {
     render(
       <SidebarProvider>
         <UserSidebar />
-      </SidebarProvider>,
+      </SidebarProvider>
     );
     expect(screen.getByText("Profile")).toBeInTheDocument();
   });
@@ -27,7 +27,7 @@ describe("UserSidebar", () => {
     render(
       <SidebarProvider>
         <UserSidebar />
-      </SidebarProvider>,
+      </SidebarProvider>
     );
     expect(screen.getByText("Examples")).toBeInTheDocument();
   });
@@ -36,7 +36,7 @@ describe("UserSidebar", () => {
     render(
       <SidebarProvider>
         <UserSidebar />
-      </SidebarProvider>,
+      </SidebarProvider>
     );
     expect(screen.getByText("TU")).toBeInTheDocument();
   });
@@ -45,7 +45,7 @@ describe("UserSidebar", () => {
     render(
       <SidebarProvider>
         <UserSidebar />
-      </SidebarProvider>,
+      </SidebarProvider>
     );
     // Check for header, content, and footer
     expect(screen.getByTestId("sidebar-header")).toBeInTheDocument();
@@ -57,7 +57,7 @@ describe("UserSidebar", () => {
     render(
       <SidebarProvider>
         <UserSidebar />
-      </SidebarProvider>,
+      </SidebarProvider>
     );
     // Find the Dashboard nav item link by its accessible name
     const dashboardLink = screen.getByRole("link", { name: /dashboard/i });
@@ -69,7 +69,7 @@ describe("UserSidebar", () => {
     render(
       <SidebarProvider>
         <UserSidebar />
-      </SidebarProvider>,
+      </SidebarProvider>
     );
     // Try to find a collapse/expand button
     const toggleBtn = screen.queryByRole("button", { name: /collapse|expand/i });

@@ -14,10 +14,7 @@ export interface LoginErrorResponse {
 }
 
 export function isLoginErrorResponse(response: unknown): response is LoginErrorResponse {
-  if (typeof response !== 'object' || response === null) return false;
+  if (typeof response !== "object" || response === null) return false;
   const r = response as Record<string, unknown>;
-  return (
-    typeof r.status === 'number' &&
-    typeof r.message === 'string'
-  );
+  return typeof r.status === "number" && typeof r.message === "string";
 }

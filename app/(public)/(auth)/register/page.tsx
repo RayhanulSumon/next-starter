@@ -1,202 +1,206 @@
 "use client";
 
-import {useForm, type UseFormReturn} from "react-hook-form";
-import {z} from "zod";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {useRouter} from "next/navigation";
+import { useForm, type UseFormReturn } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import {useAuth} from "@/hook/useAuth";
-import {Button} from "@/components/ui/button";
+import { useAuth } from "@/hook/useAuth";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import { CustomInputField } from "@/components/ui/CustomInputField";
 import {
-    Form,
-} from "@/components/ui/form";
-import {CustomInputField} from "@/components/ui/CustomInputField";
-import {
-    Card,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-    CardContent,
-    CardFooter,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
 } from "@/components/ui/card";
 import { extractValidationErrors, getFieldErrors } from "@/lib/apiErrorHelpers";
 
 const REGISTER_FIELDS = ["identifier", "password", "password_confirmation"] as const;
 const identifierSchema = z.string().refine(
-    (val) => {
-        // Basic email or phone validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const phoneRegex = /^\+?[0-9]{10,15}$/;
-        return emailRegex.test(val) || phoneRegex.test(val);
-    },
-    {
-        message: "Enter a valid email or mobile number",
-    }
+  (val) => {
+    // Basic email or phone validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\+?[0-9]{10,15}$/;
+    return emailRegex.test(val) || phoneRegex.test(val);
+  },
+  {
+    message: "Enter a valid email or mobile number",
+  }
 );
 
 const registerSchema = z
-    .object({
-        identifier: identifierSchema,
-        password: z
-            .string()
-            .min(8, "Password must be at least 8 characters")
-            .regex(/[A-Z]/, "Must include an uppercase letter")
-            .regex(/[a-z]/, "Must include a lowercase letter")
-            .regex(/[0-9]/, "Must include a number")
-            .regex(/[^A-Za-z0-9]/, "Must include a symbol"),
-        password_confirmation: z.string().min(8, "Confirm your password"),
-    })
-    .refine((data) => data.password === data.password_confirmation, {
-        message: "Passwords do not match",
-        path: ["password_confirmation"],
-    });
+  .object({
+    identifier: identifierSchema,
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[A-Z]/, "Must include an uppercase letter")
+      .regex(/[a-z]/, "Must include a lowercase letter")
+      .regex(/[0-9]/, "Must include a number")
+      .regex(/[^A-Za-z0-9]/, "Must include a symbol"),
+    password_confirmation: z.string().min(8, "Confirm your password"),
+  })
+  .refine((data) => data.password === data.password_confirmation, {
+    message: "Passwords do not match",
+    path: ["password_confirmation"],
+  });
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 function RootError({ message }: { message?: string }) {
-    if (!message) return null;
-    // Memoize split errors for performance (micro-optimization)
-    const errorLines = message.includes('\n') ? message.split('\n') : null;
-    return (
-        <div
-            className="w-full my-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-center text-sm font-medium shadow-sm flex flex-col items-center justify-center gap-2"
-            role="alert"
-        >
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-red-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-            >
-                <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"
-                />
-            </svg>
-            {errorLines ? (
-                <ul className="list-disc list-inside text-left">
-                    {errorLines.map((err, idx) => (
-                        <li key={idx}>{err}</li>
-                    ))}
-                </ul>
-            ) : (
-                <span>{message}</span>
-            )}
-        </div>
-    );
+  if (!message) return null;
+  // Memoize split errors for performance (micro-optimization)
+  const errorLines = message.includes("\n") ? message.split("\n") : null;
+  return (
+    <div
+      className="my-2 flex w-full flex-col items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-center text-sm font-medium text-red-700 shadow-sm"
+      role="alert"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-5 w-5 text-red-500"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M12 8v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"
+        />
+      </svg>
+      {errorLines ? (
+        <ul className="list-inside list-disc text-left">
+          {errorLines.map((err, idx) => (
+            <li key={idx}>{err}</li>
+          ))}
+        </ul>
+      ) : (
+        <span>{message}</span>
+      )}
+    </div>
+  );
 }
 
 const FIELD_CONFIG = [
-    {
-        name: "identifier",
-        label: "Mobile or Email",
-        type: "text",
-        placeholder: "Enter your mobile number or email",
-        autoComplete: "email",
-    },
-    {
-        name: "password",
-        label: "Password",
-        type: "password",
-        placeholder: "Enter your password",
-        autoComplete: "new-password",
-    },
-    {
-        name: "password_confirmation",
-        label: "Confirm Password",
-        type: "password",
-        placeholder: "Confirm your password",
-        autoComplete: "new-password",
-    },
+  {
+    name: "identifier",
+    label: "Mobile or Email",
+    type: "text",
+    placeholder: "Enter your mobile number or email",
+    autoComplete: "email",
+  },
+  {
+    name: "password",
+    label: "Password",
+    type: "password",
+    placeholder: "Enter your password",
+    autoComplete: "new-password",
+  },
+  {
+    name: "password_confirmation",
+    label: "Confirm Password",
+    type: "password",
+    placeholder: "Confirm your password",
+    autoComplete: "new-password",
+  },
 ] as const;
 
-function setApiFieldErrors<T extends string>(form: UseFormReturn<RegisterFormValues>, error: unknown, fields: readonly T[]) {
-    fields.forEach((field) => {
-        const messages = getFieldErrors(error, field as keyof RegisterFormValues);
-        if (messages && messages.length > 0) {
-            form.setError(field as keyof RegisterFormValues, { message: messages[0] });
-        }
-    });
+function setApiFieldErrors<T extends string>(
+  form: UseFormReturn<RegisterFormValues>,
+  error: unknown,
+  fields: readonly T[]
+) {
+  fields.forEach((field) => {
+    const messages = getFieldErrors(error, field as keyof RegisterFormValues);
+    if (messages && messages.length > 0) {
+      form.setError(field as keyof RegisterFormValues, { message: messages[0] });
+    }
+  });
 }
 
 function useRegisterForm(onSuccess: () => void) {
-    const { register } = useAuth();
-    const form = useForm<RegisterFormValues>({
-        resolver: zodResolver(registerSchema),
-        defaultValues: {
-            identifier: "",
-            password: "",
-            password_confirmation: "",
-        },
-    });
+  const { register } = useAuth();
+  const form = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      identifier: "",
+      password: "",
+      password_confirmation: "",
+    },
+  });
 
-    const handleSubmit = async (data: RegisterFormValues) => {
-        try {
-            await register(data);
-            onSuccess();
-        } catch (error) {
-            setApiFieldErrors(form, error, REGISTER_FIELDS);
-            const errors = extractValidationErrors(error);
-            form.setError("root", { message: errors.length > 0 ? errors.join("\n") : "Registration failed. Please try again." });
-        }
-    };
+  const handleSubmit = async (data: RegisterFormValues) => {
+    try {
+      await register(data);
+      onSuccess();
+    } catch (error) {
+      setApiFieldErrors(form, error, REGISTER_FIELDS);
+      const errors = extractValidationErrors(error);
+      form.setError("root", {
+        message: errors.length > 0 ? errors.join("\n") : "Registration failed. Please try again.",
+      });
+    }
+  };
 
-    return { form, handleSubmit };
+  return { form, handleSubmit };
 }
 
 export default function RegisterPage() {
-    const router = useRouter();
-    const { form, handleSubmit } = useRegisterForm(() => router.replace("/user/dashboard"));
+  const router = useRouter();
+  const { form, handleSubmit } = useRegisterForm(() => router.replace("/user/dashboard"));
 
-    return (
-        <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 px-4">
-            <div className="w-full max-w-md mx-auto">
-                <Card className="w-full p-8 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-xl border border-gray-200 dark:border-gray-700 rounded-2xl">
-                    <CardHeader className="space-y-2 text-center">
-                        <CardTitle className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-gray-100 mb-2">
-                            Create Account
-                        </CardTitle>
-                        <CardDescription className="text-base md:text-lg text-gray-600 dark:text-gray-400">
-                            Register to get started with Next Starter
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="w-full">
-                        <Form {...form}>
-                            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-                                <RootError message={form.formState.errors.root?.message} />
-                                {FIELD_CONFIG.map(({ name, label, type, placeholder, autoComplete }) => (
-                                    <CustomInputField
-                                        key={name}
-                                        control={form.control}
-                                        name={name}
-                                        label={label}
-                                        type={type}
-                                        placeholder={placeholder}
-                                        autoComplete={autoComplete}
-                                    />
-                                ))}
-                                <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                                    {form.formState.isSubmitting ? "Registering..." : "Register"}
-                                </Button>
-                            </form>
-                        </Form>
-                    </CardContent>
-                    <CardFooter className="flex justify-center mt-4 w-full">
-                        <p className="text-sm text-center text-gray-600 dark:text-gray-400">
-                            Already have an account?{" "}
-                            <Link
-                                href="/login"
-                                className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
-                            >
-                                Login here
-                            </Link>
-                        </p>
-                    </CardFooter>
-                </Card>
-            </div>
-        </main>
-    );
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
+      <div className="mx-auto w-full max-w-md">
+        <Card className="w-full rounded-2xl border border-gray-200 bg-white/90 p-8 shadow-xl backdrop-blur-md dark:border-gray-700 dark:bg-gray-900/90">
+          <CardHeader className="space-y-2 text-center">
+            <CardTitle className="mb-2 text-3xl font-extrabold text-gray-900 md:text-4xl dark:text-gray-100">
+              Create Account
+            </CardTitle>
+            <CardDescription className="text-base text-gray-600 md:text-lg dark:text-gray-400">
+              Register to get started with Next Starter
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="w-full">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                <RootError message={form.formState.errors.root?.message} />
+                {FIELD_CONFIG.map(({ name, label, type, placeholder, autoComplete }) => (
+                  <CustomInputField
+                    key={name}
+                    control={form.control}
+                    name={name}
+                    label={label}
+                    type={type}
+                    placeholder={placeholder}
+                    autoComplete={autoComplete}
+                  />
+                ))}
+                <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+                  {form.formState.isSubmitting ? "Registering..." : "Register"}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+          <CardFooter className="mt-4 flex w-full justify-center">
+            <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+              Already have an account?{" "}
+              <Link
+                href="/login"
+                className="font-medium text-blue-600 hover:underline dark:text-blue-400"
+              >
+                Login here
+              </Link>
+            </p>
+          </CardFooter>
+        </Card>
+      </div>
+    </main>
+  );
 }

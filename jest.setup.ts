@@ -2,26 +2,26 @@
 // Add any global setup for Jest here, e.g. extending expect, configuring test libraries, etc.
 
 import "@testing-library/jest-dom";
-import { TextEncoder, TextDecoder } from 'util';
-import fetch, { Request, Response, Headers } from 'cross-fetch';
+import { TextEncoder, TextDecoder } from "util";
+import fetch, { Request, Response, Headers } from "cross-fetch";
 
-if (typeof global.TextEncoder === 'undefined') {
+if (typeof global.TextEncoder === "undefined") {
   global.TextEncoder = TextEncoder as unknown as typeof global.TextEncoder;
 }
-if (typeof global.TextDecoder === 'undefined') {
+if (typeof global.TextDecoder === "undefined") {
   global.TextDecoder = TextDecoder as unknown as typeof global.TextDecoder;
 }
 
-if (typeof global.fetch === 'undefined') {
+if (typeof global.fetch === "undefined") {
   global.fetch = fetch;
 }
-if (typeof global.Request === 'undefined') {
+if (typeof global.Request === "undefined") {
   global.Request = Request;
 }
-if (typeof global.Response === 'undefined') {
+if (typeof global.Response === "undefined") {
   global.Response = Response;
 }
-if (typeof global.Headers === 'undefined') {
+if (typeof global.Headers === "undefined") {
   global.Headers = Headers;
 }
 
@@ -47,7 +47,7 @@ if (typeof window !== "undefined" && !window.matchMedia) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         _options?: boolean | EventListenerOptions
       ) {
-        listeners = listeners.filter(l => l !== listener);
+        listeners = listeners.filter((l) => l !== listener);
       },
     } as unknown as MediaQueryList;
   };

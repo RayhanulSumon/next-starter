@@ -52,8 +52,12 @@ describe("LoginForm", () => {
     });
     const onTwoFARequired = jest.fn();
     render(<LoginForm onTwoFARequired={onTwoFARequired} />);
-    fireEvent.change(screen.getByPlaceholderText(/enter your email or phone/i), { target: { value: "test@example.com" } });
-    fireEvent.change(screen.getByPlaceholderText(/enter your password/i), { target: { value: "Password1!" } });
+    fireEvent.change(screen.getByPlaceholderText(/enter your email or phone/i), {
+      target: { value: "test@example.com" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/enter your password/i), {
+      target: { value: "Password1!" },
+    });
     fireEvent.click(screen.getByRole("button", { name: /login/i }));
     await waitFor(() => {
       expect(onTwoFARequired).toHaveBeenCalledWith("test@example.com", "Password1!");
@@ -68,8 +72,12 @@ describe("LoginForm", () => {
       loginLoading: false,
     });
     render(<LoginForm onTwoFARequired={jest.fn()} />);
-    fireEvent.change(screen.getByPlaceholderText(/enter your email or phone/i), { target: { value: "test@example.com" } });
-    fireEvent.change(screen.getByPlaceholderText(/enter your password/i), { target: { value: "Password1!" } });
+    fireEvent.change(screen.getByPlaceholderText(/enter your email or phone/i), {
+      target: { value: "test@example.com" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/enter your password/i), {
+      target: { value: "Password1!" },
+    });
     fireEvent.click(screen.getByRole("button", { name: /login/i }));
     await waitFor(() => {
       expect(screen.getByText(/invalid credentials/i)).toBeInTheDocument();

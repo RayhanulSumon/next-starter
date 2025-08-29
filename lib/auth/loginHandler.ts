@@ -10,7 +10,7 @@ export async function loginHandler(
   const result = await loginAction(identifier, password);
   const data = result.data;
   if (result.status !== 200) {
-    throw new Error(result.message || 'Login failed');
+    throw new Error(result.message || "Login failed");
   }
   if (isTwoFARequired(data)) {
     return { "2fa_required": true, user: data.user };
@@ -19,5 +19,5 @@ export async function loginHandler(
     setUser(data.user); // Set user immediately for reliable redirect
     return { user: data.user, token: data.token };
   }
-  throw new Error('Unexpected login response');
+  throw new Error("Unexpected login response");
 }

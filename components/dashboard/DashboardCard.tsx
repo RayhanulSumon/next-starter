@@ -11,15 +11,13 @@ const DashboardCard = forwardRef<HTMLDivElement, DashboardCardProps>(
     return (
       <div
         ref={ref}
-        className={`bg-white dark:bg-gray-900 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-800 ${className}`}
+        className={`rounded-lg border border-gray-200 bg-white p-6 shadow dark:border-gray-800 dark:bg-gray-900 ${className}`}
       >
-        <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
-          {title}
-        </h2>
+        <h2 className="mb-4 text-lg font-medium text-gray-900 dark:text-gray-100">{title}</h2>
         {children}
       </div>
     );
-  },
+  }
 );
 
 DashboardCard.displayName = "DashboardCard";

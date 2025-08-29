@@ -7,16 +7,12 @@ export default async function UserProfilePage() {
   const user = userResponse.data;
 
   if (!user) {
-    return (
-      <div className="p-8 text-center">
-        User not found or not authenticated.
-      </div>
-    );
+    return <div className="p-8 text-center">User not found or not authenticated.</div>;
   }
 
   return (
-    <div className="max-w-xl mx-auto p-8 bg-white dark:bg-gray-900 rounded shadow">
-      <h1 className="text-2xl font-bold mb-4">User Profile</h1>
+    <div className="mx-auto max-w-xl rounded bg-white p-8 shadow dark:bg-gray-900">
+      <h1 className="mb-4 text-2xl font-bold">User Profile</h1>
       <div className="space-y-2">
         <div>
           <strong>Name:</strong> {user.name}

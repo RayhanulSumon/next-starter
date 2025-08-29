@@ -7,27 +7,21 @@ import type {
 } from "@/types/auth-types";
 
 export async function requestPasswordReset(
-  data: PasswordResetRequest,
+  data: PasswordResetRequest
 ): Promise<ApiClientResponse<PasswordResetResponse | undefined>> {
-  return apiFetch<PasswordResetResponse>(
-    "/request-password-reset",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    },
-  );
+  return apiFetch<PasswordResetResponse>("/request-password-reset", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
 }
 
 export async function resetPasswordAction(
-  data: PasswordResetData,
+  data: PasswordResetData
 ): Promise<ApiClientResponse<PasswordResetResponse | undefined>> {
-  return apiFetch<PasswordResetResponse>(
-    "/reset-password",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    },
-  );
+  return apiFetch<PasswordResetResponse>("/reset-password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
 }

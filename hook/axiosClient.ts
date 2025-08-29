@@ -48,7 +48,7 @@ export const axiosClient: AxiosInstance = (() => {
         toast.error("Too many attempts, please try again later.");
       }
       return Promise.reject(error);
-    },
+    }
   );
 
   return instance;

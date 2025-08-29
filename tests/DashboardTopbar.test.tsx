@@ -8,7 +8,7 @@ describe("DashboardTopbar", () => {
     render(
       <SidebarProvider>
         <DashboardTopbar />
-      </SidebarProvider>,
+      </SidebarProvider>
     );
     expect(screen.getByText("User Dashboard")).toBeInTheDocument();
   });
@@ -16,14 +16,12 @@ describe("DashboardTopbar", () => {
     render(
       <SidebarProvider>
         <DashboardTopbar />
-      </SidebarProvider>,
+      </SidebarProvider>
     );
     // Open the dropdown menu
     const triggerButton = screen.getByRole("button", { name: "" }); // fallback: get by data attribute
     // Prefer querySelector for data-slot if available
-    const dropdownTrigger = document.querySelector(
-      '[data-slot="dropdown-menu-trigger"]',
-    );
+    const dropdownTrigger = document.querySelector('[data-slot="dropdown-menu-trigger"]');
     await userEvent.click(dropdownTrigger || triggerButton);
     expect(screen.getByText("Profile")).toBeInTheDocument();
     expect(screen.getByText("Settings")).toBeInTheDocument();

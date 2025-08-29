@@ -8,16 +8,10 @@ type StatsGridProps = {
 };
 
 const StatsGrid: React.FC<StatsGridProps> = ({ stats }) => (
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-none">
+  <div className="grid w-full max-w-none grid-cols-1 gap-6 md:grid-cols-3">
     {stats.map((stat) => (
-      <DashboardCard
-        key={stat.name}
-        title={stat.name}
-        className="text-center w-full max-w-none"
-      >
-        <div className="text-3xl font-semibold text-blue-600">
-          {stat.value}
-        </div>
+      <DashboardCard key={stat.name} title={stat.name} className="w-full max-w-none text-center">
+        <div className="text-3xl font-semibold text-blue-600">{stat.value}</div>
       </DashboardCard>
     ))}
   </div>

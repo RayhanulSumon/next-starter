@@ -7,23 +7,19 @@ import React from "react";
 function SidebarLayout({ children }: { children: React.ReactNode }) {
   useSidebar();
   return (
-    <div className="flex min-h-screen bg-background text-foreground w-full">
+    <div className="bg-background text-foreground flex min-h-screen w-full">
       <div className="sticky top-0 h-screen">
         <UserSidebar />
       </div>
-      <div className="flex-1 flex flex-col min-h-screen">
+      <div className="flex min-h-screen flex-1 flex-col">
         <DashboardTopbar />
-        <main className="flex-1 w-full p-4 md:p-8">{children}</main>
+        <main className="w-full flex-1 p-4 md:p-8">{children}</main>
       </div>
     </div>
   );
 }
 
-export default function ProtectedLayoutClient({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function ProtectedLayoutClient({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <SidebarLayout>{children}</SidebarLayout>
