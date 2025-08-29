@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { User2, MoreHorizontal } from "lucide-react";
 import { useAuth } from "@/hook/useAuth";
-import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 function TopbarLeft() {
@@ -25,46 +24,40 @@ function TopbarRight() {
   const router = useRouter();
   return (
     <div className="flex items-center gap-4">
-      {/* User avatar or icon */}
       <User2 className="text-muted-foreground h-6 w-6" />
-      {/* Dropdown menu for more actions */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button className="bg-muted hover:bg-accent rounded-full p-2 transition">
             <MoreHorizontal className="text-muted-foreground h-5 w-5" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent side="bottom" align="end">
-          <DropdownMenuItem>
+        <DropdownMenuContent side="bottom" align="end" className="min-w-[160px] py-2">
+          <DropdownMenuItem className="flex items-center gap-2 px-3 py-2 text-sm">
             <span>Profile</span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem className="flex items-center gap-2 px-3 py-2 text-sm">
             <span>Settings</span>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild variant="destructive">
-            <Button
-              variant="destructive"
-              className="flex w-full items-center gap-2 text-left"
-              onClick={async () => {
-                await logout();
-                router.replace("/login");
-              }}
-              type="button"
+          <DropdownMenuItem
+            variant="destructive"
+            className="text-destructive focus:bg-destructive/10 flex cursor-pointer items-center gap-2 px-3 py-2 text-sm"
+            onClick={async () => {
+              await logout();
+              router.replace("/login");
+            }}
+          >
+            <svg
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+              className="inline-block"
             >
-              <span className="mr-2">
-                <svg
-                  width="20"
-                  height="20"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
-                </svg>
-              </span>
-              Logout
-            </Button>
+              <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
+            </svg>
+            <span>Logout</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
