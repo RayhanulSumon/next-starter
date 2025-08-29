@@ -152,14 +152,14 @@ export default function RegisterPage() {
     const { form, handleSubmit } = useRegisterForm(() => router.replace("/user/dashboard"));
 
     return (
-        <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4">
+        <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 px-4">
             <div className="w-full max-w-md mx-auto">
-                <Card className="w-full p-8 bg-white/90 backdrop-blur-md shadow-xl border border-gray-200 rounded-2xl">
+                <Card className="w-full p-8 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-xl border border-gray-200 dark:border-gray-700 rounded-2xl">
                     <CardHeader className="space-y-2 text-center">
-                        <CardTitle className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">
+                        <CardTitle className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-gray-100 mb-2">
                             Create Account
                         </CardTitle>
-                        <CardDescription className="text-base md:text-lg text-gray-600">
+                        <CardDescription className="text-base md:text-lg text-gray-600 dark:text-gray-400">
                             Register to get started with Next Starter
                         </CardDescription>
                     </CardHeader>
@@ -185,11 +185,11 @@ export default function RegisterPage() {
                         </Form>
                     </CardContent>
                     <CardFooter className="flex justify-center mt-4 w-full">
-                        <p className="text-sm text-center text-gray-600">
+                        <p className="text-sm text-center text-gray-600 dark:text-gray-400">
                             Already have an account?{" "}
                             <Link
                                 href="/login"
-                                className="text-blue-600 hover:underline font-medium"
+                                className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
                             >
                                 Login here
                             </Link>
