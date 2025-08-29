@@ -55,8 +55,13 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 function RootError({ message }: { message?: string }) {
     if (!message) return null;
+    // Memoize split errors for performance (micro-optimization)
+    const errorLines = message.includes('\n') ? message.split('\n') : null;
     return (
-        <div className="w-full my-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-center text-sm font-medium shadow-sm flex flex-col items-center justify-center gap-2">
+        <div
+            className="w-full my-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-center text-sm font-medium shadow-sm flex flex-col items-center justify-center gap-2"
+            role="alert"
+        >
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-5 w-5 text-red-500"
@@ -71,10 +76,10 @@ function RootError({ message }: { message?: string }) {
                     d="M12 8v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"
                 />
             </svg>
-            {message.includes('\n') ? (
+            {errorLines ? (
                 <ul className="list-disc list-inside text-left">
-                    {message.split('\n').map((msg, idx) => (
-                        <li key={idx}>{msg}</li>
+                    {errorLines.map((err, idx) => (
+                        <li key={idx}>{err}</li>
                     ))}
                 </ul>
             ) : (
@@ -90,7 +95,7 @@ const FIELD_CONFIG = [
         label: "Mobile or Email",
         type: "text",
         placeholder: "Enter your mobile number or email",
-        autoComplete: "username",
+        autoComplete: "email",
     },
     {
         name: "password",
@@ -173,8 +178,8 @@ export default function RegisterPage() {
                                         autoComplete={autoComplete}
                                     />
                                 ))}
-                                <Button type="submit" className="w-full">
-                                    Register
+                                <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+                                    {form.formState.isSubmitting ? "Registering..." : "Register"}
                                 </Button>
                             </form>
                         </Form>
