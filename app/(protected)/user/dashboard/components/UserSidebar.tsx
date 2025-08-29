@@ -56,7 +56,7 @@ const UserSidebar: React.FC<DashboardSidebarProps> = ({ className }) => {
       side="left"
       variant="sidebar"
     >
-      <SidebarHeader>
+      <SidebarHeader data-testid="sidebar-header">
         <div className="flex flex-col items-center gap-2 py-4">
           <Avatar className="group-data-[collapsible=icon]:flex">
             {user?.avatar ? (
@@ -73,11 +73,11 @@ const UserSidebar: React.FC<DashboardSidebarProps> = ({ className }) => {
         </div>
       </SidebarHeader>
       <SidebarSeparator className="my-2" />
-      <SidebarContent>
+      <SidebarContent data-testid="sidebar-content">
         <SidebarMenuList items={navItems.filter((item) => !item.footer)} />
       </SidebarContent>
       <SidebarSeparator />
-      <SidebarFooter>
+      <SidebarFooter data-testid="sidebar-footer">
         <SidebarMenuList items={navItems.filter((item) => item.footer)} />
       </SidebarFooter>
     </Sidebar>
