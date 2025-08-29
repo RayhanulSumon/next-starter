@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hook/useAuth";
 import Link from "next/link";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -21,6 +24,8 @@ export default function ResetPasswordPage() {
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [resetError, setResetError] = useState<string | null>(null);
   const [resetSuccess, setResetSuccess] = useState(false);
+
+  const [method, setMethod] = useState<"email" | "mobile">("email");
 
   const passwordRequirements = [
     { label: "At least 8 characters", test: (v: string) => v.length >= 8 },
@@ -126,172 +131,204 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="mx-auto mt-20 max-w-md rounded border p-6 shadow-lg">
-      <h1 className="mb-4 text-2xl font-bold">Reset Your Password</h1>
-
-      {!requestSent ? (
-        // Step 1: Request password reset
-        <form onSubmit={handleRequestReset} className="space-y-4">
-          <p className="text-sm text-gray-600">
-            Enter your email or phone number to receive a password reset code.
-          </p>
-
-          <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded border p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              disabled={requestResetLoading}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="phone" className="block text-sm font-medium">
-              Phone Number
-            </label>
-            <input
-              id="phone"
-              type="tel"
-              placeholder="Enter your phone number"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full rounded border p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              disabled={requestResetLoading}
-            />
-          </div>
-
-          {requestError && (
-            <div className="rounded border border-red-200 bg-red-50 p-3 text-red-700" role="alert">
-              {requestError}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            className="w-full rounded bg-blue-600 p-2 text-white transition hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50"
-            disabled={requestResetLoading}
-          >
-            {requestResetLoading ? "Sending..." : "Send Reset Instructions"}
-          </button>
-
-          <div className="mt-4 text-center">
-            <p className="text-sm">
-              Remember your password?{" "}
-              <Link href="/login" className="text-blue-600 hover:underline">
-                Login here
-              </Link>
-            </p>
-          </div>
-        </form>
-      ) : resetSuccess ? (
-        // Success message
-        <div className="py-8 text-center">
-          <div className="mb-4 text-xl text-green-600">Password reset successful!</div>
-          <p className="text-gray-600">
-            Your password has been reset. You&apos;ll be redirected to the loginAction page shortly.
-          </p>
-          <Link href="/login" className="mt-4 inline-block text-blue-600 hover:underline">
-            Login now
-          </Link>
-        </div>
-      ) : (
-        // Step 2: Enter new password with token
-        <form onSubmit={handleResetPassword} className="space-y-4">
-          <p className="mb-4 text-sm text-gray-600">
-            Enter the reset code you received and your new password.
-          </p>
-
-          <div className="space-y-2">
-            <label htmlFor="token" className="block text-sm font-medium">
-              Reset Code
-            </label>
-            <input
-              id="token"
-              type="text"
-              placeholder="Enter reset code"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              className="w-full rounded border p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              disabled={resetLoading}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="password" className="block text-sm font-medium">
-              New Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              placeholder="Enter new password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                setPasswordValue(e.target.value);
-              }}
-              className="w-full rounded border p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              required
-              autoComplete="new-password"
-            />
-            <div className="mt-1 space-y-1">
-              {passwordRequirements.map((req) => (
-                <div
-                  key={req.label}
-                  className={`flex items-center gap-1 text-xs ${req.test(passwordValue) ? "text-green-600" : "text-gray-400"}`}
+    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="mx-auto w-full max-w-md">
+        <Card className="w-full rounded-2xl border border-gray-200 bg-white/90 p-8 shadow-xl backdrop-blur-md dark:border-gray-700 dark:bg-gray-900/90">
+          <CardHeader className="space-y-2 text-center">
+            <CardTitle className="text-foreground mb-2 text-3xl font-extrabold md:text-4xl">
+              Reset Your Password
+            </CardTitle>
+            <CardDescription className="text-muted-foreground text-base md:text-lg">
+              {requestSent
+                ? "Enter the code sent to your email or phone and set a new password."
+                : "Enter your email or phone number to receive a password reset code."}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="w-full">
+            {!requestSent ? (
+              <>
+                <Tabs
+                  value={method}
+                  onValueChange={(v) => setMethod(v as "email" | "mobile")}
+                  className="mb-4 w-full"
                 >
-                  <span>{req.test(passwordValue) ? "✔" : "✗"}</span> {req.label}
+                  <TabsList className="w-full">
+                    <TabsTrigger value="email" className="flex-1">
+                      Email
+                    </TabsTrigger>
+                    <TabsTrigger value="mobile" className="flex-1">
+                      Mobile
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+                <form onSubmit={handleRequestReset} className="space-y-4">
+                  {method === "email" && (
+                    <div className="space-y-2">
+                      <label htmlFor="email" className="block text-sm font-medium">
+                        Email
+                      </label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="Enter your email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        disabled={requestResetLoading}
+                        required
+                      />
+                    </div>
+                  )}
+                  {method === "mobile" && (
+                    <div className="space-y-2">
+                      <label htmlFor="phone" className="block text-sm font-medium">
+                        Phone Number
+                      </label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="Enter your phone number"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        disabled={requestResetLoading}
+                        required
+                      />
+                    </div>
+                  )}
+                  {requestError && (
+                    <div
+                      className="rounded border border-red-200 bg-red-50 p-3 text-red-700"
+                      role="alert"
+                    >
+                      {requestError}
+                    </div>
+                  )}
+                  <button
+                    type="submit"
+                    className="w-full rounded bg-blue-600 p-2 text-white transition hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50"
+                    disabled={requestResetLoading}
+                  >
+                    {requestResetLoading ? "Sending..." : "Send Reset Instructions"}
+                  </button>
+                  <div className="mt-4 text-center">
+                    <p className="text-sm">
+                      Remember your password?{" "}
+                      <Link href="/login" className="text-blue-600 hover:underline">
+                        Login here
+                      </Link>
+                    </p>
+                  </div>
+                </form>
+              </>
+            ) : resetSuccess ? (
+              // Success message
+              <div className="py-8 text-center">
+                <div className="mb-4 text-xl text-green-600">Password reset successful!</div>
+                <p className="text-gray-600">
+                  Your password has been reset. You&apos;ll be redirected to the loginAction page
+                  shortly.
+                </p>
+                <Link href="/login" className="mt-4 inline-block text-blue-600 hover:underline">
+                  Login now
+                </Link>
+              </div>
+            ) : (
+              // Step 2: Enter new password with token
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <p className="mb-4 text-sm text-gray-600">
+                  Enter the reset code you received and your new password.
+                </p>
+
+                <div className="space-y-2">
+                  <label htmlFor="token" className="block text-sm font-medium">
+                    Reset Code
+                  </label>
+                  <input
+                    id="token"
+                    type="text"
+                    placeholder="Enter reset code"
+                    value={token}
+                    onChange={(e) => setToken(e.target.value)}
+                    className="w-full rounded border p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    disabled={resetLoading}
+                    required
+                  />
                 </div>
-              ))}
-            </div>
-          </div>
 
-          <div className="space-y-2">
-            <label htmlFor="passwordConfirmation" className="block text-sm font-medium">
-              Confirm New Password
-            </label>
-            <input
-              id="passwordConfirmation"
-              type="password"
-              placeholder="Confirm new password"
-              value={passwordConfirmation}
-              onChange={(e) => setPasswordConfirmation(e.target.value)}
-              className="w-full rounded border p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              required
-              autoComplete="new-password"
-            />
-          </div>
+                <div className="space-y-2">
+                  <label htmlFor="password" className="block text-sm font-medium">
+                    New Password
+                  </label>
+                  <input
+                    id="password"
+                    type="password"
+                    placeholder="Enter new password"
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setPasswordValue(e.target.value);
+                    }}
+                    className="w-full rounded border p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    required
+                    autoComplete="new-password"
+                  />
+                  <div className="mt-1 space-y-1">
+                    {passwordRequirements.map((req) => (
+                      <div
+                        key={req.label}
+                        className={`flex items-center gap-1 text-xs ${req.test(passwordValue) ? "text-green-600" : "text-gray-400"}`}
+                      >
+                        <span>{req.test(passwordValue) ? "✔" : "✗"}</span> {req.label}
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-          {resetError && (
-            <div className="rounded border border-red-200 bg-red-50 p-3 text-red-700" role="alert">
-              {resetError}
-            </div>
-          )}
+                <div className="space-y-2">
+                  <label htmlFor="passwordConfirmation" className="block text-sm font-medium">
+                    Confirm New Password
+                  </label>
+                  <input
+                    id="passwordConfirmation"
+                    type="password"
+                    placeholder="Confirm new password"
+                    value={passwordConfirmation}
+                    onChange={(e) => setPasswordConfirmation(e.target.value)}
+                    className="w-full rounded border p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    required
+                    autoComplete="new-password"
+                  />
+                </div>
 
-          <button
-            type="submit"
-            className="w-full rounded bg-blue-600 p-2 text-white transition hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50"
-            disabled={resetLoading}
-          >
-            {resetLoading ? "Resetting..." : "Reset Password"}
-          </button>
+                {resetError && (
+                  <div
+                    className="rounded border border-red-200 bg-red-50 p-3 text-red-700"
+                    role="alert"
+                  >
+                    {resetError}
+                  </div>
+                )}
 
-          <button
-            type="button"
-            onClick={() => setRequestSent(false)}
-            className="mt-2 w-full rounded bg-gray-100 p-2 text-gray-700 transition hover:bg-gray-200 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            disabled={resetLoading}
-          >
-            Back to Request Form
-          </button>
-        </form>
-      )}
-    </div>
+                <button
+                  type="submit"
+                  className="w-full rounded bg-blue-600 p-2 text-white transition hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50"
+                  disabled={resetLoading}
+                >
+                  {resetLoading ? "Resetting..." : "Reset Password"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setRequestSent(false)}
+                  className="mt-2 w-full rounded bg-gray-100 p-2 text-gray-700 transition hover:bg-gray-200 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  disabled={resetLoading}
+                >
+                  Back to Request Form
+                </button>
+              </form>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </main>
   );
 }
