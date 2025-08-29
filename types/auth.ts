@@ -17,12 +17,8 @@ export interface User {
 }
 
 export interface RegisterData {
-  name: string;
-  email: string; // Changed from email?: string to make it required
-  phone: string; // Changed from phone?: string to make it required
-  password: string;
+  identifier: string;
   password_confirmation: string;
-  role: UserRole;
 }
 
 export interface PasswordResetRequest {

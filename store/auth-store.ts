@@ -103,9 +103,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   register: async (data) => {
     set({ registerLoading: true, error: null });
     try {
-      if (!Object.values(UserRole).includes(data.role)) {
-        data.role = UserRole.USER;
-      }
+
       const result = await registerAction(data);
       if (result.data && result.data.user) {
         set({ user: result.data.user, initialLoading: false });
