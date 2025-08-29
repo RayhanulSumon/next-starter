@@ -3,7 +3,8 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import RegisterPage from "../app/(public)/(auth)/register/page";
 
 // Mock useAuth at the top level
-let mockAuthState: any;
+type MockAuthState = ReturnType<typeof getMockAuthState>;
+let mockAuthState: MockAuthState;
 jest.mock("@/hook/useAuth", () => ({
   useAuth: () => mockAuthState,
 }));
