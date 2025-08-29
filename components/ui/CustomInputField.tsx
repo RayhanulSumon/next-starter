@@ -38,7 +38,6 @@ export const CustomInputField = <T extends FieldValues>({
       name={name}
       render={({ field, fieldState }) => (
         <FormItem>
-          {/* Label position logic */}
           {label && (
             <div className="flex items-center justify-between mb-1">
               <span className="font-medium text-sm text-gray-900 dark:text-gray-100">
@@ -46,7 +45,6 @@ export const CustomInputField = <T extends FieldValues>({
               </span>
             </div>
           )}
-          {/* Floating label */}
           <div className="relative">
             {leftIcon && (
               <span className="absolute top-1/2 left-3 -translate-y-1/2 flex items-center pointer-events-none text-gray-400 dark:text-gray-500">
@@ -106,18 +104,12 @@ export const CustomInputField = <T extends FieldValues>({
             )}
           </div>
           {helperText && (
-            <p
-              id={`${name}-helper`}
-              className="mt-1 text-xs text-gray-600 dark:text-gray-400"
-            >
+            <p id={`${name}-helper`} className="mt-1 text-xs text-gray-600 dark:text-gray-400">
               {helperText}
             </p>
           )}
           {fieldState.error && (
-            <p
-              id={`${name}-error`}
-              className="mt-1 text-xs text-red-600 dark:text-red-400"
-            >
+            <p id={`${name}-error`} className="mt-1 text-xs text-red-600 dark:text-red-400">
               {fieldState.error.message}
             </p>
           )}
