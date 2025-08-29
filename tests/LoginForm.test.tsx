@@ -1,6 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { LoginForm } from "../app/(public)/(auth)/login/LoginForm";
+import { LoginForm } from "@/app/(public)/(auth)/login/LoginForm";
+import * as useAuthModule from "@/hook/useAuth";
 
 jest.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -10,17 +11,19 @@ jest.mock("next/navigation", () => ({
   }),
 }));
 
-// Mock useAuth hook
-jest.mock("@/hook/useAuth", () => ({
-  useAuth: () => ({
-    login: jest.fn(),
-    user: null,
-    loginLoading: false,
-  }),
-}));
+jest.mock("@/hook/useAuth");
 
 describe("LoginForm", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it("renders form fields", () => {
+    (useAuthModule.useAuth as jest.Mock).mockReturnValue({
+      login: jest.fn(),
+      user: null,
+      loginLoading: false,
+    });
     render(<LoginForm onTwoFARequired={jest.fn()} />);
     expect(screen.getByPlaceholderText(/enter your email or phone/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/enter your password/i)).toBeInTheDocument();
@@ -28,6 +31,11 @@ describe("LoginForm", () => {
   });
 
   it("shows validation errors on empty submit", async () => {
+    (useAuthModule.useAuth as jest.Mock).mockReturnValue({
+      login: jest.fn(),
+      user: null,
+      loginLoading: false,
+    });
     render(<LoginForm onTwoFARequired={jest.fn()} />);
     fireEvent.click(screen.getByRole("button", { name: /login/i }));
     await waitFor(() => {
@@ -37,7 +45,7 @@ describe("LoginForm", () => {
 
   it("calls login and handles 2FA required", async () => {
     const mockLogin = jest.fn().mockResolvedValue({ "2fa_required": true });
-    jest.spyOn(require("@/hook/useAuth"), "useAuth").mockReturnValue({
+    (useAuthModule.useAuth as jest.Mock).mockReturnValue({
       login: mockLogin,
       user: null,
       loginLoading: false,
@@ -54,7 +62,7 @@ describe("LoginForm", () => {
 
   it("shows error on login failure", async () => {
     const mockLogin = jest.fn().mockRejectedValue({ message: "Invalid credentials" });
-    jest.spyOn(require("@/hook/useAuth"), "useAuth").mockReturnValue({
+    (useAuthModule.useAuth as jest.Mock).mockReturnValue({
       login: mockLogin,
       user: null,
       loginLoading: false,
