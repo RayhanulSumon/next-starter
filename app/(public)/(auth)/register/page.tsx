@@ -1,6 +1,6 @@
 "use client";
 
-import {useForm} from "react-hook-form";
+import {useForm, type UseFormReturn} from "react-hook-form";
 import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useRouter} from "next/navigation";
@@ -84,11 +84,35 @@ function RootError({ message }: { message?: string }) {
     );
 }
 
-function setApiFieldErrors<T extends string>(form: { setError: (field: T, error: { message: string }) => void }, error: unknown, fields: readonly T[]) {
+const FIELD_CONFIG = [
+    {
+        name: "identifier",
+        label: "Mobile or Email",
+        type: "text",
+        placeholder: "Enter your mobile number or email",
+        autoComplete: "username",
+    },
+    {
+        name: "password",
+        label: "Password",
+        type: "password",
+        placeholder: "Enter your password",
+        autoComplete: "new-password",
+    },
+    {
+        name: "password_confirmation",
+        label: "Confirm Password",
+        type: "password",
+        placeholder: "Confirm your password",
+        autoComplete: "new-password",
+    },
+] as const;
+
+function setApiFieldErrors<T extends string>(form: UseFormReturn<RegisterFormValues>, error: unknown, fields: readonly T[]) {
     fields.forEach((field) => {
-        const messages = getFieldErrors(error, field);
+        const messages = getFieldErrors(error, field as keyof RegisterFormValues);
         if (messages && messages.length > 0) {
-            form.setError(field, { message: messages[0] });
+            form.setError(field as keyof RegisterFormValues, { message: messages[0] });
         }
     });
 }
@@ -138,30 +162,17 @@ export default function RegisterPage() {
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
                                 <RootError message={form.formState.errors.root?.message} />
-                                <CustomInputField
-                                    control={form.control}
-                                    name="identifier"
-                                    label="Mobile or Email"
-                                    type="text"
-                                    placeholder="Enter your mobile number or email"
-                                    autoComplete="username"
-                                />
-                                <CustomInputField
-                                    control={form.control}
-                                    name="password"
-                                    label="Password"
-                                    type="password"
-                                    placeholder="Enter your password"
-                                    autoComplete="new-password"
-                                />
-                                <CustomInputField
-                                    control={form.control}
-                                    name="password_confirmation"
-                                    label="Confirm Password"
-                                    type="password"
-                                    placeholder="Confirm your password"
-                                    autoComplete="new-password"
-                                />
+                                {FIELD_CONFIG.map(({ name, label, type, placeholder, autoComplete }) => (
+                                    <CustomInputField
+                                        key={name}
+                                        control={form.control}
+                                        name={name}
+                                        label={label}
+                                        type={type}
+                                        placeholder={placeholder}
+                                        autoComplete={autoComplete}
+                                    />
+                                ))}
                                 <Button type="submit" className="w-full">
                                     Register
                                 </Button>
