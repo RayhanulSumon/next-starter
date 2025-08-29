@@ -3,14 +3,16 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 
 const Page = () => {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4">
-      <ModeToggle />
-      <Card className="mx-auto max-w-xl bg-white/80 p-8 backdrop-blur-md">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      <div className="absolute top-4 right-4 z-10">
+        <ModeToggle />
+      </div>
+      <Card className="mx-auto max-w-xl bg-white/80 p-8 backdrop-blur-md dark:bg-gray-900/90">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="mb-4 text-4xl font-extrabold text-gray-900 md:text-5xl">
+          <CardTitle className="text-foreground mb-4 text-4xl font-extrabold md:text-5xl">
             Welcome to Next Starter
           </CardTitle>
-          <CardDescription className="mb-8 text-lg text-gray-600 md:text-xl">
+          <CardDescription className="text-muted-foreground mb-8 text-lg md:text-xl">
             Kickstart your Next.js project with a beautiful, modern template. Fast, flexible, and
             ready for your ideas.
           </CardDescription>
