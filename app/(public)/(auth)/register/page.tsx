@@ -19,6 +19,7 @@ import {
     CardContent,
     CardFooter,
 } from "@/components/ui/card";
+import { extractValidationErrors } from '@/lib/utils';
 
 const identifierSchema = z.string().refine(
     (val) => {
@@ -68,6 +69,13 @@ function RegisterPageContent() {
     });
 
     async function onSubmit(data: RegisterFormValues) {
+        function isErrorWithFieldErrors(e: unknown): e is { data: { errors: Record<string, string[]> } } {
+            if (typeof e !== 'object' || e === null) return false;
+            const data = (e as Record<string, unknown>).data;
+            if (typeof data !== 'object' || data === null) return false;
+            const errors = (data as Record<string, unknown>).errors;
+            return typeof errors === 'object' && errors !== null;
+        }
         try {
             const payload = {
                 identifier: data.identifier,
@@ -77,32 +85,23 @@ function RegisterPageContent() {
             await register(payload);
             router.replace("/user/dashboard");
         } catch (err: unknown) {
-            // Laravel validation errors
-            const errors = (err as { data?: { errors?: Record<string, string[]> } })?.data?.errors;
-            let hasFieldError = false;
-            if (errors && typeof errors === 'object') {
-                // Map Laravel field names to our form fields
+            const allMessages = extractValidationErrors(err);
+            if (isErrorWithFieldErrors(err)) {
+                const errorsObj = (err as { data: { errors: Record<string, string[]> } }).data.errors;
                 const fieldMap: Record<string, string> = {
                     identifier: 'identifier',
                     password: 'password',
                     password_confirmation: 'password_confirmation',
                 };
-                Object.entries(errors).forEach(([field, messages]) => {
+                Object.entries(errorsObj).forEach(([field, messages]) => {
                     const formField = fieldMap[field] || field;
                     if (Array.isArray(messages) && messages.length > 0) {
                         form.setError(formField as keyof RegisterFormValues, { message: messages[0] });
-                        hasFieldError = true;
                     }
                 });
             }
-            if (!hasFieldError) {
-                form.setError("root", {
-                    message:
-                        err instanceof Error && err.message
-                            ? err.message
-                            : "Registration failed. Please try again.",
-                });
-            }
+            // Defensive: if no messages, show fallback
+            form.setError("root", { message: allMessages.length > 0 ? allMessages.join("\n") : "Registration failed. Please try again." });
         }
     }
 
@@ -125,9 +124,9 @@ function RegisterPageContent() {
                                 onSubmit={form.handleSubmit(onSubmit)}
                                 className="space-y-6"
                             >
-                                {form.formState.errors.root && (
+                                {form.formState.errors.root && form.formState.errors.root.message && (
                                     <div
-                                        className="w-full my-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-center text-sm font-medium shadow-sm flex items-center justify-center gap-2">
+                                        className="w-full my-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-center text-sm font-medium shadow-sm flex flex-col items-center justify-center gap-2">
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             className="h-5 w-5 text-red-500"
@@ -142,7 +141,15 @@ function RegisterPageContent() {
                                                 d="M12 8v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"
                                             />
                                         </svg>
-                                        {form.formState.errors.root.message}
+                                        {typeof form.formState.errors.root.message === 'string' && form.formState.errors.root.message.includes('\n') ? (
+                                            <ul className="list-disc list-inside text-left">
+                                                {form.formState.errors.root.message.split('\n').map((msg, idx) => (
+                                                    <li key={idx}>{msg}</li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <span>{form.formState.errors.root.message}</span>
+                                        )}
                                     </div>
                                 )}
                                 <CustomInputField

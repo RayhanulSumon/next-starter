@@ -26,10 +26,6 @@ interface AuthState {
   clearError: () => void;
 }
 
-function isObject(val: unknown): val is Record<string, unknown> {
-  return typeof val === 'object' && val !== null;
-}
-
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   loginLoading: false,
@@ -99,7 +95,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ registerLoading: true, error: null });
     try {
       const result = await registerAction(data);
-      if (result.data && result.data.user) {
+      if ('error' in result && result.error) {
+        throw result.error;
+      }
+      // Type guard for result.data
+      if (
+        typeof result === 'object' &&
+        result !== null &&
+        'data' in result &&
+        result.data &&
+        typeof result.data === 'object' &&
+        'user' in result.data &&
+        result.data.user
+      ) {
         set({ user: result.data.user, initialLoading: false });
       } else {
         set({ user: null, initialLoading: false });
@@ -107,9 +115,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     } catch (error: unknown) {
       set({ error: error instanceof Error ? error.message : 'Registration failed' });
-      const validationErrors = extractValidationErrors(error);
-      if (validationErrors) {
-        throw { data: { errors: validationErrors } };
+      const allMessages = extractValidationErrors(error);
+      if (allMessages.length > 0) {
+        throw { data: { errors: allMessages } };
       }
       throw error;
     } finally {

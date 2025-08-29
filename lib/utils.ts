@@ -35,35 +35,32 @@ export function normalizeApiErrors(errors: unknown): string[] | Record<string, s
   return [];
 }
 
-// Extracts validation errors from an error object (Axios or plain)
-export function extractValidationErrors(error: unknown): Record<string, string[]> | null {
+// Extracts all validation error messages from an error object (Axios, ApiError, or plain)
+export function extractValidationErrors(error: unknown): string[] {
   function isObject(val: unknown): val is Record<string, unknown> {
     return typeof val === 'object' && val !== null;
   }
-  function isErrorRecord(val: unknown): val is Record<string, string[]> {
-    return isObject(val) && Object.values(val).every(v => Array.isArray(v) && v.every(i => typeof i === 'string'));
-  }
+  let errors: unknown = null;
   if (isObject(error)) {
-    // Axios-style error
-    if (
-      'response' in error &&
-      isObject(error.response) &&
-      'data' in error.response &&
-      isObject(error.response.data) &&
-      'errors' in error.response.data &&
-      isErrorRecord(error.response.data.errors)
-    ) {
-      return error.response.data.errors;
+    // Top-level errors (from server action error: { message, errors, status })
+    if ('errors' in error) {
+      errors = (error as Record<string, unknown>).errors;
     }
-    // Plain error with data.errors
-    if (
-      'data' in error &&
-      isObject(error.data) &&
-      'errors' in error.data &&
-      isErrorRecord(error.data.errors)
-    ) {
-      return error.data.errors;
+    // ApiError or plain error with data.errors
+    else if ('data' in error && isObject(error.data) && 'errors' in error.data) {
+      errors = error.data.errors;
+    }
+    // Axios-style error
+    else if ('response' in error && isObject(error.response) && 'data' in error.response && isObject(error.response.data) && 'errors' in error.response.data) {
+      errors = error.response.data.errors;
     }
   }
-  return null;
+  if (Array.isArray(errors)) {
+    return errors.map(String);
+  }
+  if (isObject(errors)) {
+    // Flatten all string[] values from the errors object
+    return Object.values(errors).flatMap((v) => Array.isArray(v) ? v.map(String) : [String(v)]);
+  }
+  return [];
 }
