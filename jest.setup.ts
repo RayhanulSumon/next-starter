@@ -52,15 +52,6 @@ if (typeof window !== "undefined" && !window.matchMedia) {
       dispatchEvent: function () {
         return false;
       },
-      // Deprecated methods for backward compatibility
-      addListener(listener: EventListenerOrEventListenerObject) {
-        // Deprecated: use addEventListener instead
-        this.addEventListener('change', listener);
-      },
-      removeListener(listener: EventListenerOrEventListenerObject) {
-        // Deprecated: use removeEventListener instead
-        this.removeEventListener('change', listener);
-      },
-    } as MediaQueryList;
+    } as unknown as MediaQueryList;
   };
 }
