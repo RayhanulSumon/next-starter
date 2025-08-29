@@ -19,6 +19,7 @@ import {
     CardContent,
     CardFooter,
 } from "@/components/ui/card";
+import { extractValidationErrors, getFieldErrors } from "@/lib/apiErrorHelpers";
 
 const identifierSchema = z.string().refine(
     (val) => {
@@ -56,7 +57,7 @@ export default function RegisterPage() {
 }
 
 function RegisterPageContent() {
-    const {register} = useAuth();
+    const { register } = useAuth();
     const router = useRouter();
     const form = useForm<RegisterFormValues>({
         resolver: zodResolver(registerSchema),
@@ -67,42 +68,62 @@ function RegisterPageContent() {
         },
     });
 
+    // Helper to set field errors from API
+    function setApiFieldErrors(error: unknown) {
+        ["identifier", "password", "password_confirmation"].forEach((field) => {
+            const messages = getFieldErrors(error, field);
+            if (messages && messages.length > 0) {
+                form.setError(field as keyof RegisterFormValues, { message: messages[0] });
+            }
+        });
+    }
+
+    // Root error display component
+    function RootError() {
+        const rootError = form.formState.errors.root?.message;
+        if (!rootError) return null;
+        return (
+            <div className="w-full my-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-center text-sm font-medium shadow-sm flex flex-col items-center justify-center gap-2">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-red-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"
+                    />
+                </svg>
+                {typeof rootError === 'string' && rootError.includes('\n') ? (
+                    <ul className="list-disc list-inside text-left">
+                        {rootError.split('\n').map((msg, idx) => (
+                            <li key={idx}>{msg}</li>
+                        ))}
+                    </ul>
+                ) : (
+                    <span>{rootError}</span>
+                )}
+            </div>
+        );
+    }
+
     async function onSubmit(data: RegisterFormValues) {
         try {
-            const payload = {
-                identifier: data.identifier,
-                password: data.password,
-                password_confirmation: data.password_confirmation,
-            };
-            await register(payload);
+            await register(data);
             router.replace("/user/dashboard");
-        } catch (err: unknown) {
-            // Type guard for error with data property
-            function hasData(obj: unknown): obj is { data: { errors?: string[]; fieldErrors?: Record<string, string[]> } } {
-                return typeof obj === 'object' && obj !== null &&
-                    'data' in obj &&
-                    typeof (obj as Record<string, unknown>).data === 'object' &&
-                    (obj as Record<string, unknown>).data !== null;
-            }
-            let errors: string[] = [];
-            let fieldErrors: Record<string, string[]> = {};
-            if (hasData(err)) {
-                const data = err.data;
-                errors = Array.isArray(data.errors) ? data.errors : [];
-                fieldErrors = typeof data.fieldErrors === 'object' && data.fieldErrors !== null ? data.fieldErrors : {};
-            }
-            Object.entries(fieldErrors).forEach(([field, messages]) => {
-                if (Array.isArray(messages) && messages.length > 0) {
-                    form.setError(field as keyof RegisterFormValues, { message: messages[0] });
-                }
-            });
+        } catch (error) {
+            setApiFieldErrors(error);
+            const errors = extractValidationErrors(error);
             form.setError("root", { message: errors.length > 0 ? errors.join("\n") : "Registration failed. Please try again." });
         }
     }
 
     return (
-        <main
-            className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4">
+        <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4">
             <div className="w-full max-w-md mx-auto">
                 <Card className="w-full p-8 bg-white/90 backdrop-blur-md shadow-xl border border-gray-200 rounded-2xl">
                     <CardHeader className="space-y-2 text-center">
@@ -115,38 +136,8 @@ function RegisterPageContent() {
                     </CardHeader>
                     <CardContent className="w-full">
                         <Form {...form}>
-                            <form
-                                onSubmit={form.handleSubmit(onSubmit)}
-                                className="space-y-6"
-                            >
-                                {form.formState.errors.root && form.formState.errors.root.message && (
-                                    <div
-                                        className="w-full my-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-center text-sm font-medium shadow-sm flex flex-col items-center justify-center gap-2">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            className="h-5 w-5 text-red-500"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke="currentColor"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="M12 8v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"
-                                            />
-                                        </svg>
-                                        {typeof form.formState.errors.root.message === 'string' && form.formState.errors.root.message.includes('\n') ? (
-                                            <ul className="list-disc list-inside text-left">
-                                                {form.formState.errors.root.message.split('\n').map((msg, idx) => (
-                                                    <li key={idx}>{msg}</li>
-                                                ))}
-                                            </ul>
-                                        ) : (
-                                            <span>{form.formState.errors.root.message}</span>
-                                        )}
-                                    </div>
-                                )}
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                                <RootError />
                                 <CustomInputField
                                     control={form.control}
                                     name="identifier"
