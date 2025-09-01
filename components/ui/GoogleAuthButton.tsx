@@ -10,7 +10,7 @@ interface GoogleAuthButtonProps extends React.ComponentProps<typeof Button> {
 
 export const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
   className = "",
-  redirectUrl = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/auth/google/redirect`,
+  redirectUrl = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"}/auth/google/redirect`,
   children = "Continue with Google",
   disabled,
   onAuthStart,
