@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// Use a Set for O(1) public path lookup
+// Environment-aware configuration
+const isDevelopment = process.env.NODE_ENV === "development";
+
+// Use a Set for O(1) public path lookup - more efficient than array operations
 const publicPathSet = new Set([
   "/",
   "/login",
@@ -9,47 +12,94 @@ const publicPathSet = new Set([
   "/reset-password",
   "/auth/google/callback",
 ]);
+
 const authPages = new Set(["/login", "/register", "/reset-password"]);
+
+// Cache the dashboard URL to avoid creating new URL objects repeatedly
+const DASHBOARD_URL = "/user/dashboard";
+const LOGIN_URL = "/login";
 
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("token")?.value;
 
-  // Remove trailing slash except for root
+  // Remove trailing slash except for root - normalize path once
   const normalizedPath =
     pathname !== "/" && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
 
-  // Check if the path is public (exact or subpath)
+  // Check if the path is public (exact match or subpath)
   const isPublicPath =
     publicPathSet.has(normalizedPath) ||
-    Array.from(publicPathSet).some((path) => path !== "/" && normalizedPath.startsWith(`${path}/`));
+    // Check for subpaths efficiently
+    (normalizedPath.startsWith("/auth/") && normalizedPath.includes("/callback")) ||
+    normalizedPath.startsWith("/api/") || // API routes should be public by default
+    normalizedPath.startsWith("/_next/") || // Next.js internals
+    normalizedPath.includes("."); // Static files (favicon.ico, etc.)
+
+  // Early return for static files and API routes
+  if (
+    normalizedPath.startsWith("/api/") ||
+    normalizedPath.startsWith("/_next/") ||
+    normalizedPath.includes(".")
+  ) {
+    return NextResponse.next();
+  }
 
   // Check if the path is an auth page
   const isAuthPage = authPages.has(normalizedPath);
 
   // If authenticated and on an auth page, redirect to dashboard
   if (token && isAuthPage) {
-    return NextResponse.redirect(new URL("/user/dashboard", request.url));
+    const redirectUrl = new URL(DASHBOARD_URL, request.url);
+
+    // Add development logging
+    if (isDevelopment) {
+      console.log(`[Middleware] Authenticated user on auth page, redirecting to dashboard`);
+    }
+
+    return NextResponse.redirect(redirectUrl);
   }
 
   // If not authenticated and not on a public path, redirect to login
   if (!token && !isPublicPath) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    const loginUrl = new URL(LOGIN_URL, request.url);
+
+    // Preserve the intended destination for post-login redirect
+    if (normalizedPath !== "/" && !normalizedPath.startsWith("/login")) {
+      loginUrl.searchParams.set("redirect", normalizedPath);
+    }
+
+    // Add development logging
+    if (isDevelopment) {
+      console.log(`[Middleware] Unauthenticated user accessing protected route: ${normalizedPath}`);
+    }
+
+    return NextResponse.redirect(loginUrl);
   }
 
-  // Allow request to proceed
-  return NextResponse.next();
+  // Add security headers for enhanced protection
+  const response = NextResponse.next();
+
+  // Only add security headers in production
+  if (!isDevelopment) {
+    response.headers.set("X-Frame-Options", "DENY");
+    response.headers.set("X-Content-Type-Options", "nosniff");
+    response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  }
+
+  return response;
 }
 
-// Configure which routes use this middleware
+// Optimized matcher - exclude more static files and API routes
 export const config = {
   matcher: [
     /*
      * Match all request paths except for:
-     * - api routes (/api/*)
-     * - _next (Next.js internals)
-     * - Static files like favicon.ico, etc.
+     * - API routes (/api/*)
+     * - Next.js internals (_next/*)
+     * - Static files (favicon.ico, etc.)
+     * - Images and assets
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)",
   ],
 };

@@ -1,12 +1,33 @@
 "use server";
 import { cookieStore } from "../shared";
 
-export async function googleCallbackAction(token: string | null) {
-  console.log("[GoogleCallbackAction] Called with token:", token);
+export interface GoogleCallbackResult {
+  success: boolean;
+  redirect: string;
+  error?: string;
+}
 
+export async function googleCallbackAction(token: string | null): Promise<GoogleCallbackResult> {
+  console.log("[GoogleCallbackAction] Called with token:", !!token);
+
+  // Input validation
   if (!token) {
     console.error("[GoogleCallbackAction] No token provided");
-    return { success: false, redirect: "/login?error=google_auth_failed" };
+    return {
+      success: false,
+      redirect: "/login?error=google_auth_failed",
+      error: "Invalid authentication token",
+    };
+  }
+
+  // Basic token format validation (adjust based on your Laravel backend token format)
+  if (token.length < 10 || token.length > 2048) {
+    console.error("[GoogleCallbackAction] Token length invalid");
+    return {
+      success: false,
+      redirect: "/login?error=invalid_token",
+      error: "Token format invalid",
+    };
   }
 
   try {
@@ -19,9 +40,16 @@ export async function googleCallbackAction(token: string | null) {
     });
 
     console.log("[GoogleCallbackAction] Token cookie set successfully");
-    return { success: true, redirect: "/user/dashboard" };
+    return {
+      success: true,
+      redirect: "/user/dashboard",
+    };
   } catch (e) {
     console.error("[GoogleCallbackAction] Failed to set cookie:", e);
-    return { success: false, redirect: "/login?error=invalid_token" };
+    return {
+      success: false,
+      redirect: "/login?error=cookie_failed",
+      error: e instanceof Error ? e.message : "Failed to store authentication",
+    };
   }
 }
