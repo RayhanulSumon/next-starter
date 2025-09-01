@@ -10,6 +10,7 @@ import { CustomInputField } from "@/components/ui/CustomInputField";
 import Link from "next/link";
 import { loginSchema, LoginFormValues } from "./login-schema";
 import { useEffect } from "react";
+import GoogleAuthButton from "@/components/ui/GoogleAuthButton";
 
 interface LoginFormProps {
   onTwoFARequired: (identifier: string, password: string) => void;
@@ -61,6 +62,14 @@ export function LoginForm({ onTwoFARequired }: LoginFormProps) {
 
   return (
     <Form {...form}>
+      <div className="mb-4">
+        <GoogleAuthButton />
+      </div>
+      <div className="relative mb-4 flex items-center">
+        <div className="flex-grow border-t border-gray-200 dark:border-gray-700" />
+        <span className="mx-3 text-xs text-gray-400">or</span>
+        <div className="flex-grow border-t border-gray-200 dark:border-gray-700" />
+      </div>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {form.formState.errors.root?.message && (
           <div className="mb-2 text-center text-red-600">{form.formState.errors.root.message}</div>
