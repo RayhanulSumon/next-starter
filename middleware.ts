@@ -2,7 +2,13 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 // Use a Set for O(1) public path lookup
-const publicPathSet = new Set(["/", "/login", "/register", "/reset-password"]);
+const publicPathSet = new Set([
+  "/",
+  "/login",
+  "/register",
+  "/reset-password",
+  "/auth/google/callback",
+]);
 const authPages = new Set(["/login", "/register", "/reset-password"]);
 
 export default function middleware(request: NextRequest) {
