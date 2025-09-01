@@ -3,11 +3,11 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 
 const Page = () => {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+    <div className="relative box-border flex h-[100dvh] w-full max-w-full flex-col items-center justify-center overflow-hidden overflow-x-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <div className="absolute top-4 right-4 z-10">
         <ModeToggle />
       </div>
-      <Card className="mx-auto max-w-xl bg-white/80 p-8 backdrop-blur-md dark:bg-gray-900/90">
+      <Card className="mx-auto max-h-[calc(100dvh-5rem)] max-w-xl overflow-auto bg-white/80 p-8 backdrop-blur-md dark:bg-gray-900/90">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-foreground mb-4 text-4xl font-extrabold md:text-5xl">
             Welcome to Next Starter
@@ -26,7 +26,7 @@ const Page = () => {
           </a>
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 };
 

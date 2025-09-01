@@ -156,7 +156,7 @@ export default function RegisterPage() {
   const { form, handleSubmit } = useRegisterForm(() => router.replace("/user/dashboard"));
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+    <div className="flex h-[100dvh] items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <div className="mx-auto w-full max-w-md">
         <Card className="w-full rounded-2xl border border-gray-200 bg-white/90 p-8 shadow-xl backdrop-blur-md dark:border-gray-700 dark:bg-gray-900/90">
           <CardHeader className="space-y-2 text-center">
@@ -169,7 +169,7 @@ export default function RegisterPage() {
           </CardHeader>
           <CardContent className="w-full">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                 <RootError message={form.formState.errors.root?.message} />
                 {FIELD_CONFIG.map(({ name, label, type, placeholder, autoComplete }) => (
                   <CustomInputField
@@ -198,6 +198,6 @@ export default function RegisterPage() {
           </CardFooter>
         </Card>
       </div>
-    </main>
+    </div>
   );
 }

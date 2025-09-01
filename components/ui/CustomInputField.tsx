@@ -33,7 +33,7 @@ export const CustomInputField = <T extends FieldValues>({
       render={({ field, fieldState }) => (
         <FormItem>
           {label && (
-            <div className="mb-1 flex items-center justify-between">
+            <div className="mb-2 flex items-center justify-between">
               <span className="text-sm font-medium text-[color:var(--foreground)]">{label}</span>
             </div>
           )}

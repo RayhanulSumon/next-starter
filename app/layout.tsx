@@ -29,7 +29,7 @@ export default async function RootLayout({
       {/* ...existing code... */}
       <body
         suppressHydrationWarning
-        className={`bg-background min-h-screen antialiased ${geistSans.variable} ${geistMono.variable}`}
+        className={`bg-background antialiased ${geistSans.variable} ${geistMono.variable}`}
       >
         <ThemeProvider
           attribute="class"
@@ -37,7 +37,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <main className="flex min-h-screen flex-col">{children}</main>
+          <main className="flex flex-col">{children}</main>
         </ThemeProvider>
       </body>
     </html>

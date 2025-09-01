@@ -76,20 +76,23 @@ export function LoginForm({ onTwoFARequired }: LoginFormProps) {
           loading={loginLoading}
         />
         <div>
-          <div className="mb-1 flex items-center justify-between">
-            <span className="text-sm font-medium">Password</span>
-            <Link href="/reset-password" className="primary-link text-sm hover:underline">
-              Forgot password?
-            </Link>
-          </div>
           <CustomInputField
             control={form.control}
             name="password"
+            label="Password"
             type="password"
             placeholder="Enter your password"
             autoComplete="current-password"
             disabled={loginLoading}
           />
+          <div className="mt-2 text-right">
+            <Link
+              href="/reset-password"
+              className="primary-link text-muted-foreground focus-visible:ring-ring text-xs hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+            >
+              Forgot password?
+            </Link>
+          </div>
         </div>
         <Button type="submit" className="w-full" disabled={loginLoading}>
           {loginLoading ? "Logging in..." : "Login"}

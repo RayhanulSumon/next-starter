@@ -89,7 +89,7 @@ export default function ResetPasswordPage() {
   });
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+    <div className="flex h-[100dvh] items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <div className="mx-auto w-full max-w-md">
         <Card className="w-full rounded-2xl border border-gray-200 bg-white/90 p-8 shadow-xl backdrop-blur-md dark:border-gray-700 dark:bg-gray-900/90">
           <CardHeader className="space-y-2 text-center">
@@ -193,7 +193,7 @@ export default function ResetPasswordPage() {
                     <div className="mt-4 text-center">
                       <p className="text-sm text-[color:var(--muted-foreground)]">
                         Remember your password?{" "}
-                        <Link href="/login" className="text-primary hover:underline">
+                        <Link href="/login" className="primary-link hover:underline">
                           Login here
                         </Link>
                       </p>
@@ -209,7 +209,7 @@ export default function ResetPasswordPage() {
                   Your password has been reset. You&apos;ll be redirected to the loginAction page
                   shortly.
                 </p>
-                <Link href="/login" className="mt-4 inline-block text-blue-600 hover:underline">
+                <Link href="/login" className="primary-link mt-4 inline-block hover:underline">
                   Login now
                 </Link>
               </div>
@@ -305,6 +305,6 @@ export default function ResetPasswordPage() {
           </CardContent>
         </Card>
       </div>
-    </main>
+    </div>
   );
 }
