@@ -11,7 +11,7 @@ const publicPathSet = new Set([
   "/register",
   "/reset-password",
   "/auth/google/callback",
-  "/demo-hooks",
+  "/demo-search",
 ]);
 
 const authPages = new Set(["/login", "/register", "/reset-password"]);

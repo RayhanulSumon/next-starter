@@ -23,7 +23,7 @@ export default function DemoHooksPage() {
 
   return (
     <div className="bg-background flex min-h-screen items-center justify-center px-2">
-      <div className="bg-card w-full max-w-xl rounded-xl p-6 shadow-lg dark:bg-zinc-900">
+      <div className="bg-card w-full max-w-xl rounded-xl p-6 shadow-lg">
         <h1 className="mb-6 text-center text-2xl font-bold">Search Demo (SWR)</h1>
         <form
           onSubmit={(e) => {
