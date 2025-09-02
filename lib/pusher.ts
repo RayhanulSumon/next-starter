@@ -19,6 +19,14 @@ if (typeof window !== "undefined") {
  * Reads config from environment variables.
  */
 export function createEcho() {
+  // Get the token from localStorage
+  const getAuthHeaders = (): Record<string, string> => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
+      return token ? { Authorization: `Bearer ${token}` } : {};
+    }
+    return {};
+  };
   const useReverb = process.env.NEXT_PUBLIC_PUSHER_DRIVER === "reverb";
   if (useReverb) {
     // Laravel Reverb (Socket.io)
@@ -31,6 +39,9 @@ export function createEcho() {
       forceTLS: process.env.NEXT_PUBLIC_PUSHER_SCHEME === "https",
       enabledTransports: ["ws", "wss"],
       authEndpoint: process.env.NEXT_PUBLIC_PUSHER_AUTH_ENDPOINT,
+      auth: {
+        headers: getAuthHeaders(),
+      },
     });
   } else {
     // Pusher
@@ -45,6 +56,9 @@ export function createEcho() {
       wssPort: Number(process.env.NEXT_PUBLIC_PUSHER_PORT) || 443,
       enabledTransports: ["ws", "wss"],
       authEndpoint: process.env.NEXT_PUBLIC_PUSHER_AUTH_ENDPOINT,
+      auth: {
+        headers: getAuthHeaders(),
+      },
     });
   }
 }

@@ -63,7 +63,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   login: async (identifier, password) => {
     set({ loginLoading: true, error: null });
     try {
-      return await loginHandler(identifier, password, get().setUser);
+      const result = await loginHandler(identifier, password, get().setUser);
+      // Set token in localStorage on the client after successful login
+      if (typeof window !== "undefined" && result && "token" in result && result.token) {
+        localStorage.setItem("token", result.token);
+      }
+      return result;
     } finally {
       set({ loginLoading: false });
     }
@@ -72,6 +77,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       await logoutUserAction();
       get().resetAuthState();
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("token");
+      }
       // Removed window.location.href redirect to avoid double navigation and delay
     } catch (error) {
       set({ error: error instanceof Error ? error.message : "Logout failed" });
