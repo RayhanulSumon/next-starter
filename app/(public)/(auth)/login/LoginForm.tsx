@@ -11,6 +11,8 @@ import Link from "next/link";
 import { loginSchema, LoginFormValues } from "./login-schema";
 import { useEffect } from "react";
 import GoogleAuthButton from "@/components/ui/GoogleAuthButton";
+import { loginAction } from "@/app/actions/auth/loginAction";
+import { extractValidationErrors } from "@/lib/apiErrorHelpers";
 
 interface LoginFormProps {
   onTwoFARequired: (identifier: string, password: string) => void;
@@ -32,22 +34,43 @@ export function LoginForm({ onTwoFARequired }: LoginFormProps) {
 
   async function onSubmit(data: LoginFormValues) {
     try {
-      const response = await login(data.identifier, data.password);
+      const response = await loginAction(data.identifier, data.password);
       if (
         response &&
         typeof response === "object" &&
-        "2fa_required" in response &&
-        response["2fa_required"]
+        "data" in response &&
+        response.data &&
+        typeof response.data === "object" &&
+        "2fa_required" in response.data &&
+        response.data["2fa_required"]
       ) {
         onTwoFARequired(data.identifier, data.password);
         return;
       }
-      if (response && typeof response === "object" && "user" in response && response.user) {
+      if (
+        response &&
+        typeof response === "object" &&
+        "data" in response &&
+        response.data &&
+        typeof response.data === "object" &&
+        "user" in response.data &&
+        response.data.user
+      ) {
         // Successful login, redirect handled by useEffect
         return;
       }
+      // Handle API errors
+      if (response && response.errors) {
+        const errors = Array.isArray(response.errors)
+          ? response.errors
+          : Object.values(response.errors).flat();
+        form.setError("root", { message: errors.join(" ") });
+      }
     } catch (error: unknown) {
-      if (
+      const errors = extractValidationErrors(error);
+      if (errors.length > 0) {
+        form.setError("root", { message: errors.join(" ") });
+      } else if (
         error &&
         typeof error === "object" &&
         "message" in error &&
