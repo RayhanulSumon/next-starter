@@ -19,7 +19,7 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ onTwoFARequired }: LoginFormProps) {
-  const { login, user, loginLoading } = useAuth();
+  const { user, loginLoading } = useAuth();
   const router = useRouter();
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -32,47 +32,42 @@ export function LoginForm({ onTwoFARequired }: LoginFormProps) {
     }
   }, [user, loginLoading, router]);
 
+  // Helper to set root error from any response or error
+  function setRootErrorFromAny(err: unknown) {
+    const errors = extractValidationErrors(err);
+    if (errors.length > 0) {
+      form.setError("root", { message: errors[0] });
+    } else {
+      form.setError("root", { message: "Login failed. Please try again." });
+    }
+  }
+
+  // Utility to check for nested property
+  function hasNestedProp<T = any>(obj: unknown, ...props: string[]): obj is T {
+    let current = obj;
+    for (const prop of props) {
+      if (!current || typeof current !== "object" || !(prop in current)) {
+        return false;
+      }
+      current = (current as any)[prop];
+    }
+    return true;
+  }
+
   async function onSubmit(data: LoginFormValues) {
     try {
       const response = await loginAction(data.identifier, data.password);
-      if (
-        response &&
-        typeof response === "object" &&
-        "data" in response &&
-        response.data &&
-        typeof response.data === "object" &&
-        "2fa_required" in response.data &&
-        response.data["2fa_required"]
-      ) {
+      if (hasNestedProp(response, "data", "2fa_required") && response.data["2fa_required"]) {
         onTwoFARequired(data.identifier, data.password);
         return;
       }
-      if (
-        response &&
-        typeof response === "object" &&
-        "data" in response &&
-        response.data &&
-        typeof response.data === "object" &&
-        "user" in response.data &&
-        response.data.user
-      ) {
+      if (hasNestedProp(response, "data", "user") && response.data.user) {
         // Successful login, redirect handled by useEffect
         return;
       }
-      // Always use extractValidationErrors for errors/messages
-      const errors = extractValidationErrors(response);
-      if (errors.length > 0) {
-        form.setError("root", { message: errors[0] });
-      } else {
-        form.setError("root", { message: "Login failed. Please try again." });
-      }
+      setRootErrorFromAny(response);
     } catch (error: unknown) {
-      const errors = extractValidationErrors(error);
-      if (errors.length > 0) {
-        form.setError("root", { message: errors[0] });
-      } else {
-        form.setError("root", { message: "Login failed. Please try again." });
-      }
+      setRootErrorFromAny(error);
     }
   }
 
@@ -119,8 +114,8 @@ export function LoginForm({ onTwoFARequired }: LoginFormProps) {
             </Link>
           </div>
         </div>
-        <Button type="submit" className="w-full" disabled={loginLoading}>
-          {loginLoading ? "Logging in..." : "Login"}
+        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting ? "Logging in..." : "Login"}
         </Button>
       </form>
     </Form>
