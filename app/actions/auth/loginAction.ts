@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { apiFetch, ApiClientResponse } from "@/lib/apiClient";
 import type { LoginActionResult, LoginResponse, User } from "@/types/auth-types";
 import { cookieStore } from "../shared";
+import { extractValidationErrors } from "@/lib/apiErrorHelpers";
 
 type TwoFARequiredResponse = { "2fa_required": true; user: User };
 
@@ -54,8 +55,21 @@ export async function loginAction(
         data: { user: responseData.user, token: responseData.token },
       };
     }
-    throw new Error("Unexpected login response");
+    // Instead of throwing, return a serializable error object
+    return {
+      message: "Unexpected login response.",
+      data: null,
+      errors: ["Unexpected login response."],
+      status: 500,
+    };
   } catch (error) {
-    throw error;
+    // Use extractValidationErrors to get error messages
+    const errors = extractValidationErrors(error);
+    return {
+      message: errors.length > 0 ? errors.join(" ") : "Login failed. Please try again.",
+      data: null,
+      errors,
+      status: 400,
+    };
   }
 }

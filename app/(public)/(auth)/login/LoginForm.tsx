@@ -59,24 +59,17 @@ export function LoginForm({ onTwoFARequired }: LoginFormProps) {
         // Successful login, redirect handled by useEffect
         return;
       }
-      // Handle API errors
-      if (response && response.errors) {
-        const errors = Array.isArray(response.errors)
-          ? response.errors
-          : Object.values(response.errors).flat();
-        form.setError("root", { message: errors.join(" ") });
+      // Always use extractValidationErrors for errors/messages
+      const errors = extractValidationErrors(response);
+      if (errors.length > 0) {
+        form.setError("root", { message: errors[0] });
+      } else {
+        form.setError("root", { message: "Login failed. Please try again." });
       }
     } catch (error: unknown) {
       const errors = extractValidationErrors(error);
       if (errors.length > 0) {
-        form.setError("root", { message: errors.join(" ") });
-      } else if (
-        error &&
-        typeof error === "object" &&
-        "message" in error &&
-        typeof error.message === "string"
-      ) {
-        form.setError("root", { message: error.message });
+        form.setError("root", { message: errors[0] });
       } else {
         form.setError("root", { message: "Login failed. Please try again." });
       }
