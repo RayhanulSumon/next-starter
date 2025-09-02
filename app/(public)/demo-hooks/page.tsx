@@ -1,23 +1,15 @@
 "use client";
 import React, { useState } from "react";
 import { useDebounced } from "@/hooks/use-debounced";
-import { useOptimizedFetch } from "@/hooks/use-optimized-fetch";
+import { SWR } from "@/hooks/swrConfig";
+import { Search } from "lucide-react";
 
 export default function DemoHooksPage() {
   const [query, setQuery] = useState("");
-  // Debounce the query input by 500ms
   const debouncedQuery = useDebounced(query, 500);
+  const apiUrl = debouncedQuery ? `/public/search?q=${encodeURIComponent(debouncedQuery)}` : null;
+  const { data, error, isLoading, mutate } = SWR<unknown[]>(apiUrl);
 
-  // Example API endpoint (replace with your Laravel API endpoint as needed)
-  const apiUrl = debouncedQuery
-    ? `/api/public/search?q=${encodeURIComponent(debouncedQuery)}`
-    : null;
-
-  const { data, error, isLoading, mutate } = useOptimizedFetch<unknown[]>(apiUrl, {
-    revalidateInterval: 10000, // revalidate every 10s
-  });
-
-  // Helper to safely stringify error
   function renderError(err: unknown): string {
     if (!err) return "";
     if (typeof err === "string") return err;
@@ -30,34 +22,63 @@ export default function DemoHooksPage() {
   }
 
   return (
-    <div style={{ maxWidth: 600, margin: "2rem auto", padding: 24 }}>
-      <h1>Demo: useDebounced & useOptimizedFetch</h1>
-      <label htmlFor="search">Search:</label>
-      <input
-        id="search"
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Type to search..."
-        style={{ width: "100%", padding: 8, margin: "12px 0" }}
-      />
-      <p>
-        <strong>Debounced value:</strong> {debouncedQuery}
-      </p>
-      <button onClick={mutate} disabled={isLoading} style={{ marginBottom: 16 }}>
-        {isLoading ? "Refreshing..." : "Manual Refresh"}
-      </button>
-      <div>
-        {isLoading && <p>Loading...</p>}
-        {typeof error !== "undefined" && error !== null && (
-          <p style={{ color: "red" }}>Error: {renderError(error)}</p>
+    <div className="bg-background flex min-h-screen items-center justify-center px-2">
+      <div className="bg-card w-full max-w-xl rounded-xl p-6 shadow-lg dark:bg-zinc-900">
+        <h1 className="mb-6 text-center text-2xl font-bold">Search Demo (SWR)</h1>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            mutate();
+          }}
+          className="mb-6 flex items-center gap-2"
+        >
+          <div className="relative flex-1">
+            <span className="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2">
+              <Search size={18} />
+            </span>
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Type to search..."
+              className="border-input bg-background text-foreground focus:ring-primary w-full rounded-lg border py-2 pr-10 pl-10 transition focus:ring-2 focus:outline-none"
+              aria-label="Search"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                className="text-muted-foreground hover:text-destructive absolute top-1/2 right-3 -translate-y-1/2"
+                aria-label="Clear search"
+              >
+                ×
+              </button>
+            )}
+          </div>
+          <button
+            type="submit"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg px-4 py-2 font-semibold transition"
+            disabled={isLoading}
+          >
+            {isLoading ? "Searching..." : "Search"}
+          </button>
+        </form>
+        {error && (
+          <div className="bg-destructive/10 text-destructive mb-4 rounded p-3 text-sm">
+            Error: {renderError(error)}
+          </div>
         )}
+        {isLoading && <div className="text-muted-foreground mb-4 text-center">Loading...</div>}
         {data && (
-          <ul>
+          <ul className="divide-border bg-muted divide-y overflow-hidden rounded-lg">
             {data.length === 0 ? (
-              <li>No results found.</li>
+              <li className="text-muted-foreground p-4 text-center">No results found.</li>
             ) : (
-              data.map((item, idx) => <li key={idx}>{JSON.stringify(item)}</li>)
+              data.map((item, idx) => (
+                <li key={idx} className="hover:bg-accent text-foreground p-4 transition">
+                  {typeof item === "string" ? item : JSON.stringify(item, null, 2)}
+                </li>
+              ))
             )}
           </ul>
         )}
