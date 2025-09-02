@@ -11,7 +11,6 @@ import Link from "next/link";
 import { loginSchema, LoginFormValues } from "./login-schema";
 import { useEffect } from "react";
 import GoogleAuthButton from "@/components/ui/GoogleAuthButton";
-import { loginAction } from "@/app/actions/auth/loginAction";
 import { extractValidationErrors } from "@/lib/apiErrorHelpers";
 
 interface LoginFormProps {
@@ -19,7 +18,7 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ onTwoFARequired }: LoginFormProps) {
-  const { user, loginLoading } = useAuth();
+  const { user, login, loginLoading } = useAuth();
   const router = useRouter();
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -42,26 +41,19 @@ export function LoginForm({ onTwoFARequired }: LoginFormProps) {
     }
   }
 
-  // Utility to check for nested property
-  function hasNestedProp<T = any>(obj: unknown, ...props: string[]): obj is T {
-    let current = obj;
-    for (const prop of props) {
-      if (!current || typeof current !== "object" || !(prop in current)) {
-        return false;
-      }
-      current = (current as any)[prop];
-    }
-    return true;
-  }
-
   async function onSubmit(data: LoginFormValues) {
     try {
-      const response = await loginAction(data.identifier, data.password);
-      if (hasNestedProp(response, "data", "2fa_required") && response.data["2fa_required"]) {
+      const response = await login(data.identifier, data.password);
+      if (
+        response &&
+        typeof response === "object" &&
+        "2fa_required" in response &&
+        response["2fa_required"]
+      ) {
         onTwoFARequired(data.identifier, data.password);
         return;
       }
-      if (hasNestedProp(response, "data", "user") && response.data.user) {
+      if (response && typeof response === "object" && "user" in response && response.user) {
         // Successful login, redirect handled by useEffect
         return;
       }
@@ -114,8 +106,8 @@ export function LoginForm({ onTwoFARequired }: LoginFormProps) {
             </Link>
           </div>
         </div>
-        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? "Logging in..." : "Login"}
+        <Button type="submit" className="w-full" disabled={loginLoading}>
+          {loginLoading ? "Logging in..." : "Login"}
         </Button>
       </form>
     </Form>
