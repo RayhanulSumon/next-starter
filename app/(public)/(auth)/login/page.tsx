@@ -14,9 +14,42 @@ import {
 import { useState, useEffect } from "react";
 import { LoginForm } from "./LoginForm";
 import { TwoFactorForm } from "./TwoFactorForm";
+import React from "react";
+
+class ErrorBoundary extends React.Component<
+  {
+    children: React.ReactNode;
+  },
+  { hasError: boolean; error: unknown }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: unknown) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error: unknown, errorInfo: React.ErrorInfo) {
+    // You can log error info here
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      let message = "Unknown error";
+      if (this.state.error instanceof Error) message = this.state.error.message;
+      else if (typeof this.state.error === "string") message = this.state.error;
+      return <div style={{ color: "red" }}>Error: {message}</div>;
+    }
+    return this.props.children;
+  }
+}
 
 export default function LoginPage() {
-  return <LoginPageContent />;
+  return (
+    <ErrorBoundary>
+      <LoginPageContent />
+    </ErrorBoundary>
+  );
 }
 
 function LoginPageContent() {
