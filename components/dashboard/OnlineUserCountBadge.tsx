@@ -47,16 +47,19 @@ export function OnlineUserCountBadge() {
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded border border-green-200 bg-green-100 px-2 py-1 text-xs font-medium text-green-700 transition-transform duration-300 dark:border-green-800 dark:bg-green-900 dark:text-green-200 ${animate ? "animate-online-pop" : ""}`}
+      className={`inline-flex items-center gap-1 rounded-full bg-green-600 px-2 py-0.5 text-xs font-semibold text-white shadow-sm transition-transform duration-300 dark:bg-green-500 dark:text-gray-900 ${animate ? "animate-online-pop" : ""}`}
       title="Online users"
+      style={{ justifyContent: "center" }}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="mr-1 h-3 w-3 text-green-500 dark:text-green-300"
+        className="mr-1 h-3 w-3 text-white dark:text-gray-900"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
         strokeWidth="2"
+        aria-hidden="true"
+        focusable="false"
       >
         <path
           strokeLinecap="round"
