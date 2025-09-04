@@ -16,16 +16,13 @@ if (typeof window !== "undefined") {
 
 // Custom authorizer for Pusher to send JSON and Bearer token
 function pusherCustomAuthorizer(token: string) {
-  return (channel: any, options: any) => {
+  return (channel: { name: string }, options: { authEndpoint: string }) => {
     return {
-      authorize: (socketId: string, callback: Function) => {
+      authorize: (socketId: string, callback: (error: boolean, data: unknown) => void) => {
         const body = {
           socket_id: socketId,
           channel_name: channel.name,
         };
-        console.log("[Pusher Authorizer] Token:", token);
-        console.log("[Pusher Authorizer] Request Body:", body);
-        console.log("[Pusher Authorizer] Auth Endpoint:", options.authEndpoint);
         fetch(options.authEndpoint, {
           method: "POST",
           headers: {
@@ -43,8 +40,6 @@ function pusherCustomAuthorizer(token: string) {
             } catch {
               data = text;
             }
-            console.log("[Pusher Authorizer] Response Status:", response.status);
-            console.log("[Pusher Authorizer] Response Data:", data);
             if (response.ok) {
               callback(false, data);
             } else {
@@ -52,7 +47,6 @@ function pusherCustomAuthorizer(token: string) {
             }
           })
           .catch((err) => {
-            console.error("[Pusher Authorizer] Fetch Error:", err);
             callback(true, err);
           });
       },
