@@ -97,6 +97,11 @@ export default function GoogleCallbackClient({ token, error }: GoogleCallbackCli
       if (result.success) {
         setStatus("success");
 
+        // Set token in localStorage on the client after successful Google authentication
+        if (typeof window !== "undefined" && token) {
+          localStorage.setItem("token", token);
+        }
+
         try {
           // Fetch user data after successful authentication
           await fetchCurrentUser();
