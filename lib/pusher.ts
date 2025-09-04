@@ -29,7 +29,6 @@ function pusherCustomAuthorizer(token: string) {
           socket_id: socketId,
           channel_name: channel.name,
         };
-        console.log("[Pusher] Authorizing channel:", channel.name, "with socketId:", socketId);
         fetch(options.authEndpoint, {
           method: "POST",
           headers: {
@@ -51,15 +50,12 @@ function pusherCustomAuthorizer(token: string) {
               data = null;
             }
             if (response.ok && data) {
-              console.log("[Pusher] Auth success:", data);
               callback(null, data);
             } else {
-              console.error("[Pusher] Auth failed:", response.status, text);
               callback(new Error(`Authentication failed: ${response.status}`), null);
             }
           })
           .catch((err) => {
-            console.error("[Pusher] Auth error:", err);
             callback(err instanceof Error ? err : new Error(String(err)), null);
           });
       },
@@ -81,7 +77,6 @@ export function createEcho() {
     return {};
   };
   const useReverb = process.env.NEXT_PUBLIC_PUSHER_DRIVER === "reverb";
-  console.log("[Echo] Driver:", useReverb ? "reverb" : "pusher");
   if (useReverb) {
     const echoConfig: {
       broadcaster: "socket.io";
@@ -104,7 +99,6 @@ export function createEcho() {
         headers: getAuthHeaders(),
       },
     };
-    console.log("[Echo] Reverb config:", echoConfig);
     return new Echo(echoConfig);
   } else {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
@@ -129,7 +123,6 @@ export function createEcho() {
       },
       authorizer: pusherCustomAuthorizer(token),
     };
-    console.log("[Echo] Pusher config:", { ...echoConfig, authorizer: "[Function]" });
     return new Echo(echoConfig);
   }
 }
