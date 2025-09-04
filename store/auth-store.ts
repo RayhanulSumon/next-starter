@@ -129,6 +129,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const user = extractUserFromApiResponse<{ user: User }>(result);
       if (user) {
         set({ user, initialLoading: false });
+        // Set token in localStorage on the client after successful registration
+        if (
+          typeof window !== "undefined" &&
+          result &&
+          "data" in result &&
+          result.data &&
+          typeof result.data === "object" &&
+          "token" in result.data &&
+          typeof result.data.token === "string"
+        ) {
+          localStorage.setItem("token", result.data.token);
+        }
         return;
       }
       set({ user: null, initialLoading: false });
