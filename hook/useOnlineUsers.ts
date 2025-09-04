@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { createEcho } from "@/lib/pusher";
 
 interface OnlineUser {
-  id: string;
-  info: Record<string, unknown>;
+  id: number;
 }
 
 export function useOnlineUsers() {
@@ -27,8 +26,8 @@ export function useOnlineUsers() {
           setOnlineCount((count) => Math.max(count - 1, 0));
           setMembers((prev) => prev.filter((m) => m.id !== user.id));
         });
-    } catch (err) {
-      // Optionally log error if needed
+    } catch {
+      // Do nothing
     }
 
     return () => {
