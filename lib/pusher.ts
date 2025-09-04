@@ -29,6 +29,7 @@ function pusherCustomAuthorizer(token: string) {
           socket_id: socketId,
           channel_name: channel.name,
         };
+        console.log("[Pusher] Authorizing channel:", channel.name, "with socketId:", socketId);
         fetch(options.authEndpoint, {
           method: "POST",
           headers: {
@@ -43,7 +44,6 @@ function pusherCustomAuthorizer(token: string) {
             let data: { auth: string; channel_data?: string } | null = null;
             try {
               const parsed = JSON.parse(text);
-              // Ensure the parsed data has the required 'auth' property
               if (parsed && typeof parsed.auth === "string") {
                 data = parsed as { auth: string; channel_data?: string };
               }
@@ -51,12 +51,15 @@ function pusherCustomAuthorizer(token: string) {
               data = null;
             }
             if (response.ok && data) {
+              console.log("[Pusher] Auth success:", data);
               callback(null, data);
             } else {
+              console.error("[Pusher] Auth failed:", response.status, text);
               callback(new Error(`Authentication failed: ${response.status}`), null);
             }
           })
           .catch((err) => {
+            console.error("[Pusher] Auth error:", err);
             callback(err instanceof Error ? err : new Error(String(err)), null);
           });
       },
@@ -78,11 +81,19 @@ export function createEcho() {
     return {};
   };
   const useReverb = process.env.NEXT_PUBLIC_PUSHER_DRIVER === "reverb";
+  console.log("[Echo] Driver:", useReverb ? "reverb" : "pusher");
   if (useReverb) {
-    // Laravel Reverb (Socket.io)
-    return new Echo({
-      broadcaster: "reverb",
-      key: process.env.NEXT_PUBLIC_PUSHER_APP_KEY,
+    const echoConfig: {
+      broadcaster: "socket.io";
+      wsHost: string | undefined;
+      wsPort: number;
+      wssPort: number;
+      forceTLS: boolean;
+      enabledTransports: string[];
+      authEndpoint: string | undefined;
+      auth: { headers: Record<string, string> };
+    } = {
+      broadcaster: "socket.io",
       wsHost: process.env.NEXT_PUBLIC_PUSHER_HOST,
       wsPort: Number(process.env.NEXT_PUBLIC_PUSHER_PORT) || 443,
       wssPort: Number(process.env.NEXT_PUBLIC_PUSHER_PORT) || 443,
@@ -92,23 +103,34 @@ export function createEcho() {
       auth: {
         headers: getAuthHeaders(),
       },
-    });
+    };
+    console.log("[Echo] Reverb config:", echoConfig);
+    return new Echo(echoConfig);
   } else {
-    // Pusher Cloud: do NOT set wsHost/wsPort/wssPort
     const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
-    return new Echo({
+    const echoConfig: {
+      broadcaster: "pusher";
+      key: string | undefined;
+      cluster: string | undefined;
+      forceTLS: boolean;
+      encrypted: boolean;
+      authEndpoint: string | undefined;
+      auth: { headers: Record<string, string> };
+      authorizer: ReturnType<typeof pusherCustomAuthorizer>;
+    } = {
       broadcaster: "pusher",
       key: process.env.NEXT_PUBLIC_PUSHER_APP_KEY,
       cluster: process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER,
       forceTLS: process.env.NEXT_PUBLIC_PUSHER_SCHEME === "https",
       encrypted: true,
-      enabledTransports: ["ws", "wss"],
       authEndpoint: process.env.NEXT_PUBLIC_PUSHER_AUTH_ENDPOINT,
       auth: {
         headers: getAuthHeaders(),
       },
       authorizer: pusherCustomAuthorizer(token),
-    });
+    };
+    console.log("[Echo] Pusher config:", { ...echoConfig, authorizer: "[Function]" });
+    return new Echo(echoConfig);
   }
 }
 
