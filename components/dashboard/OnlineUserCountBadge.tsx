@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { useOnlineUsers } from "@/hook/useOnlineUsers";
+import { Badge } from "@/components/ui/badge";
 
 const ONLINE_POP_ANIMATION_ID = "online-pop-animation-style";
 
@@ -46,14 +47,15 @@ export function OnlineUserCountBadge() {
   }, [onlineCount]);
 
   return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full bg-green-600 px-2 py-0.5 text-xs font-semibold text-white shadow-sm transition-transform duration-300 dark:bg-green-500 dark:text-gray-900 ${animate ? "animate-online-pop" : ""}`}
+    <Badge
+      variant="secondary"
+      className={`gap-1 rounded-full px-2 py-0.5 font-semibold shadow-sm transition-transform duration-300 ${animate ? "animate-online-pop" : ""}`}
       title="Online users"
       style={{ justifyContent: "center" }}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="mr-1 h-3 w-3 text-white dark:text-gray-900"
+        className="mr-1 h-3 w-3"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -68,6 +70,6 @@ export function OnlineUserCountBadge() {
         />
       </svg>
       <span>Online: {onlineCount}</span>
-    </span>
+    </Badge>
   );
 }
