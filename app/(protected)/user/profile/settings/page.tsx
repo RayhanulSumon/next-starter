@@ -28,7 +28,7 @@ const passwordSchema = z
   });
 
 export default function UserSettingsPage() {
-  const { user, fetchCurrentUser } = useAuth();
+  const { user } = useAuth();
   const form = useForm<PasswordChangeFormData>({
     resolver: zodResolver(passwordSchema),
     mode: "onChange",
@@ -39,10 +39,6 @@ export default function UserSettingsPage() {
     },
   });
   const [successMsg, setSuccessMsg] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    fetchCurrentUser();
-  }, [fetchCurrentUser]);
 
   const onSubmit = async () => {
     setSuccessMsg(null);
