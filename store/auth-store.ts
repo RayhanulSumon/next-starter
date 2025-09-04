@@ -7,15 +7,10 @@ import {
   PasswordResetResponse,
 } from "@/types/auth-types";
 import { loginHandler } from "@/lib/auth/loginHandler";
-import { registerAction } from "@/app/actions/auth/registerAction";
+import { registerHandler } from "@/lib/auth/registerHandler";
 import { logoutUserAction } from "@/app/actions/auth/logOutAction";
 import { requestPasswordReset, resetPasswordAction } from "@/app/actions/auth/resetPasswordAction";
 import { getCurrentUser } from "@/app/actions/auth/getCurrentUser";
-import {
-  extractValidationErrors,
-  isApiErrorWithFieldErrors,
-  extractUserFromApiResponse,
-} from "@/lib/apiErrorHelpers";
 
 interface AuthState {
   user: User | null;
@@ -117,44 +112,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   register: async (data) => {
     set({ registerLoading: true, error: null });
     try {
-      const result = await registerAction(data);
-      if ("error" in result && result.error) {
-        // Always throw a normalized error object
-        const allMessages = extractValidationErrors(result.error);
-        const fieldErrors = isApiErrorWithFieldErrors(result.error)
-          ? result.error.data.errors
-          : undefined;
-        throw { data: { errors: allMessages, fieldErrors } };
+      const result = await registerHandler(data, get().setUser);
+      // Set token in localStorage on the client after successful registration
+      if (typeof window !== "undefined" && result.token) {
+        localStorage.setItem("token", result.token);
       }
-      const user = extractUserFromApiResponse<{ user: User }>(result);
-      if (user) {
-        set({ user, initialLoading: false });
-        // Set token in localStorage on the client after successful registration
-        if (
-          typeof window !== "undefined" &&
-          result &&
-          "data" in result &&
-          result.data &&
-          typeof result.data === "object" &&
-          "token" in result.data &&
-          typeof result.data.token === "string"
-        ) {
-          localStorage.setItem("token", result.data.token);
-        }
-        return;
-      }
-      set({ user: null, initialLoading: false });
-      throw { data: { errors: ["Registration did not return a user."] } };
-    } catch (error: unknown) {
-      set({ error: error instanceof Error ? error.message : "Registration failed" });
-      const allMessages = extractValidationErrors(error);
-      const fieldErrors = isApiErrorWithFieldErrors(error) ? error.data.errors : undefined;
-      throw {
-        data: {
-          errors: allMessages.length > 0 ? allMessages : ["Registration failed. Please try again."],
-          fieldErrors,
-        },
-      };
     } finally {
       set({ registerLoading: false });
     }
