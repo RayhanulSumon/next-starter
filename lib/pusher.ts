@@ -18,7 +18,13 @@ if (typeof window !== "undefined") {
 function pusherCustomAuthorizer(token: string) {
   return (channel: { name: string }, options: { authEndpoint: string }) => {
     return {
-      authorize: (socketId: string, callback: (error: boolean, data: unknown) => void) => {
+      authorize: (
+        socketId: string,
+        callback: (
+          error: Error | null,
+          authData: { auth: string; channel_data?: string } | null
+        ) => void
+      ) => {
         const body = {
           socket_id: socketId,
           channel_name: channel.name,
@@ -34,20 +40,24 @@ function pusherCustomAuthorizer(token: string) {
         })
           .then(async (response) => {
             const text = await response.text();
-            let data;
+            let data: { auth: string; channel_data?: string } | null = null;
             try {
-              data = JSON.parse(text);
+              const parsed = JSON.parse(text);
+              // Ensure the parsed data has the required 'auth' property
+              if (parsed && typeof parsed.auth === "string") {
+                data = parsed as { auth: string; channel_data?: string };
+              }
             } catch {
-              data = text;
+              data = null;
             }
-            if (response.ok) {
-              callback(false, data);
+            if (response.ok && data) {
+              callback(null, data);
             } else {
-              callback(true, data);
+              callback(new Error(`Authentication failed: ${response.status}`), null);
             }
           })
           .catch((err) => {
-            callback(true, err);
+            callback(err instanceof Error ? err : new Error(String(err)), null);
           });
       },
     };
