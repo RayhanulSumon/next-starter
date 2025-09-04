@@ -9,7 +9,7 @@ export type TwoFAResponse = {
 
 export async function enable2FAAction(): Promise<TwoFAResponse> {
   try {
-    const res = await apiFetch("/2fa/enable", { method: "POST" });
+    const res = await apiFetch("/auth/2fa/enable", { method: "POST" });
     if (!res.data || typeof res.data !== "object") {
       return { error: "No data returned from server." };
     }
@@ -26,7 +26,7 @@ export async function verify2FAAction(formData: FormData): Promise<TwoFAResponse
   try {
     const code = formData.get("code") as string;
     const payload = { token: code };
-    const res = await apiFetch("/2fa/verify", { method: "POST", data: payload });
+    const res = await apiFetch("/auth/2fa/verify", { method: "POST", data: payload });
     if (!res.data || typeof res.data !== "object") {
       return { error: "No data returned from server." };
     }
