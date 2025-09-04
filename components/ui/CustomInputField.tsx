@@ -45,6 +45,7 @@ export const CustomInputField = <T extends FieldValues>({
             )}
             <Input
               {...field}
+              value={field.value ?? ""}
               {...rest}
               disabled={rest.disabled || loading}
               aria-invalid={!!fieldState.error}

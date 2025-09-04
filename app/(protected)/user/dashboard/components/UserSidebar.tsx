@@ -6,7 +6,7 @@ import {
   SidebarFooter,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { Home, Activity, User2 } from "lucide-react";
+import { Home, User2 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hook/useAuth";
 
@@ -18,11 +18,6 @@ const navItems: SidebarMenuItemType[] = [
     href: "/user/dashboard",
     icon: Home,
     isActive: true, // You can set this dynamically based on route
-  },
-  {
-    name: "Examples",
-    href: "/user/dashboard/examples",
-    icon: Activity,
   },
   {
     name: "Profile",

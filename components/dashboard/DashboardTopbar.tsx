@@ -12,12 +12,15 @@ import { useRouter } from "next/navigation";
 import { ModeToggle } from "@/components/ModeToggle";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { OnlineUserCountBadge } from "@/components/dashboard/OnlineUserCountBadge";
+import Link from "next/link";
 
 function TopbarLeft() {
   return (
     <div className="flex items-center gap-2">
       <SidebarTrigger />
-      <span className="text-foreground text-lg font-bold">User Dashboard</span>
+      <Link href="/user/dashboard" className="text-foreground text-lg font-bold hover:underline">
+        User Dashboard
+      </Link>
     </div>
   );
 }
@@ -57,11 +60,15 @@ function TopbarRight() {
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent side="bottom" align="end" className="min-w-[160px] py-2">
-          <DropdownMenuItem className="flex items-center gap-2 px-3 py-2 text-sm">
-            <span>Profile</span>
+          <DropdownMenuItem className="flex items-center gap-2 px-3 py-2 text-sm" asChild>
+            <Link href="/user/profile">
+              <span>Profile</span>
+            </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem className="flex items-center gap-2 px-3 py-2 text-sm">
-            <span>Settings</span>
+          <DropdownMenuItem className="flex items-center gap-2 px-3 py-2 text-sm" asChild>
+            <Link href="/user/profile/settings">
+              <span>Settings</span>
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
             variant="destructive"
