@@ -11,6 +11,7 @@ import { useAuth } from "@/hook/useAuth";
 import { useRouter } from "next/navigation";
 import { ModeToggle } from "@/components/ModeToggle";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useOnlineUsers } from "@/hook/useOnlineUsers";
 
 function TopbarLeft() {
   return (
@@ -24,6 +25,7 @@ function TopbarLeft() {
 function TopbarRight() {
   const { logout, user } = useAuth();
   const router = useRouter();
+  const { onlineCount } = useOnlineUsers();
   // Helper to get initials from user name
   const getInitials = (name?: string) =>
     name
@@ -36,6 +38,9 @@ function TopbarRight() {
       : "U";
   return (
     <div className="flex items-center gap-4">
+      <span className="rounded bg-green-100 px-2 py-1 text-xs text-green-700">
+        Online: {onlineCount}
+      </span>
       <ModeToggle />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
