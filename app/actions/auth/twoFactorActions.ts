@@ -49,7 +49,7 @@ export async function verify2FAAction(formData: FormData): Promise<TwoFAResponse
 
 export async function disable2FAAction(): Promise<TwoFAResponse> {
   try {
-    const res = await apiFetch("/2fa/disable", { method: "POST" });
+    const res = await apiFetch("/auth/2fa/disable", { method: "POST" });
     if (res.data && typeof res.data === "object") {
       return res.data as TwoFAResponse;
     }

@@ -9,6 +9,17 @@ import {
   TwoFAResponse,
 } from "@/app/actions/auth/twoFactorActions";
 import Image from "next/image";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 export default function TwoFactorAuth() {
   const { user } = useAuth();
@@ -18,6 +29,7 @@ export default function TwoFactorAuth() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showConfirmDisable, setShowConfirmDisable] = useState(false);
 
   // Enable 2FA form handler
   async function onEnable2FA() {
@@ -59,6 +71,7 @@ export default function TwoFactorAuth() {
     setSuccess(null);
     const data: TwoFAResponse = await disable2FAAction();
     setPending(false);
+    setShowConfirmDisable(false);
     if (data.error) {
       setError(data.error);
       return;
@@ -74,12 +87,35 @@ export default function TwoFactorAuth() {
         Protect your account with an extra layer of security.
       </p>
       {status === "enabled" && (
-        <form action={onDisable2FA}>
-          <div className="mb-4 text-green-600">2FA is enabled on your account.</div>
-          <Button type="submit" disabled={pending} variant="destructive">
-            Disable 2FA
-          </Button>
-        </form>
+        <AlertDialog open={showConfirmDisable} onOpenChange={setShowConfirmDisable}>
+          <AlertDialogTrigger asChild>
+            <Button
+              type="button"
+              disabled={pending}
+              variant="destructive"
+              onClick={() => setShowConfirmDisable(true)}
+            >
+              <div className="mb-4 text-green-600">2FA is enabled on your account.</div>
+              Disable 2FA
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Disable Two-Factor Authentication</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to disable two-factor authentication? This will make your account less secure.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={pending}>Cancel</AlertDialogCancel>
+              <AlertDialogAction asChild>
+                <Button onClick={onDisable2FA} disabled={pending} variant="destructive">
+                  Confirm
+                </Button>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
       {status === "disabled" && (
         <form action={onEnable2FA}>
